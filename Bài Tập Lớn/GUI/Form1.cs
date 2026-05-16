@@ -10,21 +10,22 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Bài_Tập_Lớn
+namespace Bài_Tập_Lớn.GUI
 {
-    public partial class LoginForm : Form
+    public partial class Form1 : Form
     {
-        public LoginForm()
+        public Form1()
         {
             InitializeComponent();
         }
-        private void btnDangNhap_Click(object sender, EventArgs e)
+
+        private void button1_Click(object sender, EventArgs e)
         {
-            string tendangnhap = txtTenDangNhap.Text;
-            string matKhau = txtMatKhau.Text;
+            string taiKhoan = textBox1.Text;
+            string matKhau = textBox2.Text;
 
             // 1. Gọi hàm test ở tầng BLL
-            bool canLogin = TaiKhoanBLL.Instance.kiemtraDangNhap(tendangnhap, matKhau);
+            bool canLogin = TaiKhoanBLL.Instance.kiemtraDangNhap(taiKhoan, matKhau);
 
             // 2. Kiểm tra kết quả trả về để hiển thị MessageBox tương ứng
             if (canLogin)
