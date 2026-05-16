@@ -1,0 +1,13 @@
+# 1. Bỏ qua thư mục chứa file thư viện tải về của NuGet (Để Git không bị nặng vô lý)
+packages/
+
+# 2. Bỏ qua các file sinh tự động khi Build dự án
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+Bin/
+Obj/
+
+# 3. Bỏ qua file cấu hình database cá nhân của từng máy
+**/db.config
