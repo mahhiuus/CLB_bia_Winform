@@ -28,14 +28,5 @@ namespace Bài_Tập_Lớn.DTO
             this.SoLuong = soLuong;
             this.DonGiaNhap = donGiaNhap;
         }
-
-        public ChiTietHoaDonNhapDTO(DataRow row)
-        {
-            this.MaCTHDN = row["ma_ct_hdn"].ToString();
-            this.MaHDN = row["ma_hdn"].ToString();
-            this.MaSP = row["ma_sp"].ToString();
-            this.SoLuong = Convert.ToInt32(row["so_luong"]);
-            this.DonGiaNhap = Convert.ToDecimal(row["don_gia_nhap"]);
-        }
     }
 }

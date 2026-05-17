@@ -31,15 +31,5 @@ namespace Bài_Tập_Lớn.DTO
             this.TongTien = tongTien;
             this.GhiChu = ghiChu;
         }
-
-        public HoaDonNhapDTO(DataRow row)
-        {
-            this.MaHDN = row["ma_hdn"].ToString();
-            this.MaNCC = row["ma_ncc"] != DBNull.Value ? row["ma_ncc"].ToString() : "";
-            this.MaNV = row["ma_nv"] != DBNull.Value ? row["ma_nv"].ToString() : "";
-            this.NgayNhap = Convert.ToDateTime(row["ngay_nhap"]);
-            this.TongTien = Convert.ToDecimal(row["tong_tien"]);
-            this.GhiChu = row["ghi_chu"] != DBNull.Value ? row["ghi_chu"].ToString() : "";
-        }
     }
 }

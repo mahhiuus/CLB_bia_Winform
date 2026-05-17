@@ -30,14 +30,5 @@ namespace Bài_Tập_Lớn.DTO
             this.DiemTichLuy = diemTichLuy;
             this.NgayDangKy = ngayDangKy;
         }
-        public KhachHangDTO(DataRow row)
-        {
-            this.MaKH = row["ma_kh"].ToString();
-            this.HoTen = row["ho_ten"].ToString();
-            this.Sdt = row["sdt"] != DBNull.Value ? row["sdt"].ToString() : "";
-            this.DiaChi = row["dia_chi"] != DBNull.Value ? row["dia_chi"].ToString() : "";
-            this.DiemTichLuy = Convert.ToInt32(row["diem_tich_luy"]);
-            this.NgayDangKy = Convert.ToDateTime(row["ngay_dang_ky"]);
-        }
     }
 }

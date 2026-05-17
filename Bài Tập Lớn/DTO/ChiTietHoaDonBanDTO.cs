@@ -28,14 +28,5 @@ namespace Bài_Tập_Lớn.DTO
             this.SoLuong = soLuong;
             this.DonGiaBan = donGiaBan;
         }
-
-        public ChiTietHoaDonBanDTO(DataRow row)
-        {
-            this.MaCTHDB = row["ma_ct_hdb"].ToString();
-            this.MaHDB = row["ma_hdb"].ToString();
-            this.MaSP = row["ma_sp"].ToString();
-            this.SoLuong = Convert.ToInt32(row["so_luong"]);
-            this.DonGiaBan = Convert.ToDecimal(row["don_gia_ban"]);
-        }
     }
 }
