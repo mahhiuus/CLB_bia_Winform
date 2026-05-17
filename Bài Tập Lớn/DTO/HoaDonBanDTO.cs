@@ -41,18 +41,5 @@ namespace Bài_Tập_Lớn.DTO
             this.TongTien = tongTien;
             this.GhiChu = ghiChu;
         }
-
-        public HoaDonBanDTO(DataRow row)
-        {
-            this.MaHDB = row["ma_hdb"].ToString();
-            this.MaPhien = row["ma_phien"] != DBNull.Value ? row["ma_phien"].ToString() : "";
-            this.MaKH = row["ma_kh"] != DBNull.Value ? row["ma_kh"].ToString() : "";
-            this.MaNV = row["ma_nv"] != DBNull.Value ? row["ma_nv"].ToString() : "";
-            this.NgayBan = Convert.ToDateTime(row["ngay_ban"]);
-            this.TienBida = Convert.ToDecimal(row["tien_bida"]);
-            this.TienSanPham = Convert.ToDecimal(row["tien_san_pham"]);
-            this.TongTien = Convert.ToDecimal(row["tong_tien"]);
-            this.GhiChu = row["ghi_chu"] != DBNull.Value ? row["ghi_chu"].ToString() : "";
-        }
     }
 }

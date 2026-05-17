@@ -30,14 +30,5 @@ namespace Bài_Tập_Lớn.DTO
             this.ChucVu = chucVu;
             this.NgaySinh = ngaySinh;
         }
-        public NhanVienDTO(DataRow row)
-        {
-            this.MaNV = row["ma_nv"].ToString();
-            this.HoTen = row["ho_ten"].ToString();
-            this.Sdt = row["sdt"] != DBNull.Value ? row["sdt"].ToString() : "";
-            this.GioiTinh = row["gioi_tinh"].ToString();
-            this.ChucVu = row["chuc_vu"] != DBNull.Value ? row["chuc_vu"].ToString() : "";
-            this.NgaySinh = row["ngay_sinh"] != DBNull.Value ? Convert.ToDateTime(row["ngay_sinh"]) : (DateTime?)null;
-        }
     }
 }

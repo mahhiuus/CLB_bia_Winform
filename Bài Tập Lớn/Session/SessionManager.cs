@@ -5,7 +5,7 @@ namespace Bài_Tập_Lớn.Session
 {
     public class SessionManager
     {
-        private static SessionManager _instance;
+        private static SessionManager instance;
 
         public TaiKhoanDTO TaiKhoanHienTai { get; private set; }
         public bool IsLoggedIn => TaiKhoanHienTai != null;
@@ -14,11 +14,11 @@ namespace Bài_Tập_Lớn.Session
         {
             get
             {
-                if (_instance == null)
+                if (instance == null)
                 {
-                    _instance = new SessionManager();
+                    instance = new SessionManager();
                 }
-                return _instance;
+                return instance;
             }
         }
 

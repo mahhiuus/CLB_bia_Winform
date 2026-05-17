@@ -26,13 +26,5 @@ namespace Bài_Tập_Lớn.DTO
             this.VaiTro = vaiTro;
             this.MaNV = maNV;
         }
-        public TaiKhoanDTO(DataRow row)
-        {
-            this.MaTK = row["ma_tk"].ToString();
-            this.TenDangNhap = row["ten_dang_nhap"].ToString();
-            this.MatKhau = row["mat_khau"].ToString();
-            this.VaiTro = row["vai_tro"].ToString();
-            this.MaNV = row["ma_nv"] != DBNull.Value ? row["ma_nv"].ToString() : "";
-        }
     }
 }

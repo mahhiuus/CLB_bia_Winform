@@ -33,15 +33,5 @@ namespace Bài_Tập_Lớn.DTO
             this.HinhAnh = hinhAnh;
             this.MaNCC = maNCC;
         }
-        public SanPhamDTO(DataRow row)
-        {
-            this.MaSP = row["ma_sp"].ToString();
-            this.TenSP = row["ten_sp"].ToString();
-            this.Loai = row["loai"].ToString();
-            this.GiaBan = Convert.ToDecimal(row["gia_ban"]);
-            this.SoLuongTon = Convert.ToInt32(row["so_luong_ton"]);
-            this.HinhAnh = row["hinh_anh"] != DBNull.Value ? row["hinh_anh"].ToString() : "";
-            this.MaNCC = row["ma_ncc"] != DBNull.Value ? row["ma_ncc"].ToString() : "";
-        }
     }
 }

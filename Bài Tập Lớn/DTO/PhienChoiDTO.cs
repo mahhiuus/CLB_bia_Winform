@@ -31,15 +31,5 @@ namespace Bài_Tập_Lớn.DTO
             this.ThoiGianKetThuc = thoiGianKetThuc;
             this.TrangThai = trangThai;
         }
-
-        public PhienChoiDTO(DataRow row)
-        {
-            this.MaPhien = row["ma_phien"].ToString();
-            this.MaBan = row["ma_ban"].ToString();
-            this.MaNV = row["ma_nv"].ToString();
-            this.ThoiGianBatDau = Convert.ToDateTime(row["thoi_gian_bat_dau"]);
-            this.ThoiGianKetThuc = row["thoi_gian_ket_thuc"] != DBNull.Value ? Convert.ToDateTime(row["thoi_gian_ket_thuc"]) : (DateTime?)null;
-            this.TrangThai = row["trang_thai"].ToString();
-        }
     }
 }

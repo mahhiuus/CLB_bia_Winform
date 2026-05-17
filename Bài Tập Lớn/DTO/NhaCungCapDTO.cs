@@ -31,15 +31,5 @@ namespace Bài_Tập_Lớn.DTO
             this.Email = email;
             this.NguoiLienHe = nguoiLienHe;
         }
-
-        public NhaCungCapDTO(DataRow row)
-        {
-            this.MaNCC = row["ma_ncc"].ToString();
-            this.TenCongTy = row["ten_cong_ty"].ToString();
-            this.Sdt = row["sdt"] != DBNull.Value ? row["sdt"].ToString() : "";
-            this.DiaChi = row["dia_chi"] != DBNull.Value ? row["dia_chi"].ToString() : "";
-            this.Email = row["email"] != DBNull.Value ? row["email"].ToString() : "";
-            this.NguoiLienHe = row["nguoi_lien_he"] != DBNull.Value ? row["nguoi_lien_he"].ToString() : "";
-        }
     }
 }
