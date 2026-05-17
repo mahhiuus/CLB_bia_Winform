@@ -7,17 +7,17 @@ namespace Bài_Tập_Lớn.BLL
 {
     public class TaiKhoanBLL
     {
-        private readonly TaiKhoanDAL _taiKhoanDAL =
+        private readonly TaiKhoanDAL taiKhoanDAL =
             new TaiKhoanDAL();
 
         public string SinhMaMoi()
         {
-            return _taiKhoanDAL.SinhMaMoi();
+            return taiKhoanDAL.SinhMaMoi();
         }
 
         public bool TaoAdminMacDinh()
         {
-            return _taiKhoanDAL.TaoAdminMacDinh();
+            return taiKhoanDAL.TaoAdminMacDinh();
         }
 
         public TaiKhoanDTO DangNhap(
@@ -39,7 +39,7 @@ namespace Bài_Tập_Lớn.BLL
                 );
             }
 
-            return _taiKhoanDAL.DangNhap(
+            return taiKhoanDAL.DangNhap(
                 tenDangNhap,
                 matKhau
             );
@@ -47,7 +47,7 @@ namespace Bài_Tập_Lớn.BLL
 
         public List<TaiKhoanDTO> LayTatCaTaiKhoan()
         {
-            return _taiKhoanDAL.LayTatCaTaiKhoan();
+            return taiKhoanDAL.LayTatCaTaiKhoan();
         }
 
         public TaiKhoanDTO LayTheoMaTK(string maTK)
@@ -59,7 +59,7 @@ namespace Bài_Tập_Lớn.BLL
                 );
             }
 
-            return _taiKhoanDAL.LayTheoMaTK(maTK);
+            return taiKhoanDAL.LayTheoMaTK(maTK);
         }
 
         public TaiKhoanDTO LayTheoTenDangNhap(
@@ -73,7 +73,7 @@ namespace Bài_Tập_Lớn.BLL
                 );
             }
 
-            return _taiKhoanDAL.LayTheoTenDangNhap(
+            return taiKhoanDAL.LayTheoTenDangNhap(
                 tenDangNhap
             );
         }
@@ -82,7 +82,7 @@ namespace Bài_Tập_Lớn.BLL
             string tenDangNhap
         )
         {
-            return _taiKhoanDAL
+            return taiKhoanDAL
                 .KiemTraTenDangNhapTonTai(
                     tenDangNhap
                 );
@@ -127,7 +127,7 @@ namespace Bài_Tập_Lớn.BLL
                 );
             }
 
-            return _taiKhoanDAL.ThemTaiKhoan(tk);
+            return taiKhoanDAL.ThemTaiKhoan(tk);
         }
         public bool CapNhatTaiKhoan(TaiKhoanDTO tk)
         {
@@ -145,7 +145,7 @@ namespace Bài_Tập_Lớn.BLL
                 );
             }
 
-            return _taiKhoanDAL.CapNhatTaiKhoan(tk);
+            return taiKhoanDAL.CapNhatTaiKhoan(tk);
         }
 
         public bool DoiMatKhau(
@@ -167,7 +167,7 @@ namespace Bài_Tập_Lớn.BLL
                 );
             }
 
-            return _taiKhoanDAL.DoiMatKhau(
+            return taiKhoanDAL.DoiMatKhau(
                 maTK,
                 matKhauMoi
             );
@@ -182,12 +182,12 @@ namespace Bài_Tập_Lớn.BLL
                 );
             }
 
-            return _taiKhoanDAL.XoaTaiKhoan(maTK);
+            return taiKhoanDAL.XoaTaiKhoan(maTK);
         }
 
         public List<TaiKhoanDTO> TimKiem(string keyword)
         {
-            return _taiKhoanDAL.TimKiem(keyword);
+            return taiKhoanDAL.TimKiem(keyword);
         }
     }
 }

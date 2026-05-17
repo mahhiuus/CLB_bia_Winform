@@ -7,11 +7,11 @@ namespace Bài_Tập_Lớn.BLL
 {
     public class NhanVienBLL
     {
-        private readonly NhanVienDAL _nhanVienDAL = new NhanVienDAL();
+        private readonly NhanVienDAL nhanVienDAL = new NhanVienDAL();
 
         public string SinhMaMoi()
         {
-            return _nhanVienDAL.SinhMaMoi();
+            return nhanVienDAL.SinhMaMoi();
         }
 
         public void ThemNhanVien(NhanVienDTO nv)
@@ -20,7 +20,7 @@ namespace Bài_Tập_Lớn.BLL
             {
                 throw new ArgumentException("Nhân viên hoặc các trường bắt buộc không được để trống!");
             }
-            _nhanVienDAL.ThemNhanVien(nv);
+            nhanVienDAL.ThemNhanVien(nv);
         }
 
         public void XoaNhanVien(string maNV)
@@ -29,7 +29,7 @@ namespace Bài_Tập_Lớn.BLL
             {
                 throw new ArgumentException("Mã nhân viên không được để trống!");
             }
-            _nhanVienDAL.XoaNhanVien(maNV);
+            nhanVienDAL.XoaNhanVien(maNV);
         }
 
         public void CapNhatNhanVien(NhanVienDTO nv)
@@ -38,12 +38,12 @@ namespace Bài_Tập_Lớn.BLL
             {
                 throw new ArgumentException("Nhân viên hoặc các trường bắt buộc không được để trống!");
             }
-            _nhanVienDAL.CapNhatNhanVien(nv);
+            nhanVienDAL.CapNhatNhanVien(nv);
         }
 
         public List<NhanVienDTO> LayTatCaNhanVien()
         {
-            return _nhanVienDAL.LayTatCaNhanVien();
+            return nhanVienDAL.LayTatCaNhanVien();
         }
 
         public NhanVienDTO TimTheoMaNhanVien(string maNV)
@@ -52,12 +52,12 @@ namespace Bài_Tập_Lớn.BLL
             {
                 throw new ArgumentException("Mã nhân viên không được để trống!");
             }
-            return _nhanVienDAL.TimTheoMaNhanVien(maNV);
+            return nhanVienDAL.TimTheoMaNhanVien(maNV);
         }
 
         public List<NhanVienDTO> TimKiem(string keyword)
         {
-            return _nhanVienDAL.TimKiem(keyword);
+            return nhanVienDAL.TimKiem(keyword);
         }
     }
 }
