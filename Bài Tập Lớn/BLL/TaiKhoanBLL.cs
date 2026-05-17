@@ -25,7 +25,6 @@ namespace Bài_Tập_Lớn.BLL
             {
                 throw new Exception("Tên đăng nhập không được để trống!");
             }
-
             if (string.IsNullOrWhiteSpace(matKhau))
             {
                 throw new Exception("Mật khẩu không được để trống!");
