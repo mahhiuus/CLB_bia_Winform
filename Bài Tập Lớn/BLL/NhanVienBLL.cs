@@ -57,7 +57,6 @@ namespace Bài_Tập_Lớn.BLL
 
         public List<NhanVienDTO> TimKiem(string keyword)
         {
-            // Nếu keyword trống thì tự động trả về toàn bộ danh sách giống hành vi bên code Java
             return _nhanVienDAL.TimKiem(keyword);
         }
     }

@@ -11,154 +11,117 @@ namespace Bài_Tập_Lớn.DAL
     {
         public string SinhMaMoi()
         {
-            // Chuyển LIMIT 1 của MySQL thành TOP 1 của SQL Server
-            string sql = "SELECT TOP 1 ma_tk FROM tai_khoan ORDER BY ma_tk DESC";
+            string sql = @"
+                SELECT ISNULL(
+                    MAX(CAST(SUBSTRING(ma_tk, 3, LEN(ma_tk)) AS INT)),
+                    0
+                )
+                FROM tai_khoan";
+
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    string maCuoi = conn.QueryFirstOrDefault<string>(sql);
-                    if (!string.IsNullOrEmpty(maCuoi))
-                    {
-                        int soThuTu = int.Parse(maCuoi.Substring(2)) + 1;
-                        return string.Format("TK{0:D2}", soThuTu);
-                    }
+                    int soThuTu = conn.ExecuteScalar<int>(sql) + 1;
+
+                    return $"TK{soThuTu:D2}";
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw new Exception("Lỗi khi sinh mã mới tài khoản: " + e.Message, e);
+                throw new Exception(
+                    "Lỗi khi sinh mã tài khoản: " + ex.Message
+                );
             }
-            return "TK01";
         }
 
-        public void TaoAdminMacDinh()
+        public bool TaoAdminMacDinh()
         {
-            string kiemTraSql = "SELECT COUNT(*) FROM tai_khoan WHERE vai_tro = 'ADMIN'";
+            string kiemTraSql = @"
+                SELECT COUNT(*)
+                FROM tai_khoan
+                WHERE vai_tro = N'Admin'";
+
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
                     int count = conn.ExecuteScalar<int>(kiemTraSql);
+
                     if (count == 0)
                     {
-                        string insertSql = "INSERT INTO tai_khoan (ma_tk, ten_dang_nhap, mat_khau, vai_tro, ma_nv) " +
-                                           "VALUES ('TK001', 'admin', 'admin123', 'ADMIN', 'NV001')";
-                        conn.Execute(insertSql);
-                        Console.WriteLine("Tạo thành công ADMIN mặc định (Tên đăng nhập: admin / Password: admin123)!");
+                        string insertSql = @"
+                            INSERT INTO tai_khoan
+                            (
+                                ma_tk,
+                                ten_dang_nhap,
+                                mat_khau,
+                                vai_tro,
+                                ma_nv
+                            )
+                            VALUES
+                            (
+                                'TK01',
+                                'admin',
+                                'admin123',
+                                N'Admin',
+                                NULL
+                            )";
+
+                        return conn.Execute(insertSql) > 0;
                     }
+
+                    return false;
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw new Exception("Lỗi khi tạo tài khoản ADMIN mặc định: " + e.Message, e);
+                throw new Exception(
+                    "Lỗi khi tạo admin mặc định: " + ex.Message
+                );
             }
         }
 
-        public void ThemTaiKhoan(TaiKhoanDTO tk)
+        public TaiKhoanDTO DangNhap(
+            string tenDangNhap,
+            string matKhau
+        )
         {
-            string sql = "INSERT INTO tai_khoan (ma_tk, ten_dang_nhap, mat_khau, vai_tro, ma_nv) VALUES (@MaTK, @TenDangNhap, @MatKhau, @VaiTro, @MaNV)";
+            string sql = @"
+                SELECT *
+                FROM tai_khoan
+                WHERE ten_dang_nhap = @TenDangNhap
+                  AND mat_khau = @MatKhau";
+
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    conn.Execute(sql, tk);
-                    Console.WriteLine("Thêm tài khoản thành công!");
+                    return conn.QueryFirstOrDefault<TaiKhoanDTO>(
+                        sql,
+                        new
+                        {
+                            TenDangNhap = tenDangNhap,
+                            MatKhau = matKhau
+                        }
+                    );
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw new Exception("Lỗi khi thêm tài khoản: " + e.Message, e);
-            }
-        }
-
-        public void XoaTaiKhoanTheoMaTK(string maTK)
-        {
-            string sql = "DELETE FROM tai_khoan WHERE ma_tk = @MaTK";
-            try
-            {
-                using (IDbConnection conn = DBConnection.Instance.GetConnection())
-                {
-                    conn.Execute(sql, new { MaTK = maTK });
-                    Console.WriteLine("Xóa tài khoản thành công!");
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Lỗi khi xóa tài khoản: " + e.Message, e);
-            }
-        }
-
-        public void DoiMatKhau(string maTK, string matKhauMoi)
-        {
-            string sql = "UPDATE tai_khoan SET mat_khau = @MatKhauMoi WHERE ma_tk = @MaTK";
-            try
-            {
-                using (IDbConnection conn = DBConnection.Instance.GetConnection())
-                {
-                    conn.Execute(sql, new { MatKhauMoi = matKhauMoi, MaTK = maTK });
-                    Console.WriteLine("Đổi mật khẩu thành công!");
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Lỗi khi đổi mật khẩu: " + e.Message, e);
-            }
-        }
-
-        public void DoiTenDangNhap(string maTK, string tenDangNhapMoi)
-        {
-            string sql = "UPDATE tai_khoan SET ten_dang_nhap = @TenDangNhapMoi WHERE ma_tk = @MaTK";
-            try
-            {
-                using (IDbConnection conn = DBConnection.Instance.GetConnection())
-                {
-                    conn.Execute(sql, new { TenDangNhapMoi = tenDangNhapMoi, MaTK = maTK });
-                    Console.WriteLine("Đổi tên đăng nhập thành công!");
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Lỗi khi đổi tên đăng nhập: " + e.Message, e);
-            }
-        }
-
-        public void CapNhatVaiTro(string maTK, string vaiTro)
-        {
-            string sql = "UPDATE tai_khoan SET vai_tro = @VaiTro WHERE ma_tk = @MaTK";
-            try
-            {
-                using (IDbConnection conn = DBConnection.Instance.GetConnection())
-                {
-                    conn.Execute(sql, new { VaiTro = vaiTro, MaTK = maTK });
-                    Console.WriteLine("Cập nhật vai trò thành công!");
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Lỗi khi cập nhật vai trò: " + e.Message, e);
-            }
-        }
-
-        public TaiKhoanDTO DangNhap(string tenDangNhap, string matKhau)
-        {
-            string sql = "SELECT * FROM tai_khoan WHERE ten_dang_nhap = @TenDangNhap AND mat_khau = @MatKhau";
-            try
-            {
-                using (IDbConnection conn = DBConnection.Instance.GetConnection())
-                {
-                    return conn.QueryFirstOrDefault<TaiKhoanDTO>(sql, new { TenDangNhap = tenDangNhap, MatKhau = matKhau });
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Lỗi khi chương trình thực hiện đăng nhập: " + e.Message, e);
+                throw new Exception(
+                    "Lỗi khi đăng nhập: " + ex.Message
+                );
             }
         }
 
         public List<TaiKhoanDTO> LayTatCaTaiKhoan()
         {
-            string sql = "SELECT * FROM tai_khoan";
+            string sql = @"
+                SELECT *
+                FROM tai_khoan
+                ORDER BY ma_tk";
+
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
@@ -166,91 +129,253 @@ namespace Bài_Tập_Lớn.DAL
                     return conn.Query<TaiKhoanDTO>(sql).ToList();
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy danh sách tài khoản: " + e.Message, e);
+                throw new Exception(
+                    "Lỗi khi lấy danh sách tài khoản: " + ex.Message
+                );
             }
         }
 
         public TaiKhoanDTO LayTheoMaTK(string maTK)
         {
-            string sql = "SELECT * FROM tai_khoan WHERE ma_tk = @MaTK";
+            string sql = @"
+                SELECT *
+                FROM tai_khoan
+                WHERE ma_tk = @MaTK";
+
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    return conn.QueryFirstOrDefault<TaiKhoanDTO>(sql, new { MaTK = maTK });
+                    return conn.QueryFirstOrDefault<TaiKhoanDTO>(
+                        sql,
+                        new { MaTK = maTK }
+                    );
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw new Exception("Lỗi khi chương trình lấy theo mã tài khoản: " + e.Message, e);
+                throw new Exception(
+                    "Lỗi khi lấy tài khoản theo mã: " + ex.Message
+                );
             }
         }
 
-        public TaiKhoanDTO LayTheoTenDangNhap(string tenDangNhap)
+        public TaiKhoanDTO LayTheoTenDangNhap(
+            string tenDangNhap
+        )
         {
-            string sql = "SELECT * FROM tai_khoan WHERE ten_dang_nhap = @TenDangNhap";
+            string sql = @"
+                SELECT *
+                FROM tai_khoan
+                WHERE ten_dang_nhap = @TenDangNhap";
+
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    return conn.QueryFirstOrDefault<TaiKhoanDTO>(sql, new { TenDangNhap = tenDangNhap });
+                    return conn.QueryFirstOrDefault<TaiKhoanDTO>(
+                        sql,
+                        new
+                        {
+                            TenDangNhap = tenDangNhap
+                        }
+                    );
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw new Exception("Lỗi khi chương trình lấy theo tên đăng nhập: " + e.Message, e);
+                throw new Exception(
+                    "Lỗi khi lấy tài khoản theo tên đăng nhập: " + ex.Message
+                );
             }
         }
 
-        public bool KiemTraTenDangNhapTonTai(string tenDangNhap)
+        public bool KiemTraTenDangNhapTonTai(
+            string tenDangNhap
+        )
         {
-            string sql = "SELECT COUNT(*) FROM tai_khoan WHERE ten_dang_nhap = @TenDangNhap";
+            string sql = @"
+                SELECT COUNT(*)
+                FROM tai_khoan
+                WHERE ten_dang_nhap = @TenDangNhap";
+
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    int count = conn.ExecuteScalar<int>(sql, new { TenDangNhap = tenDangNhap });
+                    int count = conn.ExecuteScalar<int>(
+                        sql,
+                        new
+                        {
+                            TenDangNhap = tenDangNhap
+                        }
+                    );
+
                     return count > 0;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return false;
+                throw new Exception(
+                    "Lỗi khi kiểm tra tên đăng nhập: " + ex.Message
+                );
             }
         }
 
-        public bool DatLaiMatKhau(string tenDangNhap, string matKhauMoi)
+        public bool ThemTaiKhoan(TaiKhoanDTO tk)
         {
-            string sql = "UPDATE tai_khoan SET mat_khau = @MatKhauMoi WHERE ten_dang_nhap = @TenDangNhap";
+            string sql = @"
+                INSERT INTO tai_khoan
+                (
+                    ma_tk,
+                    ten_dang_nhap,
+                    mat_khau,
+                    vai_tro,
+                    ma_nv
+                )
+                VALUES
+                (
+                    @MaTK,
+                    @TenDangNhap,
+                    @MatKhau,
+                    @VaiTro,
+                    @MaNV
+                )";
+
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    return conn.Execute(sql, new { MatKhauMoi = matKhauMoi, TenDangNhap = tenDangNhap }) > 0;
+                    int rows = conn.Execute(sql, tk);
+
+                    return rows > 0;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return false;
+                throw new Exception(
+                    "Lỗi khi thêm tài khoản: " + ex.Message
+                );
             }
         }
 
-        public void CapNhatToanBoTaiKhoan(TaiKhoanDTO tk)
+        public bool CapNhatTaiKhoan(TaiKhoanDTO tk)
         {
-            string sql = "UPDATE tai_khoan SET ten_dang_nhap = @TenDangNhap, mat_khau = @MatKhau, vai_tro = @VaiTro, ma_nv = @MaNV WHERE ma_tk = @MaTK";
+            string sql = @"
+                UPDATE tai_khoan
+                SET
+                    ten_dang_nhap = @TenDangNhap,
+                    mat_khau = @MatKhau,
+                    vai_tro = @VaiTro,
+                    ma_nv = @MaNV
+                WHERE ma_tk = @MaTK";
+
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    conn.Execute(sql, tk);
-                    Console.WriteLine("Cập nhật toàn bộ tài khoản thành công!");
+                    int rows = conn.Execute(sql, tk);
+
+                    return rows > 0;
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw new Exception("Lỗi khi cập nhật toàn bộ tài khoản: " + e.Message, e);
+                throw new Exception(
+                    "Lỗi khi cập nhật tài khoản: " + ex.Message
+                );
+            }
+        }
+
+        public bool DoiMatKhau(
+            string maTK,
+            string matKhauMoi
+        )
+        {
+            string sql = @"
+                UPDATE tai_khoan
+                SET mat_khau = @MatKhauMoi
+                WHERE ma_tk = @MaTK";
+
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                {
+                    int rows = conn.Execute(
+                        sql,
+                        new
+                        {
+                            MatKhauMoi = matKhauMoi,
+                            MaTK = maTK
+                        }
+                    );
+
+                    return rows > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    "Lỗi khi đổi mật khẩu: " + ex.Message
+                );
+            }
+        }
+
+        public bool XoaTaiKhoan(string maTK)
+        {
+            string sql = @"
+                DELETE FROM tai_khoan
+                WHERE ma_tk = @MaTK";
+
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                {
+                    int rows = conn.Execute(
+                        sql,
+                        new { MaTK = maTK }
+                    );
+
+                    return rows > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    "Lỗi khi xóa tài khoản: " + ex.Message
+                );
+            }
+        }
+
+        public List<TaiKhoanDTO> TimKiem(string keyword)
+        {
+            string sql = @"
+                SELECT *
+                FROM tai_khoan
+                WHERE ma_tk LIKE @Keyword
+                   OR ten_dang_nhap LIKE @Keyword
+                   OR vai_tro LIKE @Keyword";
+
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                {
+                    return conn.Query<TaiKhoanDTO>(
+                        sql,
+                        new
+                        {
+                            Keyword = "%" + (keyword ?? "") + "%"
+                        }
+                    ).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    "Lỗi khi tìm kiếm tài khoản: " + ex.Message
+                );
             }
         }
     }

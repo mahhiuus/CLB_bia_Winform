@@ -7,86 +7,38 @@ using Bài_Tập_Lớn.DTO;
 
 namespace Bài_Tập_Lớn.DAL
 {
-    public class NhanVienDAL
+    internal class NhanVienDAL
     {
         public string SinhMaMoi()
         {
-            string sql = "SELECT TOP 1 ma_nv FROM nhan_vien ORDER BY ma_nv DESC";
-            try
-            {
-                using (IDbConnection conn = DBConnection.Instance.GetConnection())
-                {
-                    string maCuoi = conn.QueryFirstOrDefault<string>(sql);
-                    if (!string.IsNullOrEmpty(maCuoi))
-                    {
-                        int soThuTu = int.Parse(maCuoi.Substring(2)) + 1;
-                        return string.Format("NV{0:D2}", soThuTu);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Lỗi khi sinh mã mới nhân viên: " + e.Message, e);
-            }
-            return "NV01";
-        }
+            string sql = @"
+                SELECT ISNULL(
+                    MAX(CAST(SUBSTRING(ma_nv, 3, LEN(ma_nv)) AS INT)),
+                    0
+                )
+                FROM nhan_vien";
 
-        public void ThemNhanVien(NhanVienDTO nv)
-        {
-            string sql = "INSERT INTO nhan_vien (ma_nv, ho_ten, sdt, gioi_tinh, chuc_vu, ngay_sinh) " +
-                         "VALUES (@MaNV, @HoTen, @Sdt, @GioiTinh, @ChucVu, @NgaySinh)";
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    conn.Execute(sql, nv);
-                    Console.WriteLine("Thêm nhân viên thành công!");
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Lỗi khi thêm nhân viên: " + e.Message, e);
-            }
-        }
+                    int soThuTu = conn.ExecuteScalar<int>(sql) + 1;
 
-        public void XoaNhanVien(string maNV)
-        {
-            string sql = "DELETE FROM nhan_vien WHERE ma_nv = @MaNV";
-            try
-            {
-                using (IDbConnection conn = DBConnection.Instance.GetConnection())
-                {
-                    conn.Execute(sql, new { MaNV = maNV });
-                    Console.WriteLine("Xóa nhân viên thành công!");
+                    return $"NV{soThuTu:D2}";
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw new Exception("Lỗi khi xóa nhân viên: " + e.Message, e);
-            }
-        }
-
-        public void CapNhatNhanVien(NhanVienDTO nv)
-        {
-            string sql = "UPDATE nhan_vien SET ho_ten = @HoTen, sdt = @Sdt, gioi_tinh = @GioiTinh, " +
-                         "chuc_vu = @ChucVu, ngay_sinh = @NgaySinh WHERE ma_nv = @MaNV";
-            try
-            {
-                using (IDbConnection conn = DBConnection.Instance.GetConnection())
-                {
-                    conn.Execute(sql, nv);
-                    Console.WriteLine("Cập nhật nhân viên thành công!");
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Lỗi khi cập nhật nhân viên: " + e.Message, e);
+                throw new Exception(
+                    "Lỗi khi sinh mã nhân viên: " + ex.Message
+                );
             }
         }
 
         public List<NhanVienDTO> LayTatCaNhanVien()
         {
             string sql = "SELECT * FROM nhan_vien";
+
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
@@ -94,42 +46,156 @@ namespace Bài_Tập_Lớn.DAL
                     return conn.Query<NhanVienDTO>(sql).ToList();
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy danh sách nhân viên: " + e.Message, e);
+                throw new Exception(
+                    "Lỗi khi lấy danh sách nhân viên: " + ex.Message
+                );
             }
         }
 
         public NhanVienDTO TimTheoMaNhanVien(string maNV)
         {
-            string sql = "SELECT * FROM nhan_vien WHERE ma_nv = @MaNV";
+            string sql =
+                "SELECT * FROM nhan_vien WHERE ma_nv = @MaNV";
+
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    return conn.QueryFirstOrDefault<NhanVienDTO>(sql, new { MaNV = maNV });
+                    return conn.QueryFirstOrDefault<NhanVienDTO>(
+                        sql,
+                        new { MaNV = maNV }
+                    );
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw new Exception("Lỗi khi tìm theo mã nhân viên: " + e.Message, e);
+                throw new Exception(
+                    "Lỗi khi tìm nhân viên: " + ex.Message
+                );
             }
         }
 
         public List<NhanVienDTO> TimKiem(string keyword)
         {
-            string sql = "SELECT * FROM nhan_vien WHERE ma_nv LIKE @Keyword OR ho_ten LIKE @Keyword";
+            string sql = @"
+                SELECT *
+                FROM nhan_vien
+                WHERE ma_nv LIKE @Keyword
+                   OR ho_ten LIKE @Keyword";
+
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    string likeKeyword = "%" + (keyword ?? "") + "%";
-                    return conn.Query<NhanVienDTO>(sql, new { Keyword = likeKeyword }).ToList();
+                    return conn.Query<NhanVienDTO>(
+                        sql,
+                        new
+                        {
+                            Keyword = "%" + keyword + "%"
+                        }
+                    ).ToList();
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw new Exception("Lỗi khi tìm kiếm nhân viên: " + e.Message, e);
+                throw new Exception(
+                    "Lỗi khi tìm kiếm nhân viên: " + ex.Message
+                );
+            }
+        }
+
+        public bool ThemNhanVien(NhanVienDTO nv)
+        {
+            string sql = @"
+                INSERT INTO nhan_vien
+                (
+                    ma_nv,
+                    ho_ten,
+                    sdt,
+                    gioi_tinh,
+                    chuc_vu,
+                    ngay_sinh
+                )
+                VALUES
+                (
+                    @MaNV,
+                    @HoTen,
+                    @Sdt,
+                    @GioiTinh,
+                    @ChucVu,
+                    @NgaySinh
+                )";
+
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                {
+                    int rows = conn.Execute(sql, nv);
+
+                    return rows > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    "Lỗi khi thêm nhân viên: " + ex.Message
+                );
+            }
+        }
+
+        public bool CapNhatNhanVien(NhanVienDTO nv)
+        {
+            string sql = @"
+                UPDATE nhan_vien
+                SET
+                    ho_ten = @HoTen,
+                    sdt = @Sdt,
+                    gioi_tinh = @GioiTinh,
+                    chuc_vu = @ChucVu,
+                    ngay_sinh = @NgaySinh
+                WHERE ma_nv = @MaNV";
+
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                {
+                    int rows = conn.Execute(sql, nv);
+
+                    return rows > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    "Lỗi khi cập nhật nhân viên: " + ex.Message
+                );
+            }
+        }
+
+        public bool XoaNhanVien(string maNV)
+        {
+            string sql =
+                "DELETE FROM nhan_vien WHERE ma_nv = @MaNV";
+
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                {
+                    int rows = conn.Execute(
+                        sql,
+                        new { MaNV = maNV }
+                    );
+
+                    return rows > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    "Lỗi khi xóa nhân viên: " + ex.Message
+                );
             }
         }
     }
