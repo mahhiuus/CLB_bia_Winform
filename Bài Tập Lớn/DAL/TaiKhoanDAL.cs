@@ -200,7 +200,6 @@ namespace Bài_Tập_Lớn.DAL
             string sql = @"UPDATE tai_khoan 
                          SET mat_khau = @MatKhauMoi
                          WHERE ma_tk = @MaTK";
-
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
@@ -213,7 +212,6 @@ namespace Bài_Tập_Lớn.DAL
                             MaTK = maTK
                         }
                     );
-
                     return rows > 0;
                 }
             }
@@ -227,7 +225,6 @@ namespace Bài_Tập_Lớn.DAL
         {
             string sql = @"DELETE FROM tai_khoan
                          WHERE ma_tk = @MaTK";
-
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
