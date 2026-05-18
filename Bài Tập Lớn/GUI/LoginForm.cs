@@ -11,7 +11,7 @@ using System.Windows.Forms;
 namespace Bài_Tập_Lớn.GUI
 {
     public partial class LoginForm : Form
-    {
+    { 
         public LoginForm()
         {
             InitializeComponent();
