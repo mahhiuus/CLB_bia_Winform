@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+<<<<<<< HEAD
             this.SuspendLayout();
             // 
             // LoginForm
@@ -38,9 +39,30 @@
             this.Name = "LoginForm";
             this.Text = "LoginForm";
             this.ResumeLayout(false);
+=======
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LoginForm));
+            this.label1 = new System.Windows.Forms.Label();
+            this.SuspendLayout();
+            // 
+            // label1
+            // 
+            resources.ApplyResources(this.label1, "label1");
+            this.label1.Name = "label1";
+            // 
+            // LoginForm
+            // 
+            resources.ApplyResources(this, "$this");
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.label1);
+            this.Name = "LoginForm";
+            this.ResumeLayout(false);
+            this.PerformLayout();
+>>>>>>> origin/master
 
         }
 
         #endregion
+
+        private System.Windows.Forms.Label label1;
     }
 }
