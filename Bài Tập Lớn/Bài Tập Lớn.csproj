@@ -160,21 +160,21 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-<<<<<<< Updated upstream
-=======
     <Compile Include="BLL\ChiTietHoaDonBanBLL.cs" />
     <Compile Include="BLL\ChiTietPhienBLL.cs" />
     <Compile Include="BLL\HoaDonBanBLL.cs" />
->>>>>>> Stashed changes
+    <Compile Include="BLL\ChiTietHoaDonBanBLL.cs" />
+    <Compile Include="BLL\HoaDonBanBLL.cs" />
     <Compile Include="BLL\NhanVienBLL.cs" />
     <Compile Include="BLL\PhienChoiBLL.cs" />
     <Compile Include="BLL\TaiKhoanBLL.cs" />
-<<<<<<< Updated upstream
-=======
     <Compile Include="DAL\ChiTietHoaDonBanDAL.cs" />
     <Compile Include="DAL\ChiTietPhienDAL.cs" />
->>>>>>> Stashed changes
+
+    <Compile Include="DAL\ChiTietHoaDonBanDAL.cs" />
+
     <Compile Include="DAL\DBConnection.cs" />
+    <Compile Include="DAL\HoaDonBanDAL.cs" />
     <Compile Include="DAL\NhanVienDAL.cs" />
     <Compile Include="DAL\PhienChoiDAL.cs" />
     <Compile Include="DAL\TaiKhoanDAL.cs" />
@@ -212,7 +212,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="db.config" />
+    <None Include="db.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
