@@ -16,7 +16,7 @@ namespace Bài_Tập_Lớn
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new LoginForm());
+            Application.Run(new frmLogin());
         }
     }
 }
