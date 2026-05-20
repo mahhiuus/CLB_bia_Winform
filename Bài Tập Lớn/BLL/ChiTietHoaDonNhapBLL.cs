@@ -29,7 +29,7 @@ namespace Bài_Tập_Lớn.BLL
             return chiTietDAL.TimTheoMaHDN(maHDN);
         }
 
-        public decimal TinhTongTien(string maHDN)
+        public double TinhTongTien(string maHDN)
         {
             if (string.IsNullOrWhiteSpace(maHDN))
             {
