@@ -21,7 +21,7 @@ namespace Bài_Tập_Lớn.DAL
             }
         }
         private DBConnection() { }
-        public IDbConnection GetConnection()
+        public SqlConnection GetConnection()
         {
             return new SqlConnection(connectionString);
         }
