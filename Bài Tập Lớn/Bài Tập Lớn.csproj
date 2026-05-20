@@ -161,13 +161,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BLL\ChiTietHoaDonBanBLL.cs" />
+    <Compile Include="BLL\ChiTietPhienBLL.cs" />
+    <Compile Include="BLL\HoaDonBanBLL.cs" />
+    <Compile Include="BLL\ChiTietHoaDonBanBLL.cs" />
     <Compile Include="BLL\HoaDonBanBLL.cs" />
     <Compile Include="BLL\NhanVienBLL.cs" />
+    <Compile Include="BLL\PhienChoiBLL.cs" />
     <Compile Include="BLL\TaiKhoanBLL.cs" />
     <Compile Include="DAL\ChiTietHoaDonBanDAL.cs" />
+    <Compile Include="DAL\ChiTietPhienDAL.cs" />
+
+    <Compile Include="DAL\ChiTietHoaDonBanDAL.cs" />
+
     <Compile Include="DAL\DBConnection.cs" />
     <Compile Include="DAL\HoaDonBanDAL.cs" />
     <Compile Include="DAL\NhanVienDAL.cs" />
+    <Compile Include="DAL\PhienChoiDAL.cs" />
     <Compile Include="DAL\TaiKhoanDAL.cs" />
     <Compile Include="DTO\BanBidaDTO.cs" />
     <Compile Include="DTO\ChiTietHoaDonBanDTO.cs" />
@@ -201,6 +210,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="db.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -219,7 +229,27 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Resources\LoginImg.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\682699859_1610411681089547_1499844909840683491_n.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\7cb110d9d935ef3e5bfe37068765d4bf.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\NET.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\NET %281%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\NET %282%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\1779267772686_193366465465850021_6339151959082506994_ea998a004fa2f36ecb84de22bb647b31.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
