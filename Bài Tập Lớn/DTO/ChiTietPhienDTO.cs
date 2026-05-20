@@ -9,7 +9,7 @@ namespace Bài_Tập_Lớn.DTO
         public string MaPhien { get; set; }
         public string MaSP { get; set; }
         public int SoLuong { get; set; }
-        public decimal DonGia { get; set; }
+        public double DonGia { get; set; }
 
         public ChiTietPhienDTO()
         {
@@ -20,7 +20,7 @@ namespace Bài_Tập_Lớn.DTO
             DonGia = 0;
         }
 
-        public ChiTietPhienDTO(string maCTP, string maPhien, string maSP, int soLuong, decimal donGia)
+        public ChiTietPhienDTO(string maCTP, string maPhien, string maSP, int soLuong, double donGia)
         {
             this.MaCTP = maCTP;
             this.MaPhien = maPhien;

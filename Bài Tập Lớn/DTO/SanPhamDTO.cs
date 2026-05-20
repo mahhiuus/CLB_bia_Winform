@@ -8,7 +8,7 @@ namespace Bài_Tập_Lớn.DTO
         public string MaSP { get; set; }
         public string TenSP { get; set; }
         public string Loai { get; set; }
-        public decimal GiaBan { get; set; }
+        public double GiaBan { get; set; }
         public int SoLuongTon { get; set; }
         public string HinhAnh { get; set; }
         public string MaNCC { get; set; }
@@ -23,7 +23,7 @@ namespace Bài_Tập_Lớn.DTO
             HinhAnh = "";
             MaNCC = "";
         }
-        public SanPhamDTO(string maSP, string tenSP, string loai, decimal giaBan, int soLuongTon, string hinhAnh, string maNCC)
+        public SanPhamDTO(string maSP, string tenSP, string loai, double giaBan, int soLuongTon, string hinhAnh, string maNCC)
         {
             this.MaSP = maSP;
             this.TenSP = tenSP;

@@ -35,11 +35,9 @@ namespace Bài_Tập_Lớn.BLL
             {
                 throw new ArgumentException("Đơn giá bán không được âm!");
             }
-
-            // Tự động sinh mã nếu trống (Ủy quyền hoàn toàn xử lý tại đây)
-            if (string.IsNullOrWhiteSpace(ct.MaChiTiet))
+            if (string.IsNullOrWhiteSpace(ct.MaCTHDB))
             {
-                ct.MaChiTiet = chiTietDAL.SinhMaMoi();
+                ct.MaCTHDB = chiTietDAL.SinhMaMoi();
             }
 
             chiTietDAL.ThemChiTiet(ct);

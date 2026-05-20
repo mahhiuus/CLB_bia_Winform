@@ -66,7 +66,7 @@ namespace Bài_Tập_Lớn.DAL
             }
         }
 
-        public decimal TinhTongTien(string maHDN)
+        public double TinhTongTien(string maHDN)
         {
             string sql = @"
                 SELECT ISNULL(SUM(so_luong * don_gia),0)
@@ -77,7 +77,7 @@ namespace Bài_Tập_Lớn.DAL
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    return conn.ExecuteScalar<decimal>(
+                    return conn.ExecuteScalar<double>(
                         sql,
                         new { MaHDN = maHDN }
                     );
