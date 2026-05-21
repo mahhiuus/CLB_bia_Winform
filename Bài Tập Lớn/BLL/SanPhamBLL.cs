@@ -7,11 +7,11 @@ namespace Bài_Tập_Lớn.BLL
 {
     public class SanPhamBLL
     {
-        private readonly SanPhamDAL sanPhamDAL = new SanPhamDAL();
+        private readonly SanPhamDAL _sanPhamDAL = new SanPhamDAL();
 
         public string SinhMaMoi()
         {
-            return sanPhamDAL.SinhMaMoi();
+            return _sanPhamDAL.SinhMaMoi();
         }
 
         public bool ThemSanPham(SanPhamDTO sp)
@@ -46,16 +46,17 @@ namespace Bài_Tập_Lớn.BLL
                 throw new Exception("Số lượng tồn kho không được nhỏ hơn 0!");
             }
 
-            return sanPhamDAL.ThemSanPham(sp);
+            return _sanPhamDAL.ThemSanPham(sp);
         }
 
+       
         public List<SanPhamDTO> TimTheoMaSanPham(string maSanPham)
         {
             if (string.IsNullOrWhiteSpace(maSanPham))
             {
                 throw new Exception("Mã sản phẩm không được để trống!");
             }
-            return sanPhamDAL.TimKiemTheoMa(maSanPham);
+            return _sanPhamDAL.TimKiemTheoMa(maSanPham);
         }
 
         public List<SanPhamDTO> TimTheoTenSanPham(string tenSanPham)
@@ -64,7 +65,7 @@ namespace Bài_Tập_Lớn.BLL
             {
                 throw new Exception("Tên sản phẩm không được để trống!");
             }
-            return sanPhamDAL.TimKiemTheoTen(tenSanPham);
+            return _sanPhamDAL.TimKiemTheoTen(tenSanPham);
         }
     }
 }

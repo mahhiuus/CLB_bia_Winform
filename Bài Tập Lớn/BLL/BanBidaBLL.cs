@@ -1,40 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Bài_Tập_Lớn.DAL;
 using Bài_Tập_Lớn.DTO;
 
 namespace Bài_Tập_Lớn.BLL
 {
-    internal class BanBida
+    
+    public class BanBida
     {
-        BanBidaDAL dal = new BanBidaDAL();
+        
+        private readonly BanBidaDAL _banBidaDAL = new BanBidaDAL();
 
         public string SinhMaMoi()
         {
-            return dal.SinhMaMoi();
+            return _banBidaDAL.SinhMaMoi();
         }
 
-        public void ThemBan(BanBidaDTO ban)
-        {
-            if (ban == null)
-            {
-                throw new Exception("Dữ liệu bàn bida không hợp lệ!");
-            }
-
-            if (string.IsNullOrWhiteSpace(ban.MaBan) ||
-                 string.IsNullOrWhiteSpace(ban.TenBan) ||
-                 string.IsNullOrWhiteSpace(ban.LoaiBan)) // Bỏ TrangThai ra khỏi IsNullOrWhiteSpace
-            {
-                throw new Exception("Không được để trống dữ liệu!");
-            }
-
-            dal.ThemBan(ban);
-        }
-
-        public void CapNhatBan(BanBidaDTO ban)
+        public bool ThemBan(BanBidaDTO ban)
         {
             if (ban == null)
             {
@@ -46,10 +29,60 @@ namespace Bài_Tập_Lớn.BLL
                 throw new Exception("Mã bàn không được để trống!");
             }
 
-            dal.CapNhatBan(ban);
+            if (string.IsNullOrWhiteSpace(ban.TenBan))
+            {
+                throw new Exception("Tên bàn không được để trống!");
+            }
+
+            if (string.IsNullOrWhiteSpace(ban.LoaiBan))
+            {
+                throw new Exception("Loại bàn không được để trống!");
+            }
+
+            if (ban.GiaTheoGio <= 0)
+            {
+                throw new Exception("Giá theo giờ của bàn phải lớn hơn 0!");
+            }
+
+            if (_banBidaDAL.TimTheoMaBan(ban.MaBan) != null)
+            {
+                throw new Exception("Mã bàn bida này đã tồn tại trong hệ thống!");
+            }
+
+            return _banBidaDAL.ThemBan(ban);
         }
 
-        public void CapNhatTrangThai(string maBan, string trangThai)
+        public bool CapNhatBan(BanBidaDTO ban)
+        {
+            if (ban == null)
+            {
+                throw new Exception("Dữ liệu bàn bida không hợp lệ!");
+            }
+
+            if (string.IsNullOrWhiteSpace(ban.MaBan))
+            {
+                throw new Exception("Mã bàn không được để trống!");
+            }
+
+            if (string.IsNullOrWhiteSpace(ban.TenBan))
+            {
+                throw new Exception("Tên bàn không được để trống!");
+            }
+
+            if (string.IsNullOrWhiteSpace(ban.LoaiBan))
+            {
+                throw new Exception("Loại bàn không được để trống!");
+            }
+
+            if (ban.GiaTheoGio <= 0)
+            {
+                throw new Exception("Giá theo giờ của bàn phải lớn hơn 0!");
+            }
+
+            return _banBidaDAL.CapNhatBan(ban);
+        }
+
+        public bool CapNhatTrangThai(string maBan, string trangThai)
         {
             if (string.IsNullOrWhiteSpace(maBan))
             {
@@ -61,27 +94,31 @@ namespace Bài_Tập_Lớn.BLL
                 throw new Exception("Trạng thái không được để trống!");
             }
 
-            dal.CapNhatTrangThai(maBan, trangThai);
+            return _banBidaDAL.CapNhatTrangThai(maBan, trangThai);
         }
 
-     
-        public void XoaBan(string maBan)
+        public bool XoaBan(string maBan)
         {
             if (string.IsNullOrWhiteSpace(maBan))
             {
                 throw new Exception("Mã bàn không được để trống!");
             }
 
-            dal.XoaBan(maBan);
+         
+            BanBidaDTO banHienTai = _banBidaDAL.TimTheoMaBan(maBan);
+            if (banHienTai != null && banHienTai.TrangThai == "Có khách") 
+            {
+                throw new Exception("Không thể xóa bàn bida đang có khách sử dụng!");
+            }
+
+            return _banBidaDAL.XoaBan(maBan);
         }
 
-   
         public List<BanBidaDTO> LayTatCaBan()
         {
-            return dal.LayTatCaBan();
+            return _banBidaDAL.LayTatCaBan();
         }
 
-      
         public BanBidaDTO TimTheoMaBan(string maBan)
         {
             if (string.IsNullOrWhiteSpace(maBan))
@@ -89,10 +126,9 @@ namespace Bài_Tập_Lớn.BLL
                 throw new Exception("Mã bàn không được để trống!");
             }
 
-            return dal.TimTheoMaBan(maBan);
+            return _banBidaDAL.TimTheoMaBan(maBan);
         }
 
-      
         public List<BanBidaDTO> TimTheoTrangThai(string trangThai)
         {
             if (string.IsNullOrWhiteSpace(trangThai))
@@ -100,10 +136,9 @@ namespace Bài_Tập_Lớn.BLL
                 throw new Exception("Trạng thái không được để trống!");
             }
 
-            return dal.TimTheoTrangThai(trangThai);
+            return _banBidaDAL.TimTheoTrangThai(trangThai);
         }
 
-   
         public List<BanBidaDTO> TimTheoLoaiBan(string loaiBan)
         {
             if (string.IsNullOrWhiteSpace(loaiBan))
@@ -111,7 +146,7 @@ namespace Bài_Tập_Lớn.BLL
                 throw new Exception("Loại bàn không được để trống!");
             }
 
-            return dal.TimTheoLoaiBan(loaiBan);
+            return _banBidaDAL.TimTheoLoaiBan(loaiBan);
         }
     }
 }

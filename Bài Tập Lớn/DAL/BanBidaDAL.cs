@@ -1,260 +1,189 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Dapper;
 using Bài_Tập_Lớn.DTO;
 
 namespace Bài_Tập_Lớn.DAL
 {
-    internal class BanBidaDAL
+    public class BanBidaDAL
     {
-        DBConnection db = DBConnection.Instance;
-
-        // Sinh mã mới
         public string SinhMaMoi()
         {
-            string ma = "B01";
-
-            SqlConnection conn = DBConnection.Instance.GetConnection();
-            conn.Open();
-
-            string sql = "SELECT TOP 1 MaBan FROM BanBida ORDER BY MaBan DESC";
-
-            SqlCommand cmd = new SqlCommand(sql, conn);
-
-            SqlDataReader reader = cmd.ExecuteReader();
-
-            if (reader.Read())
+            string sql = @"SELECT ISNULL(MAX(CAST(SUBSTRING(MaBan, 2, LEN(MaBan)) AS INT)), 0) 
+                           FROM BanBida";
+            try
             {
-                string maCu = reader["MaBan"].ToString();
-
-                int so = int.Parse(maCu.Substring(1)) + 1;
-
-                ma = "B" + so.ToString("00");
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                {
+                    int soThuTu = conn.ExecuteScalar<int>(sql) + 1;
+                    return $"B{soThuTu:D2}";
+                }
             }
-
-            conn.Close();
-
-            return ma;
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi sinh mã bàn bida: " + ex.Message);
+            }
         }
 
-        // Thêm bàn
-        public void ThemBan(BanBidaDTO ban)
+        public bool ThemBan(BanBidaDTO ban)
         {
-            SqlConnection conn = db.GetConnection();
-
-            conn.Open();
-
-            string sql = "INSERT INTO BanBida VALUES(@MaBan,@TenBan,@LoaiBan,@GiaTheoGio,@TrangThai)";
-
-            SqlCommand cmd = new SqlCommand(sql, conn);
-
-            cmd.Parameters.AddWithValue("@MaBan", ban.MaBan);
-            cmd.Parameters.AddWithValue("@TenBan", ban.TenBan);
-            cmd.Parameters.AddWithValue("@LoaiBan", ban.LoaiBan);
-            cmd.Parameters.AddWithValue("@GiaTheoGio", ban.GiaTheoGio);
-            cmd.Parameters.AddWithValue("@TrangThai", ban.TrangThai);
-
-            cmd.ExecuteNonQuery();
-
-            conn.Close();
+            string sql = @"INSERT INTO BanBida(MaBan, TenBan, LoaiBan, GiaTheoGio, TrangThai) 
+                           VALUES(@MaBan, @TenBan, @LoaiBan, @GiaTheoGio, @TrangThai)";
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                {
+                    int rows = conn.Execute(sql, new
+                    {
+                        MaBan = ban.MaBan,
+                        TenBan = ban.TenBan,
+                        LoaiBan = ban.LoaiBan,
+                        GiaTheoGio = ban.GiaTheoGio,
+                        TrangThai = ban.TrangThai
+                    });
+                    return rows > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi thêm bàn bida: " + ex.Message);
+            }
         }
 
-        // Cập nhật bàn
-        public void CapNhatBan(BanBidaDTO ban)
+        public bool CapNhatBan(BanBidaDTO ban)
         {
-            SqlConnection conn = db.GetConnection();
-
-            conn.Open();
-
-            string sql = "UPDATE BanBida SET TenBan=@TenBan, LoaiBan=@LoaiBan, GiaTheoGio=@GiaTheoGio, TrangThai=@TrangThai WHERE MaBan=@MaBan";
-
-            SqlCommand cmd = new SqlCommand(sql, conn);
-
-            cmd.Parameters.AddWithValue("@MaBan", ban.MaBan);
-            cmd.Parameters.AddWithValue("@TenBan", ban.TenBan);
-            cmd.Parameters.AddWithValue("@LoaiBan", ban.LoaiBan);
-            cmd.Parameters.AddWithValue("@GiaTheoGio", ban.GiaTheoGio);
-            cmd.Parameters.AddWithValue("@TrangThai", ban.TrangThai);
-
-            cmd.ExecuteNonQuery();
-
-            conn.Close();
+            string sql = @"UPDATE BanBida SET 
+                              TenBan = @TenBan, 
+                              LoaiBan = @LoaiBan, 
+                              GiaTheoGio = @GiaTheoGio, 
+                              TrangThai = @TrangThai 
+                           WHERE MaBan = @MaBan";
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                {
+                    int rows = conn.Execute(sql, new
+                    {
+                        TenBan = ban.TenBan,
+                        LoaiBan = ban.LoaiBan,
+                        GiaTheoGio = ban.GiaTheoGio,
+                        TrangThai = ban.TrangThai,
+                        MaBan = ban.MaBan
+                    });
+                    return rows > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi cập nhật bàn bida: " + ex.Message);
+            }
         }
 
-        // Cập nhật trạng thái
-        public void CapNhatTrangThai(string maBan, string trangThai)
+        public bool CapNhatTrangThai(string maBan, string trangThai)
         {
-            SqlConnection conn = db.GetConnection();
-
-            conn.Open();
-
-            string sql = "UPDATE BanBida SET TrangThai=@TrangThai WHERE MaBan=@MaBan";
-
-            SqlCommand cmd = new SqlCommand(sql, conn);
-
-            cmd.Parameters.AddWithValue("@MaBan", maBan);
-            cmd.Parameters.AddWithValue("@TrangThai", trangThai);
-
-            cmd.ExecuteNonQuery();
-
-            conn.Close();
+            string sql = @"UPDATE BanBida 
+                           SET TrangThai = @TrangThai 
+                           WHERE MaBan = @MaBan";
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                {
+                    int rows = conn.Execute(sql, new { MaBan = maBan, TrangThai = trangThai });
+                    return rows > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi cập nhật trạng thái bàn: " + ex.Message);
+            }
         }
 
-        // Xóa bàn
-        public void XoaBan(string maBan)
+        public bool XoaBan(string maBan)
         {
-            SqlConnection conn = db.GetConnection();
-
-            conn.Open();
-
-            string sql = "DELETE FROM BanBida WHERE MaBan=@MaBan";
-
-            SqlCommand cmd = new SqlCommand(sql, conn);
-
-            cmd.Parameters.AddWithValue("@MaBan", maBan);
-
-            cmd.ExecuteNonQuery();
-
-            conn.Close();
+            string sql = @"DELETE FROM BanBida 
+                           WHERE MaBan = @MaBan";
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                {
+                    int rows = conn.Execute(sql, new { MaBan = maBan });
+                    return rows > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi xóa bàn bida: " + ex.Message);
+            }
         }
 
-        // Lấy tất cả bàn
         public List<BanBidaDTO> LayTatCaBan()
         {
-            List<BanBidaDTO> ds = new List<BanBidaDTO>();
-
-            SqlConnection conn = db.GetConnection();
-
-            conn.Open();
-
-            string sql = "SELECT * FROM BanBida";
-
-            SqlCommand cmd = new SqlCommand(sql, conn);
-
-            SqlDataReader reader = cmd.ExecuteReader();
-
-            while (reader.Read())
+            string sql = @"SELECT * FROM BanBida 
+                           ORDER BY MaBan"; 
+            try
             {
-                BanBidaDTO ban = new BanBidaDTO();
-
-                ban.MaBan = reader["MaBan"].ToString();
-                ban.TenBan = reader["TenBan"].ToString();
-                ban.LoaiBan = reader["LoaiBan"].ToString();
-                ban.GiaTheoGio = Convert.ToDecimal(reader["GiaTheoGio"]);
-                ban.TrangThai = reader["TrangThai"].ToString();
-
-                ds.Add(ban);
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                {
+                    return conn.Query<BanBidaDTO>(sql).ToList();
+                }
             }
-
-            conn.Close();
-
-            return ds;
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi lấy danh sách bàn bida: " + ex.Message);
+            }
         }
 
-        // Tìm theo mã bàn
         public BanBidaDTO TimTheoMaBan(string maBan)
         {
-            BanBidaDTO ban = null;
-
-            SqlConnection conn = db.GetConnection();
-
-            conn.Open();
-
-            string sql = "SELECT * FROM BanBida WHERE MaBan=@MaBan";
-
-            SqlCommand cmd = new SqlCommand(sql, conn);
-
-            cmd.Parameters.AddWithValue("@MaBan", maBan);
-
-            SqlDataReader reader = cmd.ExecuteReader();
-
-            if (reader.Read())
+            string sql = @"SELECT * FROM BanBida 
+                           WHERE MaBan = @MaBan";
+            try
             {
-                ban = new BanBidaDTO();
-
-                ban.MaBan = reader["MaBan"].ToString();
-                ban.TenBan = reader["TenBan"].ToString();
-                ban.LoaiBan = reader["LoaiBan"].ToString();
-                ban.GiaTheoGio = Convert.ToDecimal(reader["GiaTheoGio"]);
-                ban.TrangThai = reader["TrangThai"].ToString();
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                {
+                    return conn.QueryFirstOrDefault<BanBidaDTO>(sql, new { MaBan = maBan });
+                }
             }
-
-            conn.Close();
-
-            return ban;
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi tìm bàn theo mã: " + ex.Message);
+            }
         }
 
-        // Tìm theo trạng thái
         public List<BanBidaDTO> TimTheoTrangThai(string trangThai)
         {
-            List<BanBidaDTO> ds = new List<BanBidaDTO>();
-
-            SqlConnection conn = db.GetConnection();
-
-            conn.Open();
-
-            string sql = "SELECT * FROM BanBida WHERE TrangThai=@TrangThai";
-
-            SqlCommand cmd = new SqlCommand(sql, conn);
-
-            cmd.Parameters.AddWithValue("@TrangThai", trangThai);
-
-            SqlDataReader reader = cmd.ExecuteReader();
-
-            while (reader.Read())
+            string sql = @"SELECT * FROM BanBida 
+                           WHERE TrangThai = @TrangThai";
+            try
             {
-                BanBidaDTO ban = new BanBidaDTO();
-
-                ban.MaBan = reader["MaBan"].ToString();
-                ban.TenBan = reader["TenBan"].ToString();
-                ban.LoaiBan = reader["LoaiBan"].ToString();
-                ban.GiaTheoGio = Convert.ToDecimal(reader["GiaTheoGio"]);
-                ban.TrangThai = reader["TrangThai"].ToString();
-
-                ds.Add(ban);
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                {
+                    return conn.Query<BanBidaDTO>(sql, new { TrangThai = trangThai }).ToList();
+                }
             }
-
-            conn.Close();
-
-            return ds;
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi tìm bàn theo trạng thái: " + ex.Message);
+            }
         }
 
-        // Tìm theo loại bàn
         public List<BanBidaDTO> TimTheoLoaiBan(string loaiBan)
         {
-            List<BanBidaDTO> ds = new List<BanBidaDTO>();
-
-            SqlConnection conn = db.GetConnection();
-
-            conn.Open();
-
-            string sql = "SELECT * FROM BanBida WHERE LoaiBan=@LoaiBan";
-
-            SqlCommand cmd = new SqlCommand(sql, conn);
-
-            cmd.Parameters.AddWithValue("@LoaiBan", loaiBan);
-
-            SqlDataReader reader = cmd.ExecuteReader();
-
-            while (reader.Read())
+            string sql = @"SELECT * FROM BanBida 
+                           WHERE LoaiBan = @LoaiBan";
+            try
             {
-                BanBidaDTO ban = new BanBidaDTO();
-
-                ban.MaBan = reader["MaBan"].ToString();
-                ban.TenBan = reader["TenBan"].ToString();
-                ban.LoaiBan = reader["LoaiBan"].ToString();
-                ban.GiaTheoGio = Convert.ToDecimal(reader["GiaTheoGio"]);
-                ban.TrangThai = reader["TrangThai"].ToString();
-
-                ds.Add(ban);
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                {
+                    return conn.Query<BanBidaDTO>(sql, new { LoaiBan = loaiBan }).ToList();
+                }
             }
-
-            conn.Close();
-
-            return ds;
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi tìm bàn theo loại: " + ex.Message);
+            }
         }
     }
 }
