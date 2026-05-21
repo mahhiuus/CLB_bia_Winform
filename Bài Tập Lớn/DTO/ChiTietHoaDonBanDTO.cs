@@ -9,7 +9,7 @@ namespace Bài_Tập_Lớn.DTO
         public string MaHDB { get; set; }
         public string MaSP { get; set; }
         public int SoLuong { get; set; }
-        public decimal DonGiaBan { get; set; }
+        public double DonGiaBan { get; set; }
 
         public ChiTietHoaDonBanDTO()
         {
@@ -20,7 +20,7 @@ namespace Bài_Tập_Lớn.DTO
             DonGiaBan = 0;
         }
 
-        public ChiTietHoaDonBanDTO(string MaCTHDB, string maHDB, string maSP, int soLuong, decimal donGiaBan)
+        public ChiTietHoaDonBanDTO(string MaCTHDB, string maHDB, string maSP, int soLuong, double donGiaBan)
         {
             this.MaCTHDB = MaCTHDB;
             this.MaHDB = maHDB;

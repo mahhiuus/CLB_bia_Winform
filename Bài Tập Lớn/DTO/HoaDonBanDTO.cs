@@ -11,9 +11,9 @@ namespace Bài_Tập_Lớn.DTO
         public string MaKH { get; set; }
         public string MaNV { get; set; }
         public DateTime NgayBan { get; set; }
-        public decimal TienBida { get; set; }
-        public decimal TienSanPham { get; set; }
-        public decimal TongTien { get; set; }
+        public double TienBida { get; set; }
+        public double TienSanPham { get; set; }
+        public double TongTien { get; set; }
         public string GhiChu { get; set; }
 
         public HoaDonBanDTO()
@@ -29,7 +29,7 @@ namespace Bài_Tập_Lớn.DTO
             GhiChu = "";
         }
 
-        public HoaDonBanDTO(string maHDB, string maPhien, string maKH, string maNV, DateTime ngayBan, decimal tienBida, decimal tienSanPham, decimal tongTien, string ghiChu)
+        public HoaDonBanDTO(string maHDB, string maPhien, string maKH, string maNV, DateTime ngayBan, double tienBida, double tienSanPham, double tongTien, string ghiChu)
         {
             this.MaHDB = maHDB;
             this.MaPhien = maPhien;

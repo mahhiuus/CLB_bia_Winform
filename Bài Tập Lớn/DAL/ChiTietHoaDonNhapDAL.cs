@@ -7,72 +7,71 @@ using Bài_Tập_Lớn.DTO;
 
 namespace Bài_Tập_Lớn.DAL
 {
-    internal class ChiTietPhienDAL
+    internal class ChiTietHoaDonNhapDAL
     {
         public string SinhMaMoi()
         {
-            string sql = @"SELECT ISNULL(MAX(CAST(SUBSTRING(ma_chi_tiet, 3, LEN(ma_chi_tiet)) AS INT)),0)
-                           FROM chi_tiet_phien";
+            string sql = @"SELECT ISNULL(MAX(CAST(SUBSTRING(ma_cthdn, 6, LEN(ma_cthdn)) AS INT)),0)
+                           FROM chi_tiet_hoa_don_nhap";
 
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
                     int soThuTu = conn.ExecuteScalar<int>(sql) + 1;
-
-                    return $"CT{soThuTu:D2}";
+                    return $"CTHDN{soThuTu:D2}";
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi sinh mã chi tiết phiên: " + ex.Message);
+                throw new Exception("Lỗi khi sinh mã chi tiết hóa đơn nhập: " + ex.Message);
             }
         }
 
-        public List<ChiTietPhienDTO> LayTatCaChiTietPhien()
+        public List<ChiTietHoaDonNhapDTO> LayTatCaChiTiet()
         {
-            string sql = "SELECT * FROM chi_tiet_phien";
+            string sql = "SELECT * FROM chi_tiet_hoa_don_nhap";
 
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    return conn.Query<ChiTietPhienDTO>(sql).ToList();
+                    return conn.Query<ChiTietHoaDonNhapDTO>(sql).ToList();
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy danh sách chi tiết phiên: " + ex.Message);
+                throw new Exception("Lỗi khi lấy chi tiết hóa đơn nhập: " + ex.Message);
             }
         }
 
-        public List<ChiTietPhienDTO> TimTheoMaPhien(string maPhien)
+        public List<ChiTietHoaDonNhapDTO> TimTheoMaHDN(string maHDN)
         {
-            string sql = @"SELECT * FROM chi_tiet_phien
-                           WHERE ma_phien = @MaPhien";
+            string sql = @"SELECT * FROM chi_tiet_hoa_don_nhap
+                           WHERE ma_hdn = @MaHDN";
 
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    return conn.Query<ChiTietPhienDTO>(
+                    return conn.Query<ChiTietHoaDonNhapDTO>(
                         sql,
-                        new { MaPhien = maPhien }
+                        new { MaHDN = maHDN }
                     ).ToList();
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi tìm chi tiết phiên: " + ex.Message);
+                throw new Exception("Lỗi khi tìm chi tiết hóa đơn nhập: " + ex.Message);
             }
         }
 
-        public double TinhTongTienTheoPhien(string maPhien)
+        public double TinhTongTien(string maHDN)
         {
             string sql = @"
                 SELECT ISNULL(SUM(so_luong * don_gia),0)
-                FROM chi_tiet_phien
-                WHERE ma_phien = @MaPhien";
+                FROM chi_tiet_hoa_don_nhap
+                WHERE ma_hdn = @MaHDN";
 
             try
             {
@@ -80,7 +79,7 @@ namespace Bài_Tập_Lớn.DAL
                 {
                     return conn.ExecuteScalar<double>(
                         sql,
-                        new { MaPhien = maPhien }
+                        new { MaHDN = maHDN }
                     );
                 }
             }
@@ -90,22 +89,22 @@ namespace Bài_Tập_Lớn.DAL
             }
         }
 
-        public bool ThemChiTietPhien(ChiTietPhienDTO ct)
+        public bool ThemChiTiet(ChiTietHoaDonNhapDTO ct)
         {
             string sql = @"
-                INSERT INTO chi_tiet_phien
+                INSERT INTO chi_tiet_hoa_don_nhap
                 (
-                    ma_chi_tiet,
-                    ma_phien,
-                    ma_san_pham,
+                    ma_cthdn,
+                    ma_hdn,
+                    ma_sp,
                     so_luong,
                     don_gia
                 )
                 VALUES
                 (
-                    @MaChiTiet,
-                    @MaPhien,
-                    @MaSanPham,
+                    @MaCTHDN,
+                    @MaHDN,
+                    @MaSP,
                     @SoLuong,
                     @DonGia
                 )";
@@ -115,61 +114,56 @@ namespace Bài_Tập_Lớn.DAL
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
                     int rows = conn.Execute(sql, ct);
-
                     return rows > 0;
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi thêm chi tiết phiên: " + ex.Message);
+                throw new Exception("Lỗi khi thêm chi tiết hóa đơn nhập: " + ex.Message);
             }
         }
 
-        public bool CapNhatChiTietPhien(ChiTietPhienDTO ct)
+        public bool CapNhatChiTiet(ChiTietHoaDonNhapDTO ct)
         {
             string sql = @"
-                UPDATE chi_tiet_phien
+                UPDATE chi_tiet_hoa_don_nhap
                 SET
-                    ma_phien = @MaPhien,
-                    ma_san_pham = @MaSanPham,
+                    ma_hdn = @MaHDN,
+                    ma_sp = @MaSP,
                     so_luong = @SoLuong,
                     don_gia = @DonGia
-                WHERE ma_chi_tiet = @MaChiTiet";
+                WHERE ma_cthdn = @MaCTHDN";
 
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
                     int rows = conn.Execute(sql, ct);
-
                     return rows > 0;
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi cập nhật chi tiết phiên: " + ex.Message);
+                throw new Exception("Lỗi khi cập nhật chi tiết hóa đơn nhập: " + ex.Message);
             }
         }
 
-        public bool XoaChiTietPhien(string maChiTiet)
+        public bool XoaChiTiet(string maCTHDN)
         {
-            string sql = @"DELETE FROM chi_tiet_phien
-                           WHERE ma_chi_tiet = @MaChiTiet";
+            string sql = @"DELETE FROM chi_tiet_hoa_don_nhap
+                           WHERE ma_cthdn = @MaCTHDN";
 
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    int rows = conn.Execute(
-                        sql,
-                        new { MaChiTiet = maChiTiet });
-
+                    int rows = conn.Execute(sql, new { MaCTHDN = maCTHDN });
                     return rows > 0;
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi xóa chi tiết phiên: " + ex.Message);
+                throw new Exception("Lỗi khi xóa chi tiết hóa đơn nhập: " + ex.Message);
             }
         }
     }

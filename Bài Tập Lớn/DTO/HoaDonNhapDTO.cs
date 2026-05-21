@@ -9,7 +9,7 @@ namespace Bài_Tập_Lớn.DTO
         public string MaNCC { get; set; }
         public string MaNV { get; set; }
         public DateTime NgayNhap { get; set; }
-        public decimal TongTien { get; set; }
+        public double TongTien { get; set; }
         public string GhiChu { get; set; }
 
         public HoaDonNhapDTO()
@@ -22,7 +22,7 @@ namespace Bài_Tập_Lớn.DTO
             GhiChu = "";
         }
 
-        public HoaDonNhapDTO(string maHDN, string maNCC, string maNV, DateTime ngayNhap, decimal tongTien, string ghiChu)
+        public HoaDonNhapDTO(string maHDN, string maNCC, string maNV, DateTime ngayNhap, double tongTien, string ghiChu)
         {
             this.MaHDN = maHDN;
             this.MaNCC = maNCC;
