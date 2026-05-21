@@ -11,32 +11,13 @@ using System.Windows.Forms;
 
 namespace Bài_Tập_Lớn.GUI
 {
-    public partial class frmLogin : Form
+    public partial class LoginUI : Form
     {
-        public frmLogin()
+        public LoginUI()
         {
             InitializeComponent();
         }
-        private void DesignUI()
-        {
-           
-        }
-        // ===== HÀM BO GÓC =====
-        private void BoGoc(Control ctrl, int radius)
-        {
-            GraphicsPath path = new GraphicsPath();
-
-            path.StartFigure();
-
-            path.AddArc(new Rectangle(0, 0, radius, radius), 180, 90);
-            path.AddArc(new Rectangle(ctrl.Width - radius, 0, radius, radius), 270, 90);
-            path.AddArc(new Rectangle(ctrl.Width - radius, ctrl.Height - radius, radius, radius), 0, 90);
-            path.AddArc(new Rectangle(0, ctrl.Height - radius, radius, radius), 90, 90);
-
-            path.CloseFigure();
-
-            ctrl.Region = new Region(path);
-        }
+     
         private void LoginForm_Load(object sender, EventArgs e)
         {
         }
@@ -52,6 +33,11 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void guna2Panel10_Paint(object sender, PaintEventArgs e)
         {
 
         }
