@@ -21,6 +21,7 @@ namespace Bài_Tập_Lớn.GUI
         public RegisterUI()
         {
             InitializeComponent();
+            this.AutoScaleMode = AutoScaleMode.Dpi;
             this.StartPosition = FormStartPosition.CenterScreen;
         }
 

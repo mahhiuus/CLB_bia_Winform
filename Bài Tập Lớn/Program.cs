@@ -14,9 +14,10 @@ namespace Bài_Tập_Lớn
         [STAThread]
         static void Main()
         {
+            Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new RegisterUI());
+            Application.Run(new Maindashboard());
         }
     }
 }
