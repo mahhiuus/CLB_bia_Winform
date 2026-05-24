@@ -216,10 +216,7 @@
     <Compile Include="GUI\ConfirmDeleteUI.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="GUI\CustomUI.cs" />
-    <Compile Include="GUI\CustomUI.Designer.cs">
-      <DependentUpon>CustomUI.cs</DependentUpon>
-    </Compile>
+    <Compile Include="GUI\customUI.cs" />
     <Compile Include="GUI\HoaDonUi.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -271,9 +268,6 @@
     <EmbeddedResource Include="GUI\ConfirmDeleteUI.resx">
       <DependentUpon>ConfirmDeleteUI.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="GUI\CustomUI.resx">
-      <DependentUpon>CustomUI.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="GUI\HoaDonUi.resx">
       <DependentUpon>HoaDonUi.cs</DependentUpon>
     </EmbeddedResource>
@@ -285,9 +279,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="GUI\NhanVienPopupUI.resx">
       <DependentUpon>NhanVienPopupUI.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="GUI\NhanVienUI.resx">
-      <DependentUpon>NhanVienUI.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="GUI\Register.resx">
       <DependentUpon>Register.cs</DependentUpon>
