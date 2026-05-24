@@ -11,7 +11,7 @@ namespace Bài_Tập_Lớn.GUI
     public partial class SoDoBanUi : Form
     {
         // ── BLL ──
-        private readonly BanBidaBLL   _banBLL   = new BanBidaBLL();
+        private readonly BanBidaBLL _banBLL   = new BanBidaBLL();
         private readonly PhienChoiBLL _phienBLL = new PhienChoiBLL();
 
         // ── Colors ──
