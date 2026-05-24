@@ -1,12 +1,11 @@
-﻿using Bài_Tập_Lớn.BLL;
-using Bài_Tập_Lớn.DTO;
-using Bài_Tập_Lớn.Session;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using Bài_Tập_Lớn.Session;
+using Bài_Tập_Lớn.BLL;
+using Bài_Tập_Lớn.DTO;
+
 namespace Bài_Tập_Lớn.GUI
 {
     public partial class SoDoBanUi : Form
@@ -21,7 +20,7 @@ namespace Bài_Tập_Lớn.GUI
         static readonly Color GREEN_ACTIVE_BG = Color.FromArgb(232, 245, 232);
         static readonly Color CREAM         = Color.FromArgb(255, 255, 251);
         static readonly Color BORDER_IDLE   = Color.FromArgb(210, 220, 210);
-      
+
         // ── Tab state ──
         private string _activeTab = "THUONG"; // "THUONG" | "VIP"
         private Label  _lblTabThuong, _lblTabVip;
@@ -33,12 +32,11 @@ namespace Bài_Tập_Lớn.GUI
 
         // ── Image cache ──
         private Image _imgActive, _imgDisable;
-        string maNV = SessionManager.Instance.TaiKhoanHienTai?.MaNV ?? "";
+
         public SoDoBanUi()
         {
             InitializeComponent();
             this.Load += SoDoBanUi_Load;
-
         }
 
         private void SoDoBanUi_Load(object sender, EventArgs e)
@@ -142,7 +140,7 @@ namespace Bài_Tập_Lớn.GUI
             // Tab Thường
             var tabThuong = new Panel { Width = 180, Dock = DockStyle.Left, BackColor = Color.Transparent, Cursor = Cursors.Hand };
             _lblTabThuong = new Label {
-                Text = "Bàn Thường", Dock = DockStyle.Fill, BackColor = Color.Transparent,
+                Text = "Khu Vực Bàn Thường", Dock = DockStyle.Fill, BackColor = Color.Transparent,
                 Font = new Font("Segoe UI", 11, FontStyle.Bold),
                 ForeColor = GREEN_DARK, TextAlign = ContentAlignment.MiddleCenter, Cursor = Cursors.Hand
             };
@@ -157,7 +155,7 @@ namespace Bài_Tập_Lớn.GUI
             // Tab VIP
             var tabVip = new Panel { Width = 160, Dock = DockStyle.Left, BackColor = Color.Transparent, Cursor = Cursors.Hand };
             _lblTabVip = new Label {
-                Text = "Bàn VIP", Dock = DockStyle.Fill, BackColor = Color.Transparent,
+                Text = "Khu Vực Bàn VIP", Dock = DockStyle.Fill, BackColor = Color.Transparent,
                 Font = new Font("Segoe UI", 11, FontStyle.Regular),
                 ForeColor = Color.FromArgb(160, 160, 160), TextAlign = ContentAlignment.MiddleCenter, Cursor = Cursors.Hand
             };
@@ -220,7 +218,6 @@ namespace Bài_Tập_Lớn.GUI
             }
         }
 
- 
         // ════════════════════════════════════════════════════════
         //  Tạo card 1 bàn — 5 cột cố định, tự tính width
         // ════════════════════════════════════════════════════════
@@ -229,47 +226,48 @@ namespace Bài_Tập_Lớn.GUI
             bool isActive = ban.TrangThai?.ToUpper() == "DANG_CHOI";
 
             // Tính width card = (panel width - padding*2 - gap*4) / 5
-            int panelW = guna2Panel2.Width > 0 ? guna2Panel2.Width : 900;
-            int cardW = Math.Max(140, (panelW - 48 - 4 * 16) / 5);
-            int cardH = (int)(cardW * 1.1);
+            int panelW  = guna2Panel2.Width > 0 ? guna2Panel2.Width : 900;
+            int cardW   = Math.Max(140, (panelW - 48 - 4 * 16) / 5);
+            int cardH   = (int)(cardW * 1.2);
 
-            var card = new Panel
-            {
-                Width = cardW,
-                Height = cardH,
-                Margin = new Padding(8),
-                BackColor = isActive ? GREEN_ACTIVE_BG : Color.Transparent,
-                Cursor = Cursors.Hand,
-                Tag = ban
+            var card = new Panel {
+                Width     = cardW,
+                Height    = cardH,
+                Margin    = new Padding(8),
+                BackColor = isActive ? GREEN_ACTIVE_BG : Color.White,
+                Cursor    = Cursors.Hand,
+                Tag       = ban
             };
-
-            // ✅ SỬA LỖI BO GÓC: Ép Panel cắt theo khuôn bo tròn ngay từ đầu
-            card.Region = new Region(RoundedPath(new Rectangle(0, 0, cardW, cardH), 14));
 
             // Border bo tròn — vẽ bằng Paint
             card.Paint += (s, e) =>
             {
                 var g = e.Graphics;
                 g.SmoothingMode = SmoothingMode.AntiAlias;
-
-                // Vẽ viền lùi vào trong một chút để không bị che bởi Region
-                Color borderColor = isActive ? GREEN_LIGHT : Color.Transparent;
+                Color borderColor = isActive ? GREEN_LIGHT : BORDER_IDLE;
                 int bw = isActive ? 2 : 1;
                 using (var pen = new Pen(borderColor, bw))
-                using (var path = RoundedPath(new Rectangle(bw - 1, bw - 1, card.Width - bw - 1, card.Height - bw - 1), 14))
+                using (var path = RoundedPath(new Rectangle(1, 1, card.Width-2, card.Height-2), 14))
                     g.DrawPath(pen, path);
+
+                // Clip vùng bo tròn
+                using (var clip = RoundedPath(new Rectangle(0,0,card.Width,card.Height), 14))
+                    g.SetClip(clip);
+
+                // Nền
+                using (var bg = new SolidBrush(card.BackColor))
+                    g.FillRectangle(bg, card.ClientRectangle);
             };
 
             // ── Ảnh bàn bida ──
             int imgW = (int)(cardW * 0.80);
             int imgH = (int)(imgW * 0.58);
-            var picBox = new PictureBox
-            {
-                Size = new Size(imgW, imgH),
-                Location = new Point((cardW - imgW) / 2, (int)(cardH * 0.08)),
+            var picBox = new PictureBox {
+                Size     = new Size(imgW, imgH),
+                Location = new Point((cardW - imgW)/2, (int)(cardH * 0.08)),
                 SizeMode = PictureBoxSizeMode.Zoom,
-                BackColor = Color.Transparent,
-                Image = isActive ? _imgActive : _imgDisable
+                BackColor= Color.Transparent,
+                Image    = isActive ? _imgActive : _imgDisable
             };
             // Placeholder nếu không có ảnh
             if (picBox.Image == null)
@@ -277,53 +275,48 @@ namespace Bài_Tập_Lớn.GUI
                 picBox.Paint += (s, e) =>
                 {
                     e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                    using (var b = new SolidBrush(isActive ? Color.FromArgb(200, GREEN_LIGHT) : Color.FromArgb(200, 200, 200)))
-                        e.Graphics.FillEllipse(b, 10, 10, imgW - 20, imgH - 20);
+                    using (var b = new SolidBrush(isActive ? Color.FromArgb(200, GREEN_LIGHT) : Color.FromArgb(200,200,200)))
+                        e.Graphics.FillEllipse(b, 10, 10, imgW-20, imgH-20);
                 };
             }
             card.Controls.Add(picBox);
 
             // ── Tên bàn ──
             int lblY = picBox.Bottom + 6;
-            var lblName = new Label
-            {
-                Text = ban.TenBan,
-                Location = new Point(0, lblY),
-                Size = new Size(cardW, 22),
+            var lblName = new Label {
+                Text      = ban.TenBan,
+                Location  = new Point(0, lblY),
+                Size      = new Size(cardW, 22),
                 TextAlign = ContentAlignment.MiddleCenter,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Font      = new Font("Segoe UI", 10, FontStyle.Bold),
                 ForeColor = isActive ? GREEN_DARK : Color.FromArgb(180, 120, 10),
                 BackColor = Color.Transparent
             };
             card.Controls.Add(lblName);
 
             // ── Trạng thái ──
-            var lblStatus = new Label
-            {
-                Text = isActive ? "(đang chơi)" : "(trống)",
-                Location = new Point(0, lblName.Bottom + 1),
-
-                // ✅ SỬA LỖI MẤT CHỮ: Tăng Height từ 18 lên 24 để chữ 'g' có không gian hiển thị
-                Size = new Size(cardW, 24),
-
+            var lblStatus = new Label {
+                Text      = isActive ? "(đang chơi)" : "(trống)",
+                Location  = new Point(0, lblName.Bottom + 1),
+                Size      = new Size(cardW, 18),
                 TextAlign = ContentAlignment.MiddleCenter,
-                Font = new Font("Segoe UI", 8.5f, FontStyle.Regular),
-                ForeColor = isActive ? GREEN_DARK : Color.FromArgb(150, 150, 150),
+                Font      = new Font("Segoe UI", 8.5f, FontStyle.Regular),
+                ForeColor = isActive ? GREEN_DARK : Color.FromArgb(150,150,150),
                 BackColor = Color.Transparent
             };
             card.Controls.Add(lblStatus);
 
             // ── Click handler ──
             EventHandler onClick = (s, e) => HandleCardClick(ban, isActive);
-            card.Click += onClick;
-            picBox.Click += onClick;
+            card.Click    += onClick;
+            picBox.Click  += onClick;
             lblName.Click += onClick;
             lblStatus.Click += onClick;
 
             // Hover effect
-            card.MouseEnter += (s, e) => card.BackColor = isActive
-                ? Color.FromArgb(210, 240, 210) : Color.FromArgb(245, 250, 245);
-            card.MouseLeave += (s, e) => card.BackColor = isActive
+            card.MouseEnter += (s,e) => card.BackColor = isActive
+                ? Color.FromArgb(210, 240, 210) : Color.FromArgb(245,250,245);
+            card.MouseLeave += (s,e) => card.BackColor = isActive
                 ? GREEN_ACTIVE_BG : Color.White;
 
             return card;
@@ -350,7 +343,6 @@ namespace Bài_Tập_Lớn.GUI
                         var phien = new PhienChoiDTO {
                             MaPhien        = _phienBLL.SinhMaMoi(),
                             MaBan          = ban.MaBan,
-                            MaNV = "NV001",
                             ThoiGianBatDau = DateTime.Now,
                             TrangThai      = "DANG_CHOI"
                         };
@@ -398,11 +390,6 @@ namespace Bài_Tập_Lớn.GUI
             }
         }
 
-        private void guna2Panel2_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
         // ── Helper bo tròn ──
         private GraphicsPath RoundedPath(Rectangle bounds, int radius)
         {
@@ -415,6 +402,9 @@ namespace Bài_Tập_Lớn.GUI
             path.CloseFigure();
             return path;
         }
+
+        // ── Stub event handlers ──
+        private void guna2Panel2_Paint(object sender, PaintEventArgs e) { }
         private void guna2HtmlLabel1_Click(object sender, EventArgs e) { }
         private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e) { }
         private void guna2GradientPanel1_Paint(object sender, PaintEventArgs e) { }

@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Bài_Tập_Lớn.BLL;
 using Bài_Tập_Lớn.DTO;
-
+using System.Drawing.Drawing2D;
 namespace Bài_Tập_Lớn.UI
 {
     public partial class NhanVienPopupUI : Form
@@ -114,6 +114,24 @@ namespace Bài_Tập_Lớn.UI
         {
             txtMaNV.Text = nv.MaNV; txtHoTen.Text = nv.HoTen; txtSdt.Text = nv.Sdt;
             txtChucVu.Text = nv.ChucVu; cboGioiTinh.Text = nv.GioiTinh; dtpNgaySinh.Value = nv.NgaySinh ?? DateTime.Now;
+        }
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // NhanVienPopupUI
+            // 
+            this.ClientSize = new System.Drawing.Size(282, 253);
+            this.Name = "NhanVienPopupUI";
+            this.Load += new System.EventHandler(this.NhanVienPopupUI_Load);
+            this.ResumeLayout(false);
+
+        }
+
+        private void NhanVienPopupUI_Load(object sender, EventArgs e)
+        {
+
         }
 
         private void PreFillMa() { try { txtMaNV.Text = _bll.SinhMaMoi(); } catch { txtMaNV.Text = "NV01"; } }
