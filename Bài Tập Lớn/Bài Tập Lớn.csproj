@@ -195,7 +195,6 @@
     <Compile Include="BLL\TaiKhoanBLL.cs" />
     <Compile Include="DAL\ChiTietHoaDonBanDAL.cs" />
     <Compile Include="DAL\ChiTietPhienDAL.cs" />
-    <Compile Include="DAL\ChiTietHoaDonBanDAL.cs" />
     <Compile Include="DAL\DBConnection.cs" />
     <Compile Include="DAL\HoaDonBanDAL.cs" />
     <Compile Include="DAL\NhanVienDAL.cs" />
