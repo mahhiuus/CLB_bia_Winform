@@ -11,7 +11,7 @@ namespace Bài_Tập_Lớn.DAL
     {
         public string SinhMaMoi()
         {
-            string sql = @"SELECT ISNULL(MAX(CAST(SUBSTRING(ma_phien, 2, LEN(ma_phien)) AS INT)),0)
+            string sql = @"SELECT ISNULL(MAX(CAST(SUBSTRING(ma_phien, 3, LEN(ma_phien)) AS INT)),0)
                            FROM phien_choi";
 
             try
@@ -20,7 +20,7 @@ namespace Bài_Tập_Lớn.DAL
                 {
                     int soThuTu = conn.ExecuteScalar<int>(sql) + 1;
 
-                    return $"P{soThuTu:D2}";
+                    return $"PC{soThuTu:D3}";
                 }
             }
             catch (Exception ex)
@@ -119,6 +119,7 @@ namespace Bài_Tập_Lớn.DAL
                 (
                     ma_phien,
                     ma_ban,
+                    ma_nv,
                     thoi_gian_bat_dau,
                     thoi_gian_ket_thuc,
                     trang_thai
@@ -127,9 +128,10 @@ namespace Bài_Tập_Lớn.DAL
                 (
                     @MaPhien,
                     @MaBan,
+                    @MaNV,
                     @ThoiGianBatDau,
                     @ThoiGianKetThuc,
-                    @TrangThaiPhien
+                    @TrangThai
                 )";
 
             try
@@ -153,9 +155,10 @@ namespace Bài_Tập_Lớn.DAL
                 UPDATE phien_choi
                 SET
                     ma_ban = @MaBan,
+                    ma_nv = @MaNV,
                     thoi_gian_bat_dau = @ThoiGianBatDau,
                     thoi_gian_ket_thuc = @ThoiGianKetThuc,
-                    trang_thai = @TrangThaiPhien
+                    trang_thai = @TrangThai
                 WHERE ma_phien = @MaPhien";
 
             try
