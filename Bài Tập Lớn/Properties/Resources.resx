@@ -136,14 +136,20 @@
   <data name="NET (2)" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\NET (2).png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="logobia" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\logobia.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="BiaActived" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\BiaActived.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="investment" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\investment.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="FinalLogin" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\FinalLogin.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="calculator-bill" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\calculator-bill.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="logobia" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\logobia.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="NET" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\NET.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -166,9 +172,6 @@
   <data name="file-invoice-dollar (1)" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\file-invoice-dollar (1).png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="investment" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\investment.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="logobia (2)" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\logobia (2).png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -190,6 +193,9 @@
   <data name="photoRegister" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\photoRegister.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="Login (340 x 120 px)" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Login (340 x 120 px).png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="leave" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\leave.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -198,6 +204,9 @@
   </data>
   <data name="NET2" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\NET2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="BiaDisabled" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\BiaDisabled.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="sack-dollar1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\sack-dollar1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -220,13 +229,7 @@
   <data name="balls" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\balls.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Login (340 x 120 px)" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Login (340 x 120 px).png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="BiaActived" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\BiaActived.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="BiaDisabled" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\BiaDisabled.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="cardd" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cardd.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

@@ -1,161 +1,250 @@
+﻿using Bài_Tập_Lớn.BLL;
+using Bài_Tập_Lớn.DTO;
 using System;
 using System.Drawing;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using Bài_Tập_Lớn.BLL;
-using Bài_Tập_Lớn.DTO;
-using System.Drawing.Drawing2D;
-namespace Bài_Tập_Lớn.UI
+
+namespace Bài_Tập_Lớn.GUI
 {
+    // Tắt cảnh báo bắt buộc viết hoa chữ cái đầu
+#pragma warning disable IDE1006 
+
     public partial class NhanVienPopupUI : Form
     {
-        static readonly Color GREEN_DARK = ColorTranslator.FromHtml("#2b4e23");
-        static readonly Color GREEN_LIGHT = ColorTranslator.FromHtml("#79ae6f");
-        static readonly Color CREAM = Color.FromArgb(255, 255, 251);
-        static readonly Color BORDER_IDLE = Color.FromArgb(210, 220, 210);
-        static readonly Color DANGER = Color.FromArgb(192, 57, 43);
+        private NhanVienBLL _bll;
+        private NhanVienDTO _nv;
+        private bool _isEdit;
 
-        private readonly NhanVienBLL _bll;
-        private readonly NhanVienDTO _editNV;
-        private readonly bool _isEdit;
+        // ==================== TẠO BÓNG (SHADOW THUẦN WINFORMS) ====================
+        // Không dùng API ngoài (dwmapi.dll) nên an toàn tuyệt đối, không gây văng app
+        private const int CS_DROPSHADOW = 0x00020000;
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                cp.ClassStyle |= CS_DROPSHADOW;
+                return cp;
+            }
+        }
 
-        private RoundedTextBox txtMaNV, txtHoTen, txtSdt, txtChucVu;
-        private ComboBox cboGioiTinh;
-        private DateTimePicker dtpNgaySinh;
-        private RoundedButton btnLuu, btnHuy;
-        private Label lblError;
+        // ==================== FADE + SCALE ====================
+        private Timer _fadeTimer;
+        private double _fadeStep = 0;
+        private const double _totalSteps = 8;
 
-        public NhanVienPopupUI(NhanVienDTO nv, NhanVienBLL bll)
+        public NhanVienPopupUI()
+        {
+            InitializeComponent();
+            this.StartPosition = FormStartPosition.CenterScreen;
+
+            this.Opacity = 0;
+            this.Scale(new SizeF(0.92f, 0.92f));
+
+            _fadeTimer = new Timer { Interval = 10 };
+            _fadeTimer.Tick += FadeScaleTick;
+
+            this.Shown += (s, e) => _fadeTimer.Start();
+        }
+
+        private void FadeScaleTick(object sender, EventArgs e)
+        {
+            _fadeStep++;
+            double t = _fadeStep / _totalSteps;
+            double ease = 1 - (1 - t) * (1 - t);
+            this.Opacity = ease;
+
+            if (_fadeStep >= _totalSteps)
+            {
+                this.Opacity = 1;
+                _fadeTimer.Stop();
+            }
+        }
+
+        public NhanVienPopupUI(NhanVienDTO nv, NhanVienBLL bll) : this()
         {
             _bll = bll;
-            _editNV = nv;
+            _nv = nv;
             _isEdit = (nv != null);
-            BuildUI();
-            if (_isEdit) FillForm(nv); else PreFillMa();
+            this.Load += NhanVienPopupUI_FormLoad;
         }
 
-        private void BuildUI()
+        // ==================== FORM LOAD ====================
+        private void NhanVienPopupUI_FormLoad(object sender, EventArgs e)
         {
-            this.Size = new Size(500, 560);
-            this.StartPosition = FormStartPosition.CenterParent;
-            this.FormBorderStyle = FormBorderStyle.None;
-            this.BackColor = CREAM;
-            this.Font = new Font("Segoe UI", 9.5f);
+            if (selectChucVu != null)
+            {
+                selectChucVu.Items.Clear();
+                selectChucVu.Items.AddRange(new string[]
+                    { "Quản lý", "Nhân viên bán hàng", "Kế toán", "Kho vận", "Bảo vệ" });
+            }
 
-            // Bo tròn toàn bộ Form
-            using (var path = GraphicsHelper.GetRoundedPath(new Rectangle(0, 0, Width, Height), 14))
-                this.Region = new Region(path);
+            if (selectGioiTinh != null)
+            {
+                selectGioiTinh.Items.Clear();
+                selectGioiTinh.Items.AddRange(new string[] { "Nam", "Nữ", "Khác" });
+            }
 
-            Panel pnlHeader = new Panel { Dock = DockStyle.Top, Height = 62, BackColor = GREEN_DARK };
-            pnlHeader.Controls.Add(new Label { Text = _isEdit ? "✏️" : "➕", Font = new Font("Segoe UI", 20f), ForeColor = Color.White, AutoSize = true, Location = new Point(20, 12) });
-            pnlHeader.Controls.Add(new Label { Text = _isEdit ? "Sửa Nhân Viên" : "Thêm Nhân Viên", Font = new Font("Segoe UI Semibold", 13f), ForeColor = Color.White, AutoSize = true, Location = new Point(58, 20) });
+            if (btnHuy != null) btnHuy.Visible = true;
 
-            Button btnX = new Button { Text = "✕", Size = new Size(34, 34), Location = new Point(452, 14), FlatStyle = FlatStyle.Flat, ForeColor = Color.White, BackColor = GREEN_DARK, Font = new Font("Segoe UI", 10f) };
-            btnX.FlatAppearance.BorderSize = 0;
-            btnX.Click += (s, e) => { DialogResult = DialogResult.Cancel; Close(); };
-            pnlHeader.Controls.Add(btnX);
+            if (_isEdit)
+            {
+                btnIncluded.Text = "Cập nhật";
+                inputMaNv.Text = _nv.MaNV;
+                inputMaNv.Enabled = false;
+                inputHoTen.Text = _nv.HoTen;
+                inputSdt.Text = _nv.Sdt;
 
-            pnlHeader.MouseDown += DoDrag;
+                // Xử lý Guna2DateTimePicker an toàn
+                try
+                {
+                    if (_nv.NgaySinh.HasValue && chonNgaySinh is Guna.UI2.WinForms.Guna2DateTimePicker dtp)
+                    {
+                        dtp.Value = _nv.NgaySinh.Value;
+                    }
+                    else
+                    {
+                        chonNgaySinh.Text = _nv.NgaySinh.HasValue ? _nv.NgaySinh.Value.ToString("dd/MM/yyyy") : "";
+                    }
+                }
+                catch { }
 
-            Panel scroll = new Panel { Dock = DockStyle.Fill, AutoScroll = true, Padding = new Padding(24, 16, 24, 0) };
-            int y = 0;
+                if (selectGioiTinh != null)
+                {
+                    int idxGT = selectGioiTinh.Items.IndexOf(_nv.GioiTinh);
+                    selectGioiTinh.SelectedIndex = idxGT >= 0 ? idxGT : -1;
+                }
+                selectGioiTinh.Text = _nv.GioiTinh;
 
-            txtMaNV = new RoundedTextBox { ReadOnly = _isEdit, BackColor = _isEdit ? Color.FromArgb(238, 243, 238) : Color.White };
-            AddCard(scroll, "🪪", "Mã nhân viên *", txtMaNV, ref y);
-
-            txtHoTen = new RoundedTextBox();
-            AddCard(scroll, "👤", "Họ và tên *", txtHoTen, ref y);
-
-            txtSdt = new RoundedTextBox();
-            AddCard(scroll, "📞", "Số điện thoại", txtSdt, ref y);
-
-            cboGioiTinh = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 11f), Width = 340 };
-            cboGioiTinh.Items.AddRange(new object[] { "Nam", "Nữ", "Khác" }); cboGioiTinh.SelectedIndex = 0;
-            AddCard(scroll, "⚥", "Giới tính", cboGioiTinh, ref y);
-
-            txtChucVu = new RoundedTextBox();
-            AddCard(scroll, "💼", "Chức vụ", txtChucVu, ref y);
-
-            dtpNgaySinh = new DateTimePicker { Format = DateTimePickerFormat.Short, Font = new Font("Segoe UI", 11f), Width = 340, Value = DateTime.Now.AddYears(-22) };
-            AddCard(scroll, "🎂", "Ngày sinh", dtpNgaySinh, ref y);
-
-            lblError = new Label { ForeColor = DANGER, AutoSize = true, Location = new Point(4, y + 4) };
-            scroll.Controls.Add(lblError);
-
-            Panel pnlFooter = new Panel { Dock = DockStyle.Bottom, Height = 62, BackColor = Color.White };
-            pnlFooter.Paint += (s, e) => e.Graphics.DrawLine(new Pen(BORDER_IDLE, 1), 0, 0, pnlFooter.Width, 0);
-
-            btnHuy = new RoundedButton { Text = "Huỷ", Size = new Size(110, 36), Location = new Point(248, 13), BackColor = Color.White, ForeColor = Color.FromArgb(80, 80, 80) };
-            btnHuy.Click += (s, e) => { DialogResult = DialogResult.Cancel; Close(); };
-
-            btnLuu = new RoundedButton { Text = _isEdit ? "💾 Cập nhật" : "✅ Lưu mới", Size = new Size(128, 36), Location = new Point(364, 13), BackColor = GREEN_DARK, HoverColor = GREEN_LIGHT, ForeColor = Color.White };
-            btnLuu.Click += BtnLuu_Click;
-
-            pnlFooter.Controls.AddRange(new Control[] { btnHuy, btnLuu });
-
-            this.Controls.Add(scroll);
-            this.Controls.Add(pnlFooter);
-            this.Controls.Add(pnlHeader);
+                if (selectChucVu != null)
+                {
+                    int idxCV = selectChucVu.Items.IndexOf(_nv.ChucVu);
+                    selectChucVu.SelectedIndex = idxCV >= 0 ? idxCV : -1;
+                }
+                selectChucVu.Text = _nv.ChucVu;
+            }
+            else
+            {
+                btnIncluded.Text = "Thêm mới";
+                try { inputMaNv.Text = _bll.SinhMaMoi(); inputMaNv.Enabled = false; }
+                catch { inputMaNv.Text = "NV01"; }
+            }
         }
 
-        private void AddCard(Panel parent, string icon, string labelText, Control ctrl, ref int y)
+        // ==================== LƯU / CẬP NHẬT ====================
+        private void btnThem_Click(object sender, EventArgs e)
         {
-            Panel card = new Panel { Size = new Size(428, 64), Location = new Point(0, y) };
-            card.Controls.Add(new Label { Text = icon, Font = new Font("Segoe UI", 14f), AutoSize = true, Location = new Point(12, 18) });
-            card.Controls.Add(new Label { Text = labelText, ForeColor = Color.Gray, Font = new Font("Segoe UI", 8f), AutoSize = true, Location = new Point(44, 4) });
-            ctrl.Location = new Point(44, 22);
-            ctrl.Width = 340;
-            card.Controls.Add(ctrl);
-            parent.Controls.Add(card);
-            y += 70;
+            string maNV = inputMaNv.Text.Trim();
+            string hoTen = inputHoTen.Text.Trim();
+            string sdt = inputSdt.Text.Trim();
+            string gioiTinh = selectGioiTinh.Text.Trim();
+            string chucVu = selectChucVu.Text.Trim();
+
+            if (string.IsNullOrEmpty(maNV) || string.IsNullOrEmpty(hoTen))
+            {
+                MessageBox.Show("Mã nhân viên và Họ tên không được để trống!",
+                    "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(gioiTinh))
+            {
+                MessageBox.Show("Vui lòng chọn giới tính!",
+                    "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(chucVu))
+            {
+                MessageBox.Show("Vui lòng chọn chức vụ!",
+                    "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            DateTime ngaySinh = DateTime.Now;
+            try
+            {
+                // Sử dụng đúng kiểu Guna2DateTimePicker
+                if (chonNgaySinh is Guna.UI2.WinForms.Guna2DateTimePicker dtp)
+                {
+                    ngaySinh = dtp.Value.Date;
+                }
+                else
+                {
+                    DateTime.TryParseExact(chonNgaySinh.Text.Trim(), "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out ngaySinh);
+                }
+            }
+            catch { }
+
+            var nvMoi = new NhanVienDTO(maNV, hoTen, sdt, gioiTinh, chucVu, ngaySinh);
+
+            try
+            {
+                if (_isEdit)
+                    _bll.CapNhatNhanVien(nvMoi);
+                else
+                    _bll.ThemNhanVien(nvMoi);
+
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi: " + ex.Message, "Lỗi hệ thống",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
-        private void FillForm(NhanVienDTO nv)
+        // Alias cho nút Included
+        private void btnIncluded_Click(object sender, EventArgs e) => btnThem_Click(sender, e);
+
+        // ==================== HỦY (Chỉ đóng Popup) ====================
+        private void btnHuy_Click(object sender, EventArgs e)
         {
-            txtMaNV.Text = nv.MaNV; txtHoTen.Text = nv.HoTen; txtSdt.Text = nv.Sdt;
-            txtChucVu.Text = nv.ChucVu; cboGioiTinh.Text = nv.GioiTinh; dtpNgaySinh.Value = nv.NgaySinh ?? DateTime.Now;
+            this.DialogResult = DialogResult.Cancel;
+            this.Close();
         }
 
-        private void InitializeComponent()
+        // ==================== EVENT CHỌN NGÀY / COMBOBOX ====================
+        private void chonNgaySinh_ValueChanged(object sender, EventArgs e)
         {
-            this.SuspendLayout();
-            // 
-            // NhanVienPopupUI
-            // 
-            this.ClientSize = new System.Drawing.Size(282, 253);
-            this.Name = "NhanVienPopupUI";
-            this.Load += new System.EventHandler(this.NhanVienPopupUI_Load);
-            this.ResumeLayout(false);
-
+            // Sử dụng đúng kiểu Guna2DateTimePicker
+            if (sender is Guna.UI2.WinForms.Guna2DateTimePicker dtp && !(chonNgaySinh is Guna.UI2.WinForms.Guna2DateTimePicker))
+            {
+                chonNgaySinh.Text = dtp.Value.ToString("dd/MM/yyyy");
+            }
         }
 
-        private void NhanVienPopupUI_Load(object sender, EventArgs e)
+        private void selectChucVu_SelectedIndexChanged(object sender, EventArgs e)
         {
-
+            if (selectChucVu?.SelectedItem != null)
+                selectChucVu.Text = selectChucVu.SelectedItem.ToString();
         }
 
-        private void PreFillMa() { try { txtMaNV.Text = _bll.SinhMaMoi(); } catch { txtMaNV.Text = "NV01"; } }
-
-        private void BtnLuu_Click(object sender, EventArgs e)
+        private void selectGioiTinh_SelectedIndexChanged(object sender, EventArgs e)
         {
-            lblError.Text = "";
-            if (string.IsNullOrWhiteSpace(txtMaNV.Text)) { lblError.Text = "⚠ Mã nhân viên trống!"; return; }
-            if (string.IsNullOrWhiteSpace(txtHoTen.Text)) { lblError.Text = "⚠ Họ tên trống!"; return; }
-
-            var nv = new NhanVienDTO(txtMaNV.Text.Trim(), txtHoTen.Text.Trim(), txtSdt.Text.Trim(), cboGioiTinh.Text, txtChucVu.Text.Trim(), dtpNgaySinh.Value);
-            try { if (_isEdit) _bll.CapNhatNhanVien(nv); else _bll.ThemNhanVien(nv); DialogResult = DialogResult.OK; Close(); }
-            catch (Exception ex) { lblError.Text = "⚠ " + ex.Message; }
+            if (selectGioiTinh?.SelectedItem != null)
+                selectGioiTinh.Text = selectGioiTinh.SelectedItem.ToString();
         }
 
-        protected override void OnPaint(PaintEventArgs e)
+        // ==================== DỌN DẸP BỘ NHỚ KHI ĐÓNG ====================
+        protected override void OnFormClosed(FormClosedEventArgs e)
         {
-            base.OnPaint(e);
-            using (Pen pen = new Pen(GREEN_DARK, 2)) e.Graphics.DrawPath(pen, GraphicsHelper.GetRoundedPath(new Rectangle(0, 0, Width - 1, Height - 1), 14));
+            if (_fadeTimer != null)
+            {
+                _fadeTimer.Stop();
+                _fadeTimer.Dispose();
+            }
+            base.OnFormClosed(e);
         }
 
-        private void DoDrag(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left) { NativeDrag.ReleaseCapture(); NativeDrag.SendMessage(Handle, 0xA1, 0x2, 0); }
-        }
+        // ==================== EVENT TRỐNG ====================
+        private void inputMaNv_Load(object sender, EventArgs e) { }
+        private void inputHoTen_Load(object sender, EventArgs e) { }
+        private void inputSdt_Load(object sender, EventArgs e) { }
+        private void selectGioiTinh_Load(object sender, EventArgs e) { }
+        private void selectChucVu_Load(object sender, EventArgs e) { }
+        private void chonNgaySinh_Load(object sender, EventArgs e) { }
+        private void NhanVienPopupUI_Load(object sender, EventArgs e) { }
     }
 }

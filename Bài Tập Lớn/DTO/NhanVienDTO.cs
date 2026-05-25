@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 
 namespace Bài_Tập_Lớn.DTO
 {
@@ -19,16 +18,18 @@ namespace Bài_Tập_Lớn.DTO
             Sdt = "";
             GioiTinh = "";
             ChucVu = "";
-            NgaySinh = DateTime.Now;
+            NgaySinh = null;
         }
-        public NhanVienDTO(string maNV, string hoTen, string sdt, string gioiTinh, string chucVu, DateTime? ngaySinh)
+
+        public NhanVienDTO(string maNV, string hoTen, string sdt,
+                           string gioiTinh, string chucVu, DateTime? ngaySinh)
         {
-            this.MaNV = maNV;
-            this.HoTen = hoTen;
-            this.Sdt = sdt;
-            this.GioiTinh = gioiTinh;
-            this.ChucVu = chucVu;
-            this.NgaySinh = ngaySinh;
+            MaNV = maNV;
+            HoTen = hoTen;
+            Sdt = sdt;
+            GioiTinh = gioiTinh;
+            ChucVu = chucVu;
+            NgaySinh = ngaySinh;
         }
     }
 }
