@@ -164,7 +164,6 @@ namespace Bài_Tập_Lớn.GUI
             DateTime ngaySinh = DateTime.Now;
             try
             {
-                // Sử dụng đúng kiểu Guna2DateTimePicker
                 if (chonNgaySinh is Guna.UI2.WinForms.Guna2DateTimePicker dtp)
                 {
                     ngaySinh = dtp.Value.Date;
@@ -195,20 +194,16 @@ namespace Bài_Tập_Lớn.GUI
             }
         }
 
-        // Alias cho nút Included
         private void btnIncluded_Click(object sender, EventArgs e) => btnThem_Click(sender, e);
 
-        // ==================== HỦY (Chỉ đóng Popup) ====================
         private void btnHuy_Click(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
 
-        // ==================== EVENT CHỌN NGÀY / COMBOBOX ====================
         private void chonNgaySinh_ValueChanged(object sender, EventArgs e)
         {
-            // Sử dụng đúng kiểu Guna2DateTimePicker
             if (sender is Guna.UI2.WinForms.Guna2DateTimePicker dtp && !(chonNgaySinh is Guna.UI2.WinForms.Guna2DateTimePicker))
             {
                 chonNgaySinh.Text = dtp.Value.ToString("dd/MM/yyyy");
@@ -249,7 +244,65 @@ namespace Bài_Tập_Lớn.GUI
 
         private void btnXacNhan_Click(object sender, EventArgs e)
         {
+            string maNV = inputMaNv.Text.Trim();
+            string hoTen = inputHoTen.Text.Trim();
+            string sdt = inputSdt.Text.Trim();
+            string gioiTinh = selectGioiTinh.Text.Trim();
+            string chucVu = selectChucVu.Text.Trim();
 
+            if (string.IsNullOrEmpty(maNV) || string.IsNullOrEmpty(hoTen))
+            {
+                MessageBox.Show("Mã nhân viên và Họ tên không được để trống!",
+                    "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(gioiTinh))
+            {
+                MessageBox.Show("Vui lòng chọn giới tính!",
+                    "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(chucVu))
+            {
+                MessageBox.Show("Vui lòng chọn chức vụ!",
+                    "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            DateTime ngaySinh = DateTime.Now;
+            try
+            {
+                // Sử dụng đúng kiểu Guna2DateTimePicker
+                if (chonNgaySinh is Guna.UI2.WinForms.Guna2DateTimePicker dtp)
+                {
+                    ngaySinh = dtp.Value.Date;
+                }
+                else
+                {
+                    DateTime.TryParseExact(chonNgaySinh.Text.Trim(), "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out ngaySinh);
+                }
+            }
+            catch { }
+
+            var nvMoi = new NhanVienDTO(maNV, hoTen, sdt, gioiTinh, chucVu, ngaySinh);
+
+            try
+            {
+                if (_isEdit)
+                    _bll.CapNhatNhanVien(nvMoi);
+                else
+                    _bll.ThemNhanVien(nvMoi);
+
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi: " + ex.Message, "Lỗi hệ thống",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
