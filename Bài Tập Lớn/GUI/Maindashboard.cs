@@ -20,6 +20,7 @@ namespace Bài_Tập_Lớn.GUI
         private SoDoBanUi _soDoBanForm = null;
         private HoaDonUi _hoaDonUi = null;
         private NhanVienUI _nhanVienUI = null;
+        private BanBiaPanel _banBiaPanel = null;
         private bool _isTransitioning = false;
 
         // ── Skeleton ─────────────────────────────────────────────
@@ -516,15 +517,24 @@ namespace Bài_Tập_Lớn.GUI
         private void guna2Button6_Click(object sender, EventArgs e) { }
         private void guna2Button7_Click(object sender, EventArgs e) { }
         private void guna2Button8_Click(object sender, EventArgs e) { }
-        private void guna2Button9_Click(object sender, EventArgs e) { }
-        private void guna2Button10_Click(object sender, EventArgs e) { }
+        private void guna2Button9_Click(object sender, EventArgs e) {
+
+            if (_banBiaPanel == null || _banBiaPanel.IsDisposed)            
+                _banBiaPanel = new BanBiaPanel();
+                OpenChildForm(_banBiaPanel, sender);
+
+            }
+        
+        private void guna2Button10_Click(object sender, EventArgs e) {
+
+        }
         private void menutxt_Click(object sender, EventArgs e) { }
         private void ParentMainContent_Paint(object sender, PaintEventArgs e) { }
 
         private void guna2Button1_Click(object sender, EventArgs e)
         {
-            if (_nhanVienUI == null || _nhanVienUI.IsDisposed)
-                _nhanVienUI = new NhanVienUI();
+            if(_nhanVienUI == null || _nhanVienUI.IsDisposed)
+                _nhanVienUI = new NhanVienUI(); 
             OpenChildForm(_nhanVienUI, sender);
         }
     }

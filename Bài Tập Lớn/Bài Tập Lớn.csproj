@@ -240,6 +240,12 @@
     <Compile Include="GUI\BanBiaPanel.Designer.cs">
       <DependentUpon>BanBiaPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="GUI\BanBiaPopupUi.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\BanBiaPopupUi.Designer.cs">
+      <DependentUpon>BanBiaPopupUi.cs</DependentUpon>
+    </Compile>
     <Compile Include="GUI\ConfirmDeleteUI.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -300,6 +306,9 @@
     <Compile Include="Session\SessionManager.cs" />
     <EmbeddedResource Include="GUI\BanBiaPanel.resx">
       <DependentUpon>BanBiaPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\BanBiaPopupUi.resx">
+      <DependentUpon>BanBiaPopupUi.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="GUI\ConfirmDeleteUI.resx">
       <DependentUpon>ConfirmDeleteUI.cs</DependentUpon>

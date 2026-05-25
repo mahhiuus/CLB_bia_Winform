@@ -53,6 +53,10 @@
             this.btnTrangChu = new Guna.UI2.WinForms.Guna2Button();
             this.gunaDoughnutDataset1 = new Guna.Charts.WinForms.GunaDoughnutDataset();
             this.ParentMainContent = new Guna.UI2.WinForms.Guna2Panel();
+<<<<<<< Updated upstream
+=======
+            this.guna2Button2 = new Guna.UI2.WinForms.Guna2Button();
+>>>>>>> Stashed changes
             this.guna2Panel9.SuspendLayout();
             this.ParentSideBar.SuspendLayout();
             this.MainSideBar.SuspendLayout();
@@ -119,8 +123,13 @@
             this.ParentSideBar.Location = new System.Drawing.Point(0, 32);
             this.ParentSideBar.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.ParentSideBar.Name = "ParentSideBar";
+<<<<<<< Updated upstream
             this.ParentSideBar.Padding = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.ParentSideBar.Size = new System.Drawing.Size(321, 756);
+=======
+            this.ParentSideBar.Padding = new System.Windows.Forms.Padding(10);
+            this.ParentSideBar.Size = new System.Drawing.Size(401, 1071);
+>>>>>>> Stashed changes
             this.ParentSideBar.TabIndex = 23;
             this.ParentSideBar.Paint += new System.Windows.Forms.PaintEventHandler(this.guna2Panel1_Paint);
             // 
@@ -132,6 +141,7 @@
             this.MainSideBar.BorderRadius = 20;
             this.MainSideBar.BorderStyle = System.Drawing.Drawing2D.DashStyle.Dash;
             this.MainSideBar.BorderThickness = 2;
+            this.MainSideBar.Controls.Add(this.guna2Button2);
             this.MainSideBar.Controls.Add(this.guna2Button1);
             this.MainSideBar.Controls.Add(this.guna2HtmlLabel2);
             this.MainSideBar.Controls.Add(this.guna2HtmlLabel1);
@@ -158,7 +168,11 @@
             this.MainSideBar.ShadowDecoration.Color = System.Drawing.Color.White;
             this.MainSideBar.ShadowDecoration.Depth = 50;
             this.MainSideBar.ShadowDecoration.Enabled = true;
+<<<<<<< Updated upstream
             this.MainSideBar.Size = new System.Drawing.Size(305, 740);
+=======
+            this.MainSideBar.Size = new System.Drawing.Size(381, 1051);
+>>>>>>> Stashed changes
             this.MainSideBar.TabIndex = 0;
             this.MainSideBar.Paint += new System.Windows.Forms.PaintEventHandler(this.guna2Panel2_Paint);
             // 
@@ -181,11 +195,18 @@
             this.guna2Button1.Image = global::Bài_Tập_Lớn.Properties.Resources.users_alt;
             this.guna2Button1.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.guna2Button1.ImageSize = new System.Drawing.Size(22, 22);
+<<<<<<< Updated upstream
             this.guna2Button1.Location = new System.Drawing.Point(20, 631);
             this.guna2Button1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.guna2Button1.Name = "guna2Button1";
             this.guna2Button1.Padding = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.guna2Button1.Size = new System.Drawing.Size(222, 48);
+=======
+            this.guna2Button1.Location = new System.Drawing.Point(25, 789);
+            this.guna2Button1.Name = "guna2Button1";
+            this.guna2Button1.Padding = new System.Windows.Forms.Padding(10);
+            this.guna2Button1.Size = new System.Drawing.Size(277, 57);
+>>>>>>> Stashed changes
             this.guna2Button1.TabIndex = 27;
             this.guna2Button1.Text = "Quản Lý Nhân Viên";
             this.guna2Button1.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -250,11 +271,18 @@
             this.guna2Button7.Image = global::Bài_Tập_Lớn.Properties.Resources.leave;
             this.guna2Button7.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.guna2Button7.ImageSize = new System.Drawing.Size(22, 22);
+<<<<<<< Updated upstream
             this.guna2Button7.Location = new System.Drawing.Point(30, 677);
             this.guna2Button7.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.guna2Button7.Name = "guna2Button7";
             this.guna2Button7.Padding = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.guna2Button7.Size = new System.Drawing.Size(222, 48);
+=======
+            this.guna2Button7.Location = new System.Drawing.Point(25, 915);
+            this.guna2Button7.Name = "guna2Button7";
+            this.guna2Button7.Padding = new System.Windows.Forms.Padding(10);
+            this.guna2Button7.Size = new System.Drawing.Size(277, 57);
+>>>>>>> Stashed changes
             this.guna2Button7.TabIndex = 11;
             this.guna2Button7.Text = "Đăng Xuất";
             this.guna2Button7.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -282,8 +310,13 @@
             this.guna2Button5.Location = new System.Drawing.Point(20, 526);
             this.guna2Button5.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.guna2Button5.Name = "guna2Button5";
+<<<<<<< Updated upstream
             this.guna2Button5.Padding = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.guna2Button5.Size = new System.Drawing.Size(222, 48);
+=======
+            this.guna2Button5.Padding = new System.Windows.Forms.Padding(10);
+            this.guna2Button5.Size = new System.Drawing.Size(277, 57);
+>>>>>>> Stashed changes
             this.guna2Button5.TabIndex = 10;
             this.guna2Button5.Text = "Quản Lý Tài Khoản";
             this.guna2Button5.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -308,11 +341,18 @@
             this.guna2Button8.Image = global::Bài_Tập_Lớn.Properties.Resources.room_service;
             this.guna2Button8.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.guna2Button8.ImageSize = new System.Drawing.Size(22, 22);
+<<<<<<< Updated upstream
             this.guna2Button8.Location = new System.Drawing.Point(20, 473);
             this.guna2Button8.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.guna2Button8.Name = "guna2Button8";
             this.guna2Button8.Padding = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.guna2Button8.Size = new System.Drawing.Size(222, 48);
+=======
+            this.guna2Button8.Location = new System.Drawing.Point(25, 588);
+            this.guna2Button8.Name = "guna2Button8";
+            this.guna2Button8.Padding = new System.Windows.Forms.Padding(10);
+            this.guna2Button8.Size = new System.Drawing.Size(277, 57);
+>>>>>>> Stashed changes
             this.guna2Button8.TabIndex = 9;
             this.guna2Button8.Text = "Quản Lý Thực đơn";
             this.guna2Button8.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -340,8 +380,13 @@
             this.guna2Button9.Location = new System.Drawing.Point(20, 420);
             this.guna2Button9.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.guna2Button9.Name = "guna2Button9";
+<<<<<<< Updated upstream
             this.guna2Button9.Padding = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.guna2Button9.Size = new System.Drawing.Size(222, 48);
+=======
+            this.guna2Button9.Padding = new System.Windows.Forms.Padding(10);
+            this.guna2Button9.Size = new System.Drawing.Size(277, 57);
+>>>>>>> Stashed changes
             this.guna2Button9.TabIndex = 8;
             this.guna2Button9.Text = "Quản Lý Bàn";
             this.guna2Button9.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -369,8 +414,13 @@
             this.guna2Button10.Location = new System.Drawing.Point(20, 578);
             this.guna2Button10.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.guna2Button10.Name = "guna2Button10";
+<<<<<<< Updated upstream
             this.guna2Button10.Padding = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.guna2Button10.Size = new System.Drawing.Size(222, 48);
+=======
+            this.guna2Button10.Padding = new System.Windows.Forms.Padding(10);
+            this.guna2Button10.Size = new System.Drawing.Size(277, 57);
+>>>>>>> Stashed changes
             this.guna2Button10.TabIndex = 7;
             this.guna2Button10.Text = "Quản Lý Khách Hàng";
             this.guna2Button10.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -394,8 +444,12 @@
             this.admintxt.HoverState.FillColor = System.Drawing.Color.Transparent;
             this.admintxt.HoverState.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.admintxt.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
+<<<<<<< Updated upstream
             this.admintxt.Location = new System.Drawing.Point(2, 383);
             this.admintxt.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+=======
+            this.admintxt.Location = new System.Drawing.Point(3, 465);
+>>>>>>> Stashed changes
             this.admintxt.Name = "admintxt";
             this.admintxt.Padding = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.admintxt.Size = new System.Drawing.Size(87, 45);
@@ -588,16 +642,54 @@
             this.ParentMainContent.ShadowDecoration.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(251)))));
             this.ParentMainContent.ShadowDecoration.Depth = 10;
             this.ParentMainContent.ShadowDecoration.Shadow = new System.Windows.Forms.Padding(8);
+<<<<<<< Updated upstream
             this.ParentMainContent.Size = new System.Drawing.Size(788, 756);
             this.ParentMainContent.TabIndex = 24;
             this.ParentMainContent.Paint += new System.Windows.Forms.PaintEventHandler(this.ParentMainContent_Paint);
             // 
+=======
+            this.ParentMainContent.Size = new System.Drawing.Size(1039, 1071);
+            this.ParentMainContent.TabIndex = 24;
+            this.ParentMainContent.Paint += new System.Windows.Forms.PaintEventHandler(this.ParentMainContent_Paint);
+            // 
+            // guna2Button2
+            // 
+            this.guna2Button2.BackColor = System.Drawing.Color.Transparent;
+            this.guna2Button2.CheckedState.CustomBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
+            this.guna2Button2.CheckedState.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.guna2Button2.CustomBorderThickness = new System.Windows.Forms.Padding(0, 0, 0, 2);
+            this.guna2Button2.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
+            this.guna2Button2.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
+            this.guna2Button2.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.guna2Button2.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
+            this.guna2Button2.FillColor = System.Drawing.Color.Transparent;
+            this.guna2Button2.Font = new System.Drawing.Font("Segoe UI Semibold", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.guna2Button2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
+            this.guna2Button2.HoverState.CustomBorderColor = System.Drawing.Color.Transparent;
+            this.guna2Button2.HoverState.FillColor = System.Drawing.Color.Transparent;
+            this.guna2Button2.HoverState.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.guna2Button2.Image = global::Bài_Tập_Lớn.Properties.Resources.room_service;
+            this.guna2Button2.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
+            this.guna2Button2.ImageSize = new System.Drawing.Size(22, 22);
+            this.guna2Button2.Location = new System.Drawing.Point(25, 852);
+            this.guna2Button2.Name = "guna2Button2";
+            this.guna2Button2.Padding = new System.Windows.Forms.Padding(10);
+            this.guna2Button2.Size = new System.Drawing.Size(311, 57);
+            this.guna2Button2.TabIndex = 28;
+            this.guna2Button2.Text = "Quản Lý Nhà Cung Cấp";
+            this.guna2Button2.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
+            // 
+>>>>>>> Stashed changes
             // Maindashboard
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(49)))), ((int)(((byte)(81)))), ((int)(((byte)(30)))));
+<<<<<<< Updated upstream
             this.ClientSize = new System.Drawing.Size(1109, 788);
+=======
+            this.ClientSize = new System.Drawing.Size(1440, 1111);
+>>>>>>> Stashed changes
             this.Controls.Add(this.ParentMainContent);
             this.Controls.Add(this.ParentSideBar);
             this.Controls.Add(this.guna2Panel9);
@@ -640,5 +732,6 @@
         private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel1;
         private Guna.UI2.WinForms.Guna2Panel ParentMainContent;
         private Guna.UI2.WinForms.Guna2Button guna2Button1;
+        private Guna.UI2.WinForms.Guna2Button guna2Button2;
     }
 }

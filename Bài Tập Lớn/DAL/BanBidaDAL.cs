@@ -11,15 +11,20 @@ namespace Bài_Tập_Lớn.DAL
     {
         public string SinhMaMoi()
         {
-            // Sửa tên cột thành ma_ban, tên bảng thành BanBida
-            string sql = @"SELECT ISNULL(MAX(CAST(SUBSTRING(ma_ban, 2, LEN(ma_ban)) AS INT)), 0) 
-                           FROM ban_bida";
+            // Dùng PATINDEX để tìm vị trí bắt đầu của phần số trong mã (AN001 → vị trí 3)
+            // Tránh lỗi CAST khi prefix có nhiều hơn 1 ký tự chữ
+            string sql = @"
+                SELECT ISNULL(MAX(CAST(
+                    SUBSTRING(ma_ban, PATINDEX('%[0-9]%', ma_ban), LEN(ma_ban))
+                AS INT)), 0)
+                FROM ban_bida";
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
                     int soThuTu = conn.ExecuteScalar<int>(sql) + 1;
-                    return $"B{soThuTu:D2}";
+                    // Giữ đúng định dạng AN001, AN002, ...
+                    return $"AN{soThuTu:D3}";
                 }
             }
             catch (Exception ex)
@@ -30,7 +35,6 @@ namespace Bài_Tập_Lớn.DAL
 
         public bool ThemBan(BanBidaDTO ban)
         {
-            // Sửa tên cột và tên bảng theo đúng database của bạn
             string sql = @"INSERT INTO ban_bida(ma_ban, ten_ban, loai_ban, gia_theo_gio, trang_thai) 
                            VALUES(@MaBan, @TenBan, @LoaiBan, @GiaTheoGio, @TrangThai)";
             try
@@ -56,12 +60,11 @@ namespace Bài_Tập_Lớn.DAL
 
         public bool CapNhatBan(BanBidaDTO ban)
         {
-            // Sửa tên cột cập nhật và điều kiện WHERE ma_ban
             string sql = @"UPDATE ban_bida SET 
-                              ten_ban = @TenBan, 
-                              loai_ban = @LoaiBan, 
+                              ten_ban     = @TenBan, 
+                              loai_ban    = @LoaiBan, 
                               gia_theo_gio = @GiaTheoGio, 
-                              trang_thai = @TrangThai 
+                              trang_thai  = @TrangThai 
                            WHERE ma_ban = @MaBan";
             try
             {
@@ -123,13 +126,12 @@ namespace Bài_Tập_Lớn.DAL
 
         public List<BanBidaDTO> LayTatCaBan()
         {
-            // Sử dụng AS để map chính xác cột database (snake_case) vào thuộc tính DTO (PascalCase)
             string sql = @"SELECT 
-                            ma_ban AS MaBan, 
-                            ten_ban AS TenBan, 
-                            loai_ban AS LoaiBan, 
+                            ma_ban       AS MaBan, 
+                            ten_ban      AS TenBan, 
+                            loai_ban     AS LoaiBan, 
                             gia_theo_gio AS GiaTheoGio, 
-                            trang_thai AS TrangThai 
+                            trang_thai   AS TrangThai 
                            FROM ban_bida 
                            ORDER BY ma_ban";
             try
@@ -148,11 +150,11 @@ namespace Bài_Tập_Lớn.DAL
         public BanBidaDTO TimTheoMaBan(string maBan)
         {
             string sql = @"SELECT 
-                            ma_ban AS MaBan, 
-                            ten_ban AS TenBan, 
-                            loai_ban AS LoaiBan, 
+                            ma_ban       AS MaBan, 
+                            ten_ban      AS TenBan, 
+                            loai_ban     AS LoaiBan, 
                             gia_theo_gio AS GiaTheoGio, 
-                            trang_thai AS TrangThai 
+                            trang_thai   AS TrangThai 
                            FROM ban_bida 
                            WHERE ma_ban = @MaBan";
             try
@@ -171,11 +173,11 @@ namespace Bài_Tập_Lớn.DAL
         public List<BanBidaDTO> TimTheoTrangThai(string trangThai)
         {
             string sql = @"SELECT 
-                            ma_ban AS MaBan, 
-                            ten_ban AS TenBan, 
-                            loai_ban AS LoaiBan, 
+                            ma_ban       AS MaBan, 
+                            ten_ban      AS TenBan, 
+                            loai_ban     AS LoaiBan, 
                             gia_theo_gio AS GiaTheoGio, 
-                            trang_thai AS TrangThai 
+                            trang_thai   AS TrangThai 
                            FROM ban_bida 
                            WHERE trang_thai = @TrangThai";
             try
@@ -193,13 +195,14 @@ namespace Bài_Tập_Lớn.DAL
 
         public List<BanBidaDTO> TimTheoLoaiBan(string loaiBan)
         {
+            // Fix: đổi tên bảng từ BanBida → ban_bida cho nhất quán
             string sql = @"SELECT 
-                            ma_ban AS MaBan, 
-                            ten_ban AS TenBan, 
-                            loai_ban AS LoaiBan, 
+                            ma_ban       AS MaBan, 
+                            ten_ban      AS TenBan, 
+                            loai_ban     AS LoaiBan, 
                             gia_theo_gio AS GiaTheoGio, 
-                            trang_thai AS TrangThai 
-                           FROM BanBida 
+                            trang_thai   AS TrangThai 
+                           FROM ban_bida 
                            WHERE loai_ban = @LoaiBan";
             try
             {

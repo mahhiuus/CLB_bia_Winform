@@ -121,29 +121,6 @@
     <value>305, 17</value>
   </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="guna2Panel5.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        vAAADrwBlbxySQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAO7SURBVHhe7ZrJ
-        axRBFIfbBTy4ooIKipl6RZLp1wYxCKIIARdIYr0ao3Px4AIaEBG8iQcx/4IHz4qKggcREUUPih40BwVx
-        QQT1JF7chWjcpdpxnKqpGaenO5OZtj74LqFeVb1fOr3G8xwOh8PhcDgcjiL5vDcJBdvkEzsRENxCgqet
-        qNq76gEl39zT0zPZ7NMKCrYcCR4iwc90yR9lBV9h9qsRCL4eCT6WF6fG0YBYv9l3SLYvsxgJ3lmK0uaH
-        Jf3tzOzfQwnHLYPT6im9+TxOQ4JPloFpdZT38hnFAALKrLMMSrWq579HgISt5oD/wG1/AyAYtAxIu4NJ
-        BzCKAq4FxE8iwcUWuKIkFsAPX8BhzC+cXZzQ8zzey6egYPua+OSaUACS7ylt3MSXmdXh0WHWjb+JBHBW
-        67YCPvEDltrxNpEAVmmdVqCDOqY34VEQO4Av6qlR67QKSGzYMsd4GjuAt1qH/wAlu2yZo9QbWQG5rGRr
-        4xoQ242Cv7asUWrsAH4szbXN0rqsAhI8tszxx09R5qoFlHynZZ1SYwfw05dsh7ZqBXzB0aw1fOV53gSz
-        Lg6+gF7LOqXGDwCJPevOs5nayiZD3kQkuFReW+bBKOeUanRu7Jyj/qQsa5SaRAChVysdvuo1FEp2xFJT
-        SXXT9CYBv1nmNk0sAOVzX8DeLtGRUU1nBxYvQMm2IPG7lrHNYqIBtKJjFsAHJPhu+XktvjTf7Bq+sNTU
-        ayIBqEYvIMEuJODqAagw5QTsa5vvCy4L54D3llpdwfYVN1SFrGR9SPC1rD66sQM417mRtWu7q4B6/eQT
-        O1TldvilWVONgNh1yxxRrTuAzyhgu7ajGkHJ/cKhXDZnu2ifa463EV5Z7HNEta4ARtS3A21HEQkoMw8J
-        Hljmvq2uHOZtbanqaxUKdt5SW491BFDnb96kM9fWVjjhla/ROCMHoL9Lj0kTvIiNFMBndZOjdRCXIW9i
-        QHDHslajjBTAaW3zCVHDE9tYWnsAAbEBbecJoR6kwquKZc0GWHsA6qSl7TxBkOCJuV6DrD0AFGy/tuuE
-        CCSsjHHbHNcIAYSy4YDgTFIi8StV7gwbYdQAUmdJAON/TW68ErYWAwhvM80BKdffwNYUA+ha3zW1ib/h
-        jYUfVc/FABRIcMwyMJ1KOKo1rwgkLCq8UCwvSJdvugb4QrP/kMK5YMRSlBZHVI9m3xpLctAdSLhvKW51
-        72UFX2b2a0V9oFD3/+G/zkm4aXk52Rr+3vsx9c1RPX2afTocDofD4XA4/md+AZeQEavqnwOEAAAAAElF
-        TkSuQmCC
-</value>
-  </data>
   <data name="guna2Panel6.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
