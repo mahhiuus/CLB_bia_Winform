@@ -71,21 +71,19 @@ namespace Bài_Tập_Lớn.DAL
         // Tìm kiếm khách hàng
         public List<KhachHangDTO> TimKiem(string keyword)
         {
-            string sql = @"SELECT * FROM khach_hang
-                           WHERE ma_kh LIKE @Keyword
-                           OR ho_ten LIKE @Keyword";
+            string sql = @"SELECT * 
+                           FROM khach_hang                   
+                           WHERE ma_kh LIKE @Keyword                   
+                           OR ho_ten COLLATE Vietnamese_CI_AI LIKE @Keyword COLLATE Vietnamese_CI_AI";
 
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    return conn.Query<KhachHangDTO>(
-                        sql,
-                        new
-                        {
-                            Keyword = "%" + keyword + "%"
-                        }
-                    ).ToList();
+                    var dynamicParams = new DynamicParameters();
+                    dynamicParams.Add("Keyword", "%" + keyword.Trim() + "%", System.Data.DbType.String);
+
+                    return conn.Query<KhachHangDTO>(sql, dynamicParams).ToList();
                 }
             }
             catch (Exception ex)

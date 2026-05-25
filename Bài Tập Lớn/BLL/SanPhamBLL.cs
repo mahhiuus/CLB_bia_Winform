@@ -67,5 +67,26 @@ namespace Bài_Tập_Lớn.BLL
             }
             return sanPhamDAL.TimKiemTheoTen(tenSanPham);
         }
+        public List<SanPhamDTO> TimKiem(string keyword)
+        {
+            return sanPhamDAL.TimKiem(keyword);
+        }
+        public bool CapNhatSanPham(SanPhamDTO sp)
+        {
+            if (sp == null || string.IsNullOrWhiteSpace(sp.MaSP))
+            {
+                throw new Exception("Dữ liệu sản phẩm không hợp lệ!");
+            }
+            return sanPhamDAL.CapNhatSanPham(sp);
+        }
+
+        public bool XoaSanPham(string maSP)
+        {
+            if (string.IsNullOrWhiteSpace(maSP))
+            {
+                throw new Exception("Mã sản phẩm không được để trống!");
+            }
+            return sanPhamDAL.XoaSanPham(maSP);
+        }
     }
 }

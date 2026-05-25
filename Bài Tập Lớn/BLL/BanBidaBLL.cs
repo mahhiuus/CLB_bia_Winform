@@ -148,5 +148,9 @@ namespace Bài_Tập_Lớn.BLL
 
             return _banBidaDAL.TimTheoLoaiBan(loaiBan);
         }
+        public List<BanBidaDTO> TimKiem(string keyword)
+        {
+            return banBidaDAL.TimKiem(keyword);
+        }
     }
 }

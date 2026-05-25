@@ -71,21 +71,18 @@ namespace Bài_Tập_Lớn.DAL
         // Tìm kiếm nhà cung cấp
         public List<NhaCungCapDTO> TimKiem(string keyword)
         {
-            string sql = @"SELECT * FROM nha_cung_cap
-                           WHERE ma_ncc LIKE @Keyword
-                           OR ten_cong_ty LIKE @Keyword";
-
+            string sql = @"SELECT * 
+                        FROM nha_cung_cap                   
+                        WHERE ma_ncc LIKE @Keyword                   
+                           OR ten_cong_ty COLLATE Vietnamese_CI_AI LIKE @Keyword COLLATE Vietnamese_CI_AI";
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    return conn.Query<NhaCungCapDTO>(
-                        sql,
-                        new
-                        {
-                            Keyword = "%" + keyword + "%"
-                        }
-                    ).ToList();
+                    var dynamicParams = new DynamicParameters();
+                    dynamicParams.Add("Keyword", "%" + keyword.Trim() + "%", System.Data.DbType.String);
+
+                    return conn.Query<NhaCungCapDTO>(sql, dynamicParams).ToList();
                 }
             }
             catch (Exception ex)

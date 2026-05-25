@@ -344,7 +344,7 @@ namespace Bài_Tập_Lớn.GUI
 
         private void guna2DataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            // Xử lý nếu cần
+
         }
 
         private void MainHeader_Paint(object sender, PaintEventArgs e)

@@ -241,21 +241,20 @@ namespace Bài_Tập_Lớn.DAL
 
         public List<TaiKhoanDTO> TimKiem(string keyword)
         {
-            string sql = @"SELECT * FROM tai_khoan
-                         WHERE ma_tk LIKE @Keyword
-                         OR ten_dang_nhap LIKE @Keyword
-                         OR vai_tro LIKE @Keyword";
+            // Áp dụng COLLATE cho cả ten_dang_nhap và vai_tro
+            string sql = @"SELECT * FROM tai_khoan                 
+                        WHERE ma_tk LIKE @Keyword                 
+                        OR ten_dang_nhap COLLATE Vietnamese_CI_AI LIKE @Keyword COLLATE Vietnamese_CI_AI                 
+                        OR vai_tro COLLATE Vietnamese_CI_AI LIKE @Keyword COLLATE Vietnamese_CI_AI";
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    return conn.Query<TaiKhoanDTO>(
-                        sql,
-                        new
-                        {
-                            Keyword = "%" + (keyword ?? "") + "%"
-                        }
-                    ).ToList();
+                    var dynamicParams = new DynamicParameters();
+                    // Sử dụng .Trim() để loại bỏ khoảng trắng thừa ở 2 đầu từ khóa
+                    dynamicParams.Add("Keyword", "%" + (keyword ?? "").Trim() + "%", System.Data.DbType.String);
+
+                    return conn.Query<TaiKhoanDTO>(sql, dynamicParams).ToList();
                 }
             }
             catch (Exception ex)

@@ -215,7 +215,6 @@ namespace Bài_Tập_Lớn.DAL
 
         public List<HoaDonBanDTO> LayTopHoaDonTheoThang(int thang, int nam, int limit)
         {
-            // Đổi MONTH() và YEAR() tương thích với SQL Server
             string sql = "SELECT TOP (@Limit) * FROM hoa_don_ban WHERE MONTH(ngay_ban) = @Thang AND YEAR(ngay_ban) = @Nam ORDER BY tong_tien DESC";
             try
             {
@@ -227,6 +226,30 @@ namespace Bài_Tập_Lớn.DAL
             catch (Exception ex)
             {
                 throw new Exception("Lỗi khi lấy top hóa đơn theo tháng: " + ex.Message);
+            }
+        }
+        public List<HoaDonBanDTO> TimKiem(string keyword)
+        {
+            string sql = @"
+                SELECT * FROM hoa_don_ban 
+                WHERE ma_hdb LIKE @Keyword 
+                   OR ma_phien LIKE @Keyword 
+                   OR ma_kh LIKE @Keyword 
+                   OR ma_nv LIKE @Keyword
+                ORDER BY ma_hdb DESC";
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                {
+                    var dynamicParams = new DynamicParameters();
+                    dynamicParams.Add("Keyword", "%" + (keyword ?? "").Trim() + "%", System.Data.DbType.String);
+
+                    return conn.Query<HoaDonBanDTO>(sql, dynamicParams).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi tìm kiếm hóa đơn bán: " + ex.Message);
             }
         }
     }

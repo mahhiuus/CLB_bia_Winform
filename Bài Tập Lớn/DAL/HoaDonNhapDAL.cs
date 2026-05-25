@@ -138,5 +138,28 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception("Lỗi khi xóa hóa đơn nhập: " + ex.Message);
             }
         }
+
+        public List<HoaDonNhapDTO> TimKiem(string keyword)
+        {
+            string sql = @"
+                SELECT * FROM hoa_don_nhap 
+                WHERE ma_hdn LIKE @Keyword 
+                   OR ma_ncc LIKE @Keyword";
+
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                {
+                    var dynamicParams = new DynamicParameters();
+                    dynamicParams.Add("Keyword", "%" + (keyword ?? "").Trim() + "%", System.Data.DbType.String);
+
+                    return conn.Query<HoaDonNhapDTO>(sql, dynamicParams).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi tìm kiếm hóa đơn nhập: " + ex.Message);
+            }
+        }
     }
 }

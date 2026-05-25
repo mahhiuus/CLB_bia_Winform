@@ -213,5 +213,35 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception("Lỗi khi tìm bàn theo loại: " + ex.Message);
             }
         }
+
+        public List<BanBidaDTO> TimKiem(string keyword)
+        {
+            string sql = @"
+                SELECT 
+                    ma_ban AS MaBan, 
+                    ten_ban AS TenBan, 
+                    loai_ban AS LoaiBan, 
+                    gia_theo_gio AS GiaTheoGio, 
+                    trang_thai AS TrangThai 
+                FROM ban_bida 
+                WHERE ma_ban LIKE @Keyword 
+                   OR ten_ban COLLATE Vietnamese_CI_AI LIKE @Keyword COLLATE Vietnamese_CI_AI
+                   OR loai_ban COLLATE Vietnamese_CI_AI LIKE @Keyword COLLATE Vietnamese_CI_AI
+                ORDER BY ma_ban";
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                {
+                    var dynamicParams = new DynamicParameters();
+                    dynamicParams.Add("Keyword", "%" + (keyword ?? "").Trim() + "%", System.Data.DbType.String);
+
+                    return conn.Query<BanBidaDTO>(sql, dynamicParams).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi tìm kiếm bàn bida: " + ex.Message);
+            }
+        }
     }
 }

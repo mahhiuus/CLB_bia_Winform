@@ -70,4 +70,6 @@ public class HoaDonNhapBLL
 
         return hoaDonNhapDAL.XoaHoaDonNhap(maHDN);
     }
+
+    public List<HoaDonNhapDTO> TimKiem(string keyword) => hoaDonNhapDAL.TimKiem(keyword);
 }

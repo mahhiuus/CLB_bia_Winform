@@ -136,5 +136,10 @@ namespace Bài_Tập_Lớn.BLL
             if (limit <= 0) limit = 10;
             return hoaDonBanDAL.LayTopHoaDonTheoThang(thang, nam, limit);
         }
+
+        public List<HoaDonBanDTO> TimKiem(string keyword)
+        {
+            return hoaDonBanDAL.TimKiem(keyword);
+        }
     }
 }

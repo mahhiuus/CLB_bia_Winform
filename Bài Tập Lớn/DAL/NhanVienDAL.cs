@@ -60,14 +60,24 @@ namespace Bài_Tập_Lớn.DAL
 
         public List<NhanVienDTO> TimKiem(string keyword)
         {
-            string sql = @"SELECT ma_nv AS MaNV, ho_ten AS HoTen, sdt AS Sdt, gioi_tinh AS GioiTinh, chuc_vu AS ChucVu, ngay_sinh AS NgaySinh
-                           FROM nhan_vien
-                           WHERE ma_nv LIKE @Keyword OR ho_ten LIKE @Keyword";
+            string sql = @"SELECT 
+                           ma_nv AS MaNV, 
+                           ho_ten AS HoTen, 
+                           sdt AS Sdt, 
+                           gioi_tinh AS GioiTinh, 
+                           chuc_vu AS ChucVu, 
+                           ngay_sinh AS NgaySinh                   
+                        FROM nhan_vien                   
+                        WHERE ma_nv LIKE @Keyword 
+                        OR ho_ten COLLATE Vietnamese_CI_AI LIKE @Keyword COLLATE Vietnamese_CI_AI";
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    return conn.Query<NhanVienDTO>(sql, new { Keyword = "%" + keyword + "%" }).ToList();
+                    var dynamicParams = new DynamicParameters();
+                    dynamicParams.Add("Keyword", "%" + keyword.Trim() + "%", System.Data.DbType.String);
+
+                    return conn.Query<NhanVienDTO>(sql, dynamicParams).ToList();
                 }
             }
             catch (Exception ex)
