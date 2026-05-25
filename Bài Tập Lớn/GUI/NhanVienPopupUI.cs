@@ -246,5 +246,10 @@ namespace Bài_Tập_Lớn.GUI
         private void selectChucVu_Load(object sender, EventArgs e) { }
         private void chonNgaySinh_Load(object sender, EventArgs e) { }
         private void NhanVienPopupUI_Load(object sender, EventArgs e) { }
+
+        private void btnXacNhan_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

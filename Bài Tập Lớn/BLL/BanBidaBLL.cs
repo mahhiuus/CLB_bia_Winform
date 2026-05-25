@@ -150,7 +150,7 @@ namespace Bài_Tập_Lớn.BLL
         }
         public List<BanBidaDTO> TimKiem(string keyword)
         {
-            return banBidaDAL.TimKiem(keyword);
+            return _banBidaDAL.TimKiem(keyword);
         }
     }
 }
