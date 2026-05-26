@@ -268,6 +268,18 @@
     <Compile Include="GUI\Maindashboard.Designer.cs">
       <DependentUpon>Maindashboard.cs</DependentUpon>
     </Compile>
+    <Compile Include="GUI\NhaCungCapPanel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\NhaCungCapPanel.Designer.cs">
+      <DependentUpon>NhaCungCapPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\NhaCungCapPopupUi.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\NhaCungCapPopupUi.Designer.cs">
+      <DependentUpon>NhaCungCapPopupUi.cs</DependentUpon>
+    </Compile>
     <Compile Include="GUI\NhanVienPopupUI.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -291,6 +303,18 @@
     </Compile>
     <Compile Include="GUI\SoDoBanUi.Designer.cs">
       <DependentUpon>SoDoBanUi.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\TaiKhoanPanel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\TaiKhoanPanel.Designer.cs">
+      <DependentUpon>TaiKhoanPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\TaiKhoanPopupUi.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\TaiKhoanPopupUi.Designer.cs">
+      <DependentUpon>TaiKhoanPopupUi.cs</DependentUpon>
     </Compile>
     <Compile Include="GUI\ThanhToanDialog.cs">
       <SubType>Form</SubType>
@@ -322,6 +346,12 @@
     <EmbeddedResource Include="GUI\Maindashboard.resx">
       <DependentUpon>Maindashboard.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="GUI\NhaCungCapPanel.resx">
+      <DependentUpon>NhaCungCapPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\NhaCungCapPopupUi.resx">
+      <DependentUpon>NhaCungCapPopupUi.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="GUI\NhanVienPopupUI.resx">
       <DependentUpon>NhanVienPopupUI.cs</DependentUpon>
     </EmbeddedResource>
@@ -333,6 +363,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="GUI\SoDoBanUi.resx">
       <DependentUpon>SoDoBanUi.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\TaiKhoanPopupUi.resx">
+      <DependentUpon>TaiKhoanPopupUi.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="GUI\ThanhToanDialog.resx">
       <DependentUpon>ThanhToanDialog.cs</DependentUpon>
@@ -417,6 +450,42 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\cardd.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\dollar.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\inactive.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\building.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\old-typical-phone.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\email.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\location.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\customer-service.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\search.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\reload.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\plus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\plus1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\reload1.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

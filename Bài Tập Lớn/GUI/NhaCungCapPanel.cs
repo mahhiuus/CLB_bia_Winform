@@ -11,16 +11,16 @@ using Guna.UI2.WinForms;
 
 namespace Bài_Tập_Lớn.GUI
 {
-    public partial class BanBiaPanel : Form
+    public partial class NhaCungCapPanel : Form
     {
         // ══════════════════════════════════════════════════════════
         //  Fields
         // ══════════════════════════════════════════════════════════
-        private readonly BanBidaBLL _bll = new BanBidaBLL();
+        private readonly NhaCungCapBLL _bll = new NhaCungCapBLL();
         private bool _dangKhoiTao = true;
 
         // ── Pagination ────────────────────────────────────────────
-        private List<BanBidaDTO> _dsDayDu = new List<BanBidaDTO>();
+        private List<NhaCungCapDTO> _dsDayDu = new List<NhaCungCapDTO>();
         private int _trangHienTai = 1;
         private const int _soDoiMoiTrang = 10;
         private int _tongSoTrang => (int)Math.Ceiling((double)_dsDayDu.Count / _soDoiMoiTrang);
@@ -30,15 +30,19 @@ namespace Bài_Tập_Lớn.GUI
         private Guna2Button _btnNext;
         private Label _lblTrangInfo;
 
+        // ── Card panel (hiển thị dạng thẻ) ───────────────────────
+        private FlowLayoutPanel _flowCards;
+
         // ══════════════════════════════════════════════════════════
         //  Khởi tạo
         // ══════════════════════════════════════════════════════════
-        public BanBiaPanel()
+        public NhaCungCapPanel()
         {
             InitializeComponent();
             _dangKhoiTao = true;
             CauHinhGrid();
             TaoPhanTrang();
+            TaoFlowCards();
             _dangKhoiTao = false;
             TaiDanhSach();
 
@@ -51,12 +55,10 @@ namespace Bài_Tập_Lớn.GUI
         // ══════════════════════════════════════════════════════════
         private void TaoPhanTrang()
         {
-            // ── Màu sắc theo ảnh mẫu ─────────────────────────────
-            Color clrBtnNormal = Color.FromArgb(200, 200, 200);   // xám nhạt
-            Color clrBtnHover = Color.FromArgb(170, 170, 170);   // xám đậm hơn khi hover
-            Color clrText = Color.FromArgb(43, 78, 35);    // xanh lá đậm
+            Color clrBtnNormal = Color.FromArgb(200, 200, 200);
+            Color clrBtnHover = Color.FromArgb(170, 170, 170);
+            Color clrText = Color.FromArgb(43, 78, 35);
 
-            // Nút Trước  "<"
             _btnPrev = new Guna2Button
             {
                 Text = "<",
@@ -74,7 +76,6 @@ namespace Bài_Tập_Lớn.GUI
             _btnPrev.HoverState.ForeColor = Color.FromArgb(50, 50, 50);
             _btnPrev.Click += (s, e) => ChuyenTrang(_trangHienTai - 1);
 
-            // Label "Trang X / Y"
             _lblTrangInfo = new Label
             {
                 Text = "Trang 1 / 1",
@@ -86,7 +87,6 @@ namespace Bài_Tập_Lớn.GUI
                 BackColor = Color.Transparent,
             };
 
-            // Nút Sau  ">"
             _btnNext = new Guna2Button
             {
                 Text = ">",
@@ -108,6 +108,26 @@ namespace Bài_Tập_Lớn.GUI
             guna2Panel3.Controls.Add(_lblTrangInfo);
             guna2Panel3.Controls.Add(_btnNext);
         }
+
+        // ══════════════════════════════════════════════════════════
+        //  Tạo FlowLayoutPanel chứa cards
+        // ══════════════════════════════════════════════════════════
+        private void TaoFlowCards()
+        {
+            _flowCards = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                BackColor = Color.FromArgb(255, 255, 251),
+                Padding = new Padding(10),
+                Visible = false,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = true,
+            };
+            // Thêm vào vị trí của DataGridView (cùng cell)
+            tableLayoutPanel1.Controls.Add(_flowCards, 0, 2);
+        }
+
         // ══════════════════════════════════════════════════════════
         //  Chuyển trang
         // ══════════════════════════════════════════════════════════
@@ -125,31 +145,39 @@ namespace Bài_Tập_Lớn.GUI
                 .Take(_soDoiMoiTrang)
                 .ToList();
 
+            // ── Grid ─────────────────────────────────────────────
             guna2DataGridView1.DataSource = null;
             guna2DataGridView1.DataSource = ds;
             guna2DataGridView1.ClearSelection();
 
-            int tongTrang = Math.Max(1, _tongSoTrang);
+            // ── Cards ────────────────────────────────────────────
 
-            // ── Format label theo ảnh mẫu ────────────────────────
+            int tongTrang = Math.Max(1, _tongSoTrang);
             _lblTrangInfo.Text = $"Trang {_trangHienTai} / {tongTrang}";
 
-            // Nút disabled → xám rất nhạt; enabled → xám bình thường
             _btnPrev.Enabled = _trangHienTai > 1;
             _btnNext.Enabled = _trangHienTai < tongTrang;
-            _btnPrev.FillColor = _btnPrev.Enabled
-                ? Color.FromArgb(200, 200, 200)
-                : Color.FromArgb(225, 225, 225);
-            _btnNext.FillColor = _btnNext.Enabled
-                ? Color.FromArgb(200, 200, 200)
-                : Color.FromArgb(225, 225, 225);
-            _btnPrev.ForeColor = _btnPrev.Enabled
-                ? Color.FromArgb(80, 80, 80)
-                : Color.FromArgb(180, 180, 180);
-            _btnNext.ForeColor = _btnNext.Enabled
-                ? Color.FromArgb(80, 80, 80)
-                : Color.FromArgb(180, 180, 180);
+            _btnPrev.FillColor = _btnPrev.Enabled ? Color.FromArgb(200, 200, 200) : Color.FromArgb(225, 225, 225);
+            _btnNext.FillColor = _btnNext.Enabled ? Color.FromArgb(200, 200, 200) : Color.FromArgb(225, 225, 225);
+            _btnPrev.ForeColor = _btnPrev.Enabled ? Color.FromArgb(80, 80, 80) : Color.FromArgb(180, 180, 180);
+            _btnNext.ForeColor = _btnNext.Enabled ? Color.FromArgb(80, 80, 80) : Color.FromArgb(180, 180, 180);
         }
+
+   
+        private GraphicsPath RoundedRect(Rectangle bounds, int radius)
+        {
+            int d = radius * 2;
+            var path = new GraphicsPath();
+            path.AddArc(bounds.X, bounds.Y, d, d, 180, 90);
+            path.AddArc(bounds.Right - d, bounds.Y, d, d, 270, 90);
+            path.AddArc(bounds.Right - d, bounds.Bottom - d, d, d, 0, 90);
+            path.AddArc(bounds.X, bounds.Bottom - d, d, d, 90, 90);
+            path.CloseFigure();
+            return path;
+        }
+
+ 
+
         // ══════════════════════════════════════════════════════════
         //  Bo tròn DataGridView
         // ══════════════════════════════════════════════════════════
@@ -176,19 +204,20 @@ namespace Bài_Tập_Lớn.GUI
             guna2DataGridView1.ReadOnly = true;
             guna2DataGridView1.AutoGenerateColumns = false;
 
-            Column1.DataPropertyName = "MaBan";
-            Column2.DataPropertyName = "TenBan";
-            Column3.DataPropertyName = "LoaiBan";
-            Column4.DataPropertyName = "GiaTheoGio";
-            Column5.DataPropertyName = "TrangThai";
+            Column1.DataPropertyName = "MaNCC";
+            Column2.DataPropertyName = "TenCongTy";
+            Column3.DataPropertyName = "Sdt";
+            Column4.DataPropertyName = "Email";
+            Column5.DataPropertyName = "DiaChi";
+            Column6.DataPropertyName = "NguoiLienHe";
 
-            Column1.Width = 90;
-            Column2.Width = 200;
-            Column3.Width = 150;
-            Column4.Width = 170;
-            Column5.Width = 130;
+            Column1.Width = 80;
+            Column2.Width = 220;
+            Column3.Width = 120;
+            Column4.Width = 200;
+            Column5.Width = 220;
+            Column6.Width = 150;
             Column7.Width = 110;
-
 
             guna2DataGridView1.RowTemplate.Height = 38;
             guna2DataGridView1.DefaultCellStyle.Padding = new Padding(8, 0, 8, 0);
@@ -202,15 +231,8 @@ namespace Bài_Tập_Lớn.GUI
             foreach (DataGridViewColumn col in guna2DataGridView1.Columns)
                 col.SortMode = DataGridViewColumnSortMode.NotSortable;
 
-            selectTimKiem.DisplayMember = "Value";
-            selectTimKiem.ValueMember = "Key";
-            selectTimKiem.DataSource = new List<KeyValuePair<string, string>>
-            {
-                new KeyValuePair<string, string>("",       "-- Tất cả loại --"),
-                new KeyValuePair<string, string>("THUONG", "Bàn Thường"),
-                new KeyValuePair<string, string>("VIP",    "Bàn VIP"),
-            };
-            selectTimKiem.SelectedIndex = 0;
+            // ComboBox tìm kiếm text
+            txtTimKiem.PlaceholderText = "Tìm theo mã hoặc tên công ty...";
         }
 
         // ══════════════════════════════════════════════════════════
@@ -220,7 +242,7 @@ namespace Bài_Tập_Lớn.GUI
         {
             try
             {
-                _dsDayDu = _bll.LayTatCaBan();
+                _dsDayDu = _bll.LayTatCaNhaCungCap();
                 _trangHienTai = 1;
                 HienThiTrangHienTai();
             }
@@ -231,7 +253,7 @@ namespace Bài_Tập_Lớn.GUI
             }
         }
 
-        private void HienThiGrid(List<BanBidaDTO> ds)
+        private void HienThiGrid(List<NhaCungCapDTO> ds)
         {
             _dsDayDu = ds;
             _trangHienTai = 1;
@@ -280,21 +302,21 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ══════════════════════════════════════════════════════════
-        //  Tìm kiếm / lọc
+        //  Tìm kiếm
         // ══════════════════════════════════════════════════════════
         private void ThucHienTimKiem()
         {
             try
             {
-                string loai = selectTimKiem.SelectedValue?.ToString();
-                var ds = string.IsNullOrEmpty(loai)
-                         ? _bll.LayTatCaBan()
-                         : _bll.TimTheoLoaiBan(loai);
+                string keyword = txtTimKiem.Text.Trim();
+                var ds = string.IsNullOrWhiteSpace(keyword)
+                         ? _bll.LayTatCaNhaCungCap()
+                         : _bll.TimKiem(keyword);
 
                 HienThiGrid(ds);
 
                 if (ds.Count == 0)
-                    MessageBox.Show("Không tìm thấy bàn nào phù hợp.", "Kết quả",
+                    MessageBox.Show("Không tìm thấy nhà cung cấp nào phù hợp.", "Kết quả",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -305,7 +327,21 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ══════════════════════════════════════════════════════════
-        //  Sự kiện
+        //  Toggle chế độ xem: Grid / Card
+        // ══════════════════════════════════════════════════════════
+        private bool _dangXemCard = false;
+
+        private void btnToggleView_Click(object sender, EventArgs e)
+        {
+            _dangXemCard = !_dangXemCard;
+
+            guna2DataGridView1.Visible = !_dangXemCard;
+            _flowCards.Visible = _dangXemCard;
+
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  Sự kiện nút
         // ══════════════════════════════════════════════════════════
         private void btnReload_Click(object sender, EventArgs e)
         {
@@ -313,9 +349,7 @@ namespace Bài_Tập_Lớn.GUI
             {
                 btnReload.Enabled = false;
                 btnReload.Text = "Đang tải...";
-                _dangKhoiTao = true;
-                selectTimKiem.SelectedIndex = 0;
-                _dangKhoiTao = false;
+                txtTimKiem.Text = "";
                 TaiDanhSach();
             }
             catch (Exception ex)
@@ -332,22 +366,25 @@ namespace Bài_Tập_Lớn.GUI
 
         private void guna2Button1_Click(object sender, EventArgs e)
         {
-            _dangKhoiTao = true;
-            selectTimKiem.SelectedIndex = 0;
-            _dangKhoiTao = false;
+            txtTimKiem.Text = "";
             TaiDanhSach();
         }
 
-        private void selectTimKiem_SelectedIndexChanged(object sender, EventArgs e)
+        private void txtTimKiem_KeyDown(object sender, KeyEventArgs e)
         {
-            if (_dangKhoiTao) return;
+            if (e.KeyCode == Keys.Enter)
+                ThucHienTimKiem();
+        }
+
+        private void btnTimKiem_Click(object sender, EventArgs e)
+        {
             ThucHienTimKiem();
         }
 
         // ── Thêm mới ─────────────────────────────────────────────
         private void btnThem_Click(object sender, EventArgs e)
         {
-            using (var popup = new BanBiaPopupUi())
+            using (var popup = new NhaCungCapPopupUi())
             {
                 popup.StartPosition = FormStartPosition.CenterParent;
                 popup.ShowOverlay(this);
@@ -367,19 +404,19 @@ namespace Bài_Tập_Lớn.GUI
                 return;
             }
 
-            MoPopupSua(e.RowIndex);
+            string maNCC = guna2DataGridView1.Rows[e.RowIndex].Cells["Column1"].Value?.ToString();
+            MoPopupSua(maNCC);
         }
 
         // ── Mở popup Sửa ─────────────────────────────────────────
-        private void MoPopupSua(int rowIndex)
+        private void MoPopupSua(string maNCC)
         {
-            string maBan = guna2DataGridView1.Rows[rowIndex].Cells["Column1"].Value?.ToString();
-            if (string.IsNullOrEmpty(maBan)) return;
+            if (string.IsNullOrEmpty(maNCC)) return;
 
-            var ban = _bll.TimTheoMaBan(maBan);
-            if (ban == null) return;
+            var ncc = _bll.TimTheoMaNhaCungCap(maNCC);
+            if (ncc == null) return;
 
-            using (var popup = new BanBiaPopupUi(ban))
+            using (var popup = new NhaCungCapPopupUi(ncc))
             {
                 popup.StartPosition = FormStartPosition.CenterParent;
                 popup.ShowOverlay(this);
@@ -388,23 +425,23 @@ namespace Bài_Tập_Lớn.GUI
             }
         }
 
-        // ── Xóa qua ConfirmDeleteUI ───────────────────────────────
+        // ── Xóa ──────────────────────────────────────────────────
         private void XuLyXoa(int rowIndex)
         {
-            string maBan = guna2DataGridView1.Rows[rowIndex].Cells["Column1"].Value?.ToString();
-            string tenBan = guna2DataGridView1.Rows[rowIndex].Cells["Column2"].Value?.ToString();
-            if (string.IsNullOrEmpty(maBan)) return;
+            string maNCC = guna2DataGridView1.Rows[rowIndex].Cells["Column1"].Value?.ToString();
+            string tenCT = guna2DataGridView1.Rows[rowIndex].Cells["Column2"].Value?.ToString();
+            if (string.IsNullOrEmpty(maNCC)) return;
 
-            using (var dlg = new ConfirmDeleteUI(tenBan, "bàn bida"))
+            using (var dlg = new ConfirmDeleteUI(tenCT, "nhà cung cấp"))
             {
                 if (dlg.ShowDialog(this) != DialogResult.OK) return;
             }
 
             try
             {
-                if (_bll.XoaBan(maBan))
+                if (_bll.XoaNhaCungCap(maNCC))
                 {
-                    MessageBox.Show("Xóa bàn thành công!", "Thành công",
+                    MessageBox.Show("Xóa nhà cung cấp thành công!", "Thành công",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                     TaiDanhSach();
                 }

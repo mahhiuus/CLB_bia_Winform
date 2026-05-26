@@ -1,19 +1,59 @@
 ﻿using Bài_Tập_Lớn.BLL;
 using Bài_Tập_Lớn.DTO;
-using Guna.UI2.WinForms;
+using Bài_Tập_Lớn.UI;
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace Bài_Tập_Lớn.GUI
 {
+    // ═══════════════════════════════════════════════════════════════
+    // OVERLAY FORM
+    // ═══════════════════════════════════════════════════════════════
+    internal class OverlayForm : Form
+    {
+        private System.Windows.Forms.Timer _fadeTimer;
+
+        public OverlayForm()
+        {
+            this.FormBorderStyle = FormBorderStyle.None;
+            this.BackColor = Color.White;
+            this.Opacity = 0;
+            this.StartPosition = FormStartPosition.Manual;
+            this.Bounds = Screen.PrimaryScreen.Bounds;
+            this.ShowInTaskbar = false;
+            this.TopMost = false;
+
+            _fadeTimer = new System.Windows.Forms.Timer { Interval = 15 };
+            _fadeTimer.Tick += (s, e) =>
+            {
+                if (this.Opacity >= 0.55) { this.Opacity = 0.55; _fadeTimer.Stop(); }
+                else this.Opacity += 0.05;
+            };
+        }
+
+        public void StartFade() => _fadeTimer.Start();
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) _fadeTimer?.Dispose();
+            base.Dispose(disposing);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // BAN BIA POPUP
+    // ═══════════════════════════════════════════════════════════════
     public partial class BanBiaPopupUi : Form
     {
         private readonly BanBidaBLL _bll = new BanBidaBLL();
         private readonly bool _laSua;
+        private OverlayForm _overlay;
 
         public BanBidaDTO KetQua { get; private set; }
+        public bool DaXoa { get; private set; } = false;
 
-        // ── Constructor: Thêm mới ──────────────────────────────────
+        // ── Constructor: Thêm mới ─────────────────────────────────
         public BanBiaPopupUi()
         {
             InitializeComponent();
@@ -23,40 +63,80 @@ namespace Bài_Tập_Lớn.GUI
             inputMaNv.ReadOnly = true;
         }
 
-        // ── Constructor: Sửa ──────────────────────────────────────
+        // ── Constructor: Sửa ─────────────────────────────────────
         public BanBiaPopupUi(BanBidaDTO ban) : this()
         {
             _laSua = true;
             inputMaNv.Text = ban.MaBan;
             inputHoTen.Text = ban.TenBan;
-            inputSdt.Text = ban.GiaTheoGio.ToString("N0");
+            txtGiaTheoGio.Text = ban.GiaTheoGio.ToString("N0");
 
-            // SelectedItem so sánh theo giá trị thật (THUONG, VIP,...)
-            selectChucVu.SelectedItem = ban.LoaiBan;
-            selectGioiTinh.SelectedItem = ban.TrangThai;
+            selectBan.SelectedValue = ban.LoaiBan;
+            selectTrangThai.SelectedValue = ban.TrangThai;
+        }
+
+        // ── Hiện Overlay ─────────────────────────────────────────
+        public void ShowOverlay(Form parent)
+        {
+            _overlay = new OverlayForm();
+            _overlay.Show(parent);
+            _overlay.StartFade();
+        }
+
+        // ── Tự đóng overlay khi popup đóng ───────────────────────
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            base.OnFormClosed(e);
+            _overlay?.Close();
+            _overlay = null;
         }
 
         // ── Khởi tạo ComboBox ────────────────────────────────────
         private void KhởiTaoCombo()
         {
-            // selectChucVu → Loại Bàn (khớp đúng giá trị DB)
-            selectChucVu.Items.Clear();
-            selectChucVu.Items.AddRange(new object[] { "THUONG", "VIP", "SNOOKER" });
-            selectChucVu.SelectedIndex = 0;
+            selectBan.DataSource = new[]
+            {
+                new { Text = "Bàn Thường",  Value = "THUONG"  },
+                new { Text = "Bàn VIP",     Value = "VIP"     },
+                new { Text = "Bàn Snooker", Value = "SNOOKER" },
+            };
+            selectBan.DisplayMember = "Text";
+            selectBan.ValueMember = "Value";
+            selectBan.SelectedIndex = 0;
 
-            // selectGioiTinh → Trạng Thái (khớp đúng giá trị DB)
-            selectGioiTinh.Items.Clear();
-            selectGioiTinh.Items.AddRange(new object[] { "TRONG", "DANG_CHOI", "BAO_TRI" });
-            selectGioiTinh.SelectedIndex = 0;
+            selectTrangThai.DataSource = new[]
+            {
+                new { Text = "Trống",     Value = "TRONG"     },
+                new { Text = "Đang Chơi", Value = "DANG_CHOI" },
+                new { Text = "Bảo Trì",   Value = "BAO_TRI"   },
+            };
+            selectTrangThai.DisplayMember = "Text";
+            selectTrangThai.ValueMember = "Value";
+            selectTrangThai.SelectedIndex = 0;
 
-            // Ẩn controls không dùng
             btnIncluded.Visible = false;
 
-            // Đổi label cho đúng ngữ cảnh
             guna2HtmlLabel2.Text = "Tên Bàn";
-            guna2HtmlLabel8.Text = "Giá Theo Giờ (VNĐ)";
-            guna2HtmlLabel7.Text = "Trạng Thái";
-            guna2HtmlLabel4.Text = "Loại Bàn";
+            guna2HtmlLabel8.Text = "Loại Bàn";
+            guna2HtmlLabel7.Text = "Giá Theo Giờ (VNĐ)";
+            guna2HtmlLabel4.Text = "Trạng Thái";
+        }
+
+        // ── Vẽ tiêu đề header panel ──────────────────────────────
+        private void guna2Panel1_Paint(object sender, PaintEventArgs e)
+        {
+            string tieuDe = _laSua ? "Sửa Dữ Liệu" : "Thêm Bàn Bida";
+
+            using (Font font = new Font("Segoe UI", 16f, FontStyle.Bold))
+            using (SolidBrush brush = new SolidBrush(Color.White))
+            {
+                SizeF size = e.Graphics.MeasureString(tieuDe, font);
+                float x = (guna2Panel1.Width - size.Width) / 2f;
+                float y = (guna2Panel1.Height - size.Height) / 2f;
+                e.Graphics.TextRenderingHint =
+                    System.Drawing.Text.TextRenderingHint.AntiAlias;
+                e.Graphics.DrawString(tieuDe, font, brush, x, y);
+            }
         }
 
         // ── Xác Nhận ─────────────────────────────────────────────
@@ -64,7 +144,10 @@ namespace Bài_Tập_Lớn.GUI
         {
             try
             {
-                string giaText = inputSdt.Text.Trim().Replace(",", "").Replace(".", "");
+                if (string.IsNullOrWhiteSpace(inputHoTen.Text))
+                    throw new Exception("Vui lòng nhập Tên Bàn!");
+
+                string giaText = txtGiaTheoGio.Text.Trim().Replace(",", "").Replace(".", "");
                 if (!double.TryParse(giaText, out double gia) || gia <= 0)
                     throw new Exception("Giá theo giờ không hợp lệ! Vui lòng nhập số lớn hơn 0.");
 
@@ -72,9 +155,9 @@ namespace Bài_Tập_Lớn.GUI
                 {
                     MaBan = inputMaNv.Text.Trim(),
                     TenBan = inputHoTen.Text.Trim(),
-                    LoaiBan = selectChucVu.SelectedItem?.ToString() ?? "",
+                    LoaiBan = selectBan.SelectedValue?.ToString() ?? "",
                     GiaTheoGio = gia,
-                    TrangThai = selectGioiTinh.SelectedItem?.ToString() ?? ""
+                    TrangThai = selectTrangThai.SelectedValue?.ToString() ?? ""
                 };
 
                 bool ok = _laSua ? _bll.CapNhatBan(ban) : _bll.ThemBan(ban);
@@ -100,11 +183,55 @@ namespace Bài_Tập_Lớn.GUI
             }
         }
 
+        // ── Xóa ──────────────────────────────────────────────────
+        private void btnXoa_Click(object sender, EventArgs e)
+        {
+            string tenBan = inputHoTen.Text.Trim();
+
+            using (var popup = new ConfirmDeleteUI(tenBan, "bàn bida"))
+            {
+                if (popup.ShowDialog(this) == DialogResult.OK)
+                {
+                    bool ok = _bll.XoaBan(inputMaNv.Text.Trim());
+                    if (ok)
+                    {
+                        DaXoa = true;
+                        MessageBox.Show($"Đã xóa \"{tenBan}\" thành công!",
+                            "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        this.DialogResult = DialogResult.OK;
+                        this.Close();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Xóa không thành công!", "Thất bại",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+        }
+
         // ── Hủy ──────────────────────────────────────────────────
         private void btnHuy_Click(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
+
+        // ── Event rỗng giữ cho Designer không lỗi ────────────────
+        private void inputHoTen_Load(object sender, EventArgs e) { }
+        private void inputMaNv_Load(object sender, EventArgs e) { }
+        private void txtGiaTheoGio_Load(object sender, EventArgs e) { }
+        private void selectTrangThai_SelectedIndexChanged(object sender, EventArgs e) { }
+        private void selectBan_SelectedIndexChanged(object sender, EventArgs e) { }
+        private void btnIncluded_Click(object sender, EventArgs e) { }
+        private void guna2Panel2_Paint(object sender, PaintEventArgs e) { }
+        private void guna2Panel3_Paint(object sender, PaintEventArgs e) { }
+        private void guna2Panel4_Paint(object sender, PaintEventArgs e) { }
+        private void guna2Panel6_Paint(object sender, PaintEventArgs e) { }
+        private void guna2Panel9_Paint(object sender, PaintEventArgs e) { }
+        private void guna2HtmlLabel2_Click(object sender, EventArgs e) { }
+        private void guna2HtmlLabel4_Click(object sender, EventArgs e) { }
+        private void guna2HtmlLabel7_Click(object sender, EventArgs e) { }
+        private void guna2HtmlLabel8_Click(object sender, EventArgs e) { }
     }
 }

@@ -21,6 +21,8 @@ namespace Bài_Tập_Lớn.GUI
         private HoaDonUi _hoaDonUi = null;
         private NhanVienUI _nhanVienUI = null;
         private BanBiaPanel _banBiaPanel = null;
+        private NhaCungCapPanel _nhaCungCapPanel = null;
+        private TaiKhoanPanel _taiKhoanPanel = null;
         private bool _isTransitioning = false;
 
         // ── Skeleton ─────────────────────────────────────────────
@@ -513,7 +515,12 @@ namespace Bài_Tập_Lớn.GUI
                 _hoaDonUi = new HoaDonUi();
             OpenChildForm(_hoaDonUi, sender);
         }
-        private void guna2Button5_Click(object sender, EventArgs e) { }
+        private void guna2Button5_Click(object sender, EventArgs e) {
+        
+            if(_taiKhoanPanel == null || _taiKhoanPanel.IsDisposed)
+                _taiKhoanPanel = new TaiKhoanPanel();
+            OpenChildForm(_taiKhoanPanel, sender);
+        }
         private void guna2Button6_Click(object sender, EventArgs e) { }
         private void guna2Button7_Click(object sender, EventArgs e) { }
         private void guna2Button8_Click(object sender, EventArgs e) { }
@@ -536,6 +543,13 @@ namespace Bài_Tập_Lớn.GUI
             if(_nhanVienUI == null || _nhanVienUI.IsDisposed)
                 _nhanVienUI = new NhanVienUI(); 
             OpenChildForm(_nhanVienUI, sender);
+        }
+
+        private void guna2Button2_Click(object sender, EventArgs e)
+        {
+            if(_nhaCungCapPanel == null || _nhaCungCapPanel.IsDisposed)
+                _nhaCungCapPanel = new NhaCungCapPanel();
+                OpenChildForm(_nhaCungCapPanel, sender);
         }
     }
 
