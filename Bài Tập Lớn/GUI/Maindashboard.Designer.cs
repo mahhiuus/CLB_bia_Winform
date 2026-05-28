@@ -169,7 +169,7 @@
             this.guna2Button2.HoverState.CustomBorderColor = System.Drawing.Color.Transparent;
             this.guna2Button2.HoverState.FillColor = System.Drawing.Color.Transparent;
             this.guna2Button2.HoverState.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.guna2Button2.Image = global::Bài_Tập_Lớn.Properties.Resources.room_service;
+            this.guna2Button2.Image = global::Bài_Tập_Lớn.Properties.Resources.building;
             this.guna2Button2.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.guna2Button2.ImageSize = new System.Drawing.Size(22, 22);
             this.guna2Button2.Location = new System.Drawing.Point(19, 746);
@@ -334,7 +334,7 @@
             this.guna2Button8.Padding = new System.Windows.Forms.Padding(12);
             this.guna2Button8.Size = new System.Drawing.Size(346, 76);
             this.guna2Button8.TabIndex = 9;
-            this.guna2Button8.Text = "Quản Lý Thực đơn";
+            this.guna2Button8.Text = "Quản Lý Sản Phẩm";
             this.guna2Button8.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.guna2Button8.Click += new System.EventHandler(this.guna2Button8_Click);
             // 
@@ -531,7 +531,7 @@
             this.guna2Button3.Padding = new System.Windows.Forms.Padding(10);
             this.guna2Button3.Size = new System.Drawing.Size(278, 60);
             this.guna2Button3.TabIndex = 2;
-            this.guna2Button3.Text = "Thực đơn";
+            this.guna2Button3.Text = "Đồ Ăn Uống";
             this.guna2Button3.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.guna2Button3.Click += new System.EventHandler(this.guna2Button3_Click);
             // 

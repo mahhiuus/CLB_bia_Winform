@@ -46,6 +46,7 @@
             this.guna2Elipse3 = new Guna.UI2.WinForms.Guna2Elipse(this.components);
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.guna2Panel2 = new Guna.UI2.WinForms.Guna2Panel();
+            this.btnReload = new Guna.UI2.WinForms.Guna2Button();
             this.guna2Panel1 = new Guna.UI2.WinForms.Guna2Panel();
             this.btnThem = new Guna.UI2.WinForms.Guna2Button();
             this.selectTimKiem = new Guna.UI2.WinForms.Guna2ComboBox();
@@ -53,7 +54,6 @@
             this.guna2Button1 = new Guna.UI2.WinForms.Guna2Button();
             this.guna2Panel3 = new Guna.UI2.WinForms.Guna2Panel();
             this.lblBanBia = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.btnReload = new Guna.UI2.WinForms.Guna2Button();
             ((System.ComponentModel.ISupportInitialize)(this.guna2DataGridView1)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             this.guna2Panel2.SuspendLayout();
@@ -218,6 +218,31 @@
             this.guna2Panel2.Size = new System.Drawing.Size(1274, 30);
             this.guna2Panel2.TabIndex = 2;
             // 
+            // btnReload
+            // 
+            this.btnReload.BackColor = System.Drawing.Color.Transparent;
+            this.btnReload.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
+            this.btnReload.BorderRadius = 10;
+            this.btnReload.BorderThickness = 1;
+            this.btnReload.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
+            this.btnReload.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
+            this.btnReload.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.btnReload.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
+            this.btnReload.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnReload.FillColor = System.Drawing.Color.Transparent;
+            this.btnReload.Font = new System.Drawing.Font("Segoe UI Semibold", 9.5F, System.Drawing.FontStyle.Bold);
+            this.btnReload.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
+            this.btnReload.Image = global::Bài_Tập_Lớn.Properties.Resources.reload;
+            this.btnReload.Location = new System.Drawing.Point(507, 0);
+            this.btnReload.Name = "btnReload";
+            this.btnReload.ShadowDecoration.BorderRadius = 10;
+            this.btnReload.ShadowDecoration.Color = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
+            this.btnReload.ShadowDecoration.Depth = 16;
+            this.btnReload.Size = new System.Drawing.Size(140, 30);
+            this.btnReload.TabIndex = 6;
+            this.btnReload.Text = "Tải Lại";
+            this.btnReload.Click += new System.EventHandler(this.btnReload_Click);
+            // 
             // guna2Panel1
             // 
             this.guna2Panel1.Dock = System.Windows.Forms.DockStyle.Left;
@@ -328,31 +353,6 @@
             this.lblBanBia.TabIndex = 0;
             this.lblBanBia.Text = "Quản Lý Bàn Billard";
             this.lblBanBia.TextAlignment = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // btnReload
-            // 
-            this.btnReload.BackColor = System.Drawing.Color.Transparent;
-            this.btnReload.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
-            this.btnReload.BorderRadius = 10;
-            this.btnReload.BorderThickness = 1;
-            this.btnReload.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
-            this.btnReload.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
-            this.btnReload.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
-            this.btnReload.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
-            this.btnReload.Dock = System.Windows.Forms.DockStyle.Left;
-            this.btnReload.FillColor = System.Drawing.Color.Transparent;
-            this.btnReload.Font = new System.Drawing.Font("Segoe UI Semibold", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnReload.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
-            this.btnReload.Image = global::Bài_Tập_Lớn.Properties.Resources.reload;
-            this.btnReload.Location = new System.Drawing.Point(507, 0);
-            this.btnReload.Name = "btnReload";
-            this.btnReload.ShadowDecoration.BorderRadius = 10;
-            this.btnReload.ShadowDecoration.Color = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
-            this.btnReload.ShadowDecoration.Depth = 16;
-            this.btnReload.Size = new System.Drawing.Size(140, 30);
-            this.btnReload.TabIndex = 6;
-            this.btnReload.Text = "Tải Lại";
-            this.btnReload.Click += new System.EventHandler(this.btnReload_Click);
             // 
             // BanBiaPanel
             // 
