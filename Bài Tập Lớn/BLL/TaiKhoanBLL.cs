@@ -130,5 +130,31 @@ namespace Bài_Tập_Lớn.BLL
         {
             return taiKhoanDAL.TimKiem(keyword);
         }
+        public bool DangKyTaiKhoan(string tenDangNhap, string matKhau, string nhapLaiMatKhau)
+        {
+            if (string.IsNullOrWhiteSpace(tenDangNhap))
+                throw new Exception("Tên đăng nhập không được để trống!");
+            if (string.IsNullOrWhiteSpace(matKhau))
+                throw new Exception("Mật khẩu không được để trống!");
+            if (matKhau != nhapLaiMatKhau)
+                throw new Exception("Mật khẩu nhập lại không trùng khớp!");
+            if (KiemTraTenDangNhapTonTai(tenDangNhap))
+                throw new Exception("Tên đăng nhập này đã tồn tại trong hệ thống!");
+            string maTaiKhoanMoi = taiKhoanDAL.SinhMaMoi();
+
+            NhanVienDAL nvdal = new NhanVienDAL();
+            NhanVienBLL nvbll = new NhanVienBLL();
+            string maNhanVienMoi = nvbll.SinhMaMoi();
+            TaiKhoanDTO taiKhoanMoi = new TaiKhoanDTO
+            {
+                MaTK = maTaiKhoanMoi,
+                TenDangNhap = tenDangNhap,
+                MatKhau = matKhau,
+                VaiTro = "Nhân viên",
+                MaNV = maNhanVienMoi
+            };
+
+            return taiKhoanDAL.ThemTaiKhoan(taiKhoanMoi);
+        }
     }
 }

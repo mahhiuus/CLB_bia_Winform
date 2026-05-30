@@ -31,8 +31,8 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LoginUI));
             this.guna2ControlBox2 = new Guna.UI2.WinForms.Guna2ControlBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.txtPW = new System.Windows.Forms.TextBox();
+            this.txtUserName = new System.Windows.Forms.TextBox();
             this.guna2Panel8 = new Guna.UI2.WinForms.Guna2Panel();
             this.guna2HtmlLabel3 = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.guna2Panel7 = new Guna.UI2.WinForms.Guna2Panel();
@@ -44,11 +44,11 @@
             this.guna2ContextMenuStrip1 = new Guna.UI2.WinForms.Guna2ContextMenuStrip();
             this.guna2Panel10 = new Guna.UI2.WinForms.Guna2Panel();
             this.guna2GradientButton2 = new Guna.UI2.WinForms.Guna2GradientButton();
-            this.guna2Panel9 = new Guna.UI2.WinForms.Guna2Panel();
-            this.guna2Panel11 = new Guna.UI2.WinForms.Guna2Panel();
             this.guna2Panel2 = new Guna.UI2.WinForms.Guna2Panel();
             this.guna2Panel4 = new Guna.UI2.WinForms.Guna2Panel();
             this.guna2Panel3 = new Guna.UI2.WinForms.Guna2Panel();
+            this.guna2Panel9 = new Guna.UI2.WinForms.Guna2Panel();
+            this.guna2Panel11 = new Guna.UI2.WinForms.Guna2Panel();
             this.guna2Panel10.SuspendLayout();
             this.guna2Panel9.SuspendLayout();
             this.SuspendLayout();
@@ -65,19 +65,19 @@
             this.guna2ControlBox2.Name = "guna2ControlBox2";
             this.guna2ControlBox2.PressedColor = System.Drawing.Color.Firebrick;
             // 
-            // textBox2
+            // txtPW
             // 
-            this.textBox2.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            resources.ApplyResources(this.textBox2, "textBox2");
-            this.textBox2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(33)))), ((int)(((byte)(27)))));
-            this.textBox2.Name = "textBox2";
+            this.txtPW.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            resources.ApplyResources(this.txtPW, "txtPW");
+            this.txtPW.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(33)))), ((int)(((byte)(27)))));
+            this.txtPW.Name = "txtPW";
             // 
-            // textBox1
+            // txtUserName
             // 
-            this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            resources.ApplyResources(this.textBox1, "textBox1");
-            this.textBox1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(33)))), ((int)(((byte)(27)))));
-            this.textBox1.Name = "textBox1";
+            this.txtUserName.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            resources.ApplyResources(this.txtUserName, "txtUserName");
+            this.txtUserName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(42)))), ((int)(((byte)(33)))), ((int)(((byte)(27)))));
+            this.txtUserName.Name = "txtUserName";
             // 
             // guna2Panel8
             // 
@@ -121,6 +121,7 @@
             this.guna2GradientButton1.Name = "guna2GradientButton1";
             this.guna2GradientButton1.ShadowDecoration.Color = System.Drawing.Color.FromArgb(((int)(((byte)(49)))), ((int)(((byte)(81)))), ((int)(((byte)(30)))));
             this.guna2GradientButton1.ShadowDecoration.Shadow = new System.Windows.Forms.Padding(0);
+            this.guna2GradientButton1.Click += new System.EventHandler(this.guna2GradientButton1_Click);
             // 
             // guna2HtmlLabel1
             // 
@@ -171,9 +172,9 @@
             // 
             this.guna2Panel10.Controls.Add(this.guna2GradientButton2);
             this.guna2Panel10.Controls.Add(this.guna2Panel2);
-            this.guna2Panel10.Controls.Add(this.textBox2);
+            this.guna2Panel10.Controls.Add(this.txtPW);
             this.guna2Panel10.Controls.Add(this.guna2Panel4);
-            this.guna2Panel10.Controls.Add(this.textBox1);
+            this.guna2Panel10.Controls.Add(this.txtUserName);
             this.guna2Panel10.Controls.Add(this.guna2Panel8);
             this.guna2Panel10.Controls.Add(this.guna2HtmlLabel3);
             this.guna2Panel10.Controls.Add(this.guna2Panel7);
@@ -206,19 +207,7 @@
             this.guna2GradientButton2.Name = "guna2GradientButton2";
             this.guna2GradientButton2.ShadowDecoration.Color = System.Drawing.Color.FromArgb(((int)(((byte)(49)))), ((int)(((byte)(81)))), ((int)(((byte)(30)))));
             this.guna2GradientButton2.ShadowDecoration.Shadow = new System.Windows.Forms.Padding(0);
-            // 
-            // guna2Panel9
-            // 
-            this.guna2Panel9.Controls.Add(this.guna2ControlBox2);
-            this.guna2Panel9.Controls.Add(this.guna2ControlBox1);
-            resources.ApplyResources(this.guna2Panel9, "guna2Panel9");
-            this.guna2Panel9.Name = "guna2Panel9";
-            // 
-            // guna2Panel11
-            // 
-            this.guna2Panel11.BackgroundImage = global::Bài_Tập_Lớn.Properties.Resources.FinalLogin;
-            resources.ApplyResources(this.guna2Panel11, "guna2Panel11");
-            this.guna2Panel11.Name = "guna2Panel11";
+            this.guna2GradientButton2.Click += new System.EventHandler(this.guna2GradientButton2_Click);
             // 
             // guna2Panel2
             // 
@@ -244,6 +233,19 @@
             this.guna2Panel3.BorderColor = System.Drawing.Color.Transparent;
             this.guna2Panel3.Name = "guna2Panel3";
             // 
+            // guna2Panel9
+            // 
+            this.guna2Panel9.Controls.Add(this.guna2ControlBox2);
+            this.guna2Panel9.Controls.Add(this.guna2ControlBox1);
+            resources.ApplyResources(this.guna2Panel9, "guna2Panel9");
+            this.guna2Panel9.Name = "guna2Panel9";
+            // 
+            // guna2Panel11
+            // 
+            this.guna2Panel11.BackgroundImage = global::Bài_Tập_Lớn.Properties.Resources.FinalLogin;
+            resources.ApplyResources(this.guna2Panel11, "guna2Panel11");
+            this.guna2Panel11.Name = "guna2Panel11";
+            // 
             // LoginUI
             // 
             resources.ApplyResources(this, "$this");
@@ -267,9 +269,9 @@
 
         private Guna.UI2.WinForms.Guna2ControlBox guna2ControlBox2;
         private Guna.UI2.WinForms.Guna2Panel guna2Panel2;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox txtPW;
         private Guna.UI2.WinForms.Guna2Panel guna2Panel4;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox txtUserName;
         private Guna.UI2.WinForms.Guna2Panel guna2Panel8;
         private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel3;
         private Guna.UI2.WinForms.Guna2Panel guna2Panel7;

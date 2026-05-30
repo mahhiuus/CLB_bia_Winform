@@ -9,6 +9,7 @@ using System.Runtime.InteropServices; // [THÊM MỚI] Để gọi thư viện W
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Bài_Tập_Lớn.BLL;
 
 namespace Bài_Tập_Lớn.GUI
 {
@@ -64,7 +65,8 @@ namespace Bài_Tập_Lớn.GUI
 
         private void guna2GradientButton2_Click(object sender, EventArgs e)
         {
-
+            Application.OpenForms["LoginUI"]?.Show();
+            this.Close();
         }
 
         private void guna2Panel11_Paint(object sender, PaintEventArgs e)
@@ -75,6 +77,40 @@ namespace Bài_Tập_Lớn.GUI
         private void guna2ControlBox1_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void guna2Panel10_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void btnDangKi_Click(object sender, EventArgs e)
+        {
+            string tenDangNhap = txtTenDangKi.Text.Trim();
+            string matKhau = txtMatKhauDangKi.Text.Trim();
+            string nhapLaiMatKhau = txtMatKhauDangKiMoi.Text.Trim();
+
+            try
+            {
+                TaiKhoanBLL taiKhoanBLL = new TaiKhoanBLL();
+                LoginUI login = new LoginUI();
+                bool kq = taiKhoanBLL.DangKyTaiKhoan(tenDangNhap, matKhau, nhapLaiMatKhau);
+
+                if (kq)
+                {
+                    MessageBox.Show("Đăng ký tài khoản thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    this.Close();
+                }
+                else
+                {
+                    MessageBox.Show("Đăng ký thất bại, vui lòng thử lại!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
     }
 }

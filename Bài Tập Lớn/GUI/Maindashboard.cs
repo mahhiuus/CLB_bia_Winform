@@ -84,6 +84,15 @@ namespace Bài_Tập_Lớn.GUI
             _skeletonRoot.BringToFront();
 
             btnTrangChu_Click(btnTrangChu, EventArgs.Empty);
+            if (string.Equals(LichSuHeThong.QuyenTruyCap, "Nhân viên", StringComparison.OrdinalIgnoreCase))
+            {
+                btnTaiKhoan.Visible = false;
+                btnKhachHang.Visible = false;
+                btnNhaCungCap.Visible = false;
+                btnSanPham.Visible = false;
+                btnNhanVien.Visible = false;
+                admintxt.Visible=false;
+            }
         }
 
         private void RemoveButtonGrayEffect(Control parent)
@@ -536,7 +545,19 @@ namespace Bài_Tập_Lớn.GUI
                 _hoaDonNhapUi = new HoaDonNhapUi();
             OpenChildForm(_hoaDonNhapUi, sender);
         }
-        private void guna2Button7_Click(object sender, EventArgs e) { }
+        private void guna2Button7_Click(object sender, EventArgs e) {
+            DialogResult dr = MessageBox.Show("Bạn có chắc chắn muốn đăng xuất không?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (dr == DialogResult.Yes)
+            {
+                // Xóa sạch phiên đăng nhập
+                LichSuHeThong.TenDangNhap = null;
+                LichSuHeThong.QuyenTruyCap = null;
+
+                // Đánh dấu đây là hành động Đăng xuất để hồi sinh LoginUI ở file Program.cs
+                this.DialogResult = DialogResult.Retry;
+                this.Close(); // Đóng Dashboard lại
+            }
+        }
         private void guna2Button8_Click(object sender, EventArgs e) {
         
         if(_sanPhamPanel == null || _sanPhamPanel.IsDisposed)
