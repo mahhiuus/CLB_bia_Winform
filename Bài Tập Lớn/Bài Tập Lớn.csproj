@@ -253,6 +253,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="GUI\customUI.cs" />
+    <Compile Include="GUI\HoaDonNhapUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="GUI\HoaDonUi.cs">
       <SubType>Form</SubType>
     </Compile>

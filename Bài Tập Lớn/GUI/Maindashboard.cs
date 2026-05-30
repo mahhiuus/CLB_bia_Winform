@@ -19,6 +19,7 @@ namespace Bài_Tập_Lớn.GUI
         private ThongKeUi _thongKeForm = null;
         private SoDoBanUi _soDoBanForm = null;
         private HoaDonUi _hoaDonUi = null;
+        private HoaDonNhapUi _hoaDonNhapUi = null;
         private NhanVienUI _nhanVienUI = null;
         private BanBiaPanel _banBiaPanel = null;
         private KhachHangPanel _khachHangPanel = null;
@@ -530,7 +531,11 @@ namespace Bài_Tập_Lớn.GUI
                 _taiKhoanPanel = new TaiKhoanPanel();
             OpenChildForm(_taiKhoanPanel, sender);
         }
-        private void guna2Button6_Click(object sender, EventArgs e) { }
+        private void guna2Button6_Click(object sender, EventArgs e) {
+            if (_hoaDonNhapUi == null || _hoaDonNhapUi.IsDisposed)
+                _hoaDonNhapUi = new HoaDonNhapUi();
+            OpenChildForm(_hoaDonNhapUi, sender);
+        }
         private void guna2Button7_Click(object sender, EventArgs e) { }
         private void guna2Button8_Click(object sender, EventArgs e) {
         
