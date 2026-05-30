@@ -11,7 +11,8 @@ namespace Bài_Tập_Lớn.DAL
     {
         public string SinhMaMoi()
         {
-            string sql = @"SELECT COALESCE(MAX(CAST(SUBSTRING(ma_sp FROM 3) AS INT)), 0) FROM san_pham";
+            // Sửa cú pháp SUBSTRING cho chuẩn SQL Server: SUBSTRING(ma_sp, 3, LEN(ma_sp))
+            string sql = @"SELECT COALESCE(MAX(CAST(SUBSTRING(ma_sp, 3, LEN(ma_sp)) AS INT)), 0) FROM san_pham";
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
@@ -25,7 +26,6 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception("Lỗi khi sinh mã sản phẩm: " + ex.Message);
             }
         }
-
         public bool ThemSanPham(SanPhamDTO sp)
         {
             if (sp == null || string.IsNullOrWhiteSpace(sp.MaSP))

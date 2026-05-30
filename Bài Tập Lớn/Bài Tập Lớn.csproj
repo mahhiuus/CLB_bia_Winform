@@ -122,6 +122,9 @@
     <Reference Include="Microsoft.IdentityModel.Tokens, Version=8.18.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.IdentityModel.Tokens.8.18.0\lib\net472\Microsoft.IdentityModel.Tokens.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -256,6 +259,18 @@
     <Compile Include="GUI\HoaDonUi.Designer.cs">
       <DependentUpon>HoaDonUi.cs</DependentUpon>
     </Compile>
+    <Compile Include="GUI\KhachHangPanel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\KhachHangPanel.Designer.cs">
+      <DependentUpon>KhachHangPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\KhachHangPopupUi.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\KhachHangPopupUi.Designer.cs">
+      <DependentUpon>KhachHangPopupUi.cs</DependentUpon>
+    </Compile>
     <Compile Include="GUI\LoginForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -267,6 +282,30 @@
     </Compile>
     <Compile Include="GUI\Maindashboard.Designer.cs">
       <DependentUpon>Maindashboard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\MenuSanPham.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\MenuSanPham.Designer.cs">
+      <DependentUpon>MenuSanPham.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\MenuSanPhamCard.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GUI\MenuSanPhamCard.Designer.cs">
+      <DependentUpon>MenuSanPhamCard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\NhaCungCapPanel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\NhaCungCapPanel.Designer.cs">
+      <DependentUpon>NhaCungCapPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\NhaCungCapPopupUi.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\NhaCungCapPopupUi.Designer.cs">
+      <DependentUpon>NhaCungCapPopupUi.cs</DependentUpon>
     </Compile>
     <Compile Include="GUI\NhanVienPopupUI.cs">
       <SubType>Form</SubType>
@@ -286,11 +325,35 @@
     <Compile Include="GUI\Register.Designer.cs">
       <DependentUpon>Register.cs</DependentUpon>
     </Compile>
+    <Compile Include="GUI\SanPhamPanel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\SanPhamPanel.Designer.cs">
+      <DependentUpon>SanPhamPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\SanPhamPopupUi.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\SanPhamPopupUi.Designer.cs">
+      <DependentUpon>SanPhamPopupUi.cs</DependentUpon>
+    </Compile>
     <Compile Include="GUI\SoDoBanUi.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="GUI\SoDoBanUi.Designer.cs">
       <DependentUpon>SoDoBanUi.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\TaiKhoanPanel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\TaiKhoanPanel.Designer.cs">
+      <DependentUpon>TaiKhoanPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\TaiKhoanPopupUi.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\TaiKhoanPopupUi.Designer.cs">
+      <DependentUpon>TaiKhoanPopupUi.cs</DependentUpon>
     </Compile>
     <Compile Include="GUI\ThanhToanDialog.cs">
       <SubType>Form</SubType>
@@ -316,11 +379,29 @@
     <EmbeddedResource Include="GUI\HoaDonUi.resx">
       <DependentUpon>HoaDonUi.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="GUI\KhachHangPanel.resx">
+      <DependentUpon>KhachHangPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\KhachHangPopupUi.resx">
+      <DependentUpon>KhachHangPopupUi.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="GUI\LoginForm.resx">
       <DependentUpon>LoginForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="GUI\Maindashboard.resx">
       <DependentUpon>Maindashboard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\MenuSanPham.resx">
+      <DependentUpon>MenuSanPham.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\MenuSanPhamCard.resx">
+      <DependentUpon>MenuSanPhamCard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\NhaCungCapPanel.resx">
+      <DependentUpon>NhaCungCapPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\NhaCungCapPopupUi.resx">
+      <DependentUpon>NhaCungCapPopupUi.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="GUI\NhanVienPopupUI.resx">
       <DependentUpon>NhanVienPopupUI.cs</DependentUpon>
@@ -331,8 +412,20 @@
     <EmbeddedResource Include="GUI\Register.resx">
       <DependentUpon>Register.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="GUI\SanPhamPanel.resx">
+      <DependentUpon>SanPhamPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\SanPhamPopupUi.resx">
+      <DependentUpon>SanPhamPopupUi.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="GUI\SoDoBanUi.resx">
       <DependentUpon>SoDoBanUi.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\TaiKhoanPanel.resx">
+      <DependentUpon>TaiKhoanPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\TaiKhoanPopupUi.resx">
+      <DependentUpon>TaiKhoanPopupUi.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="GUI\ThanhToanDialog.resx">
       <DependentUpon>ThanhToanDialog.cs</DependentUpon>
@@ -417,6 +510,45 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\cardd.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\dollar.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\inactive.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\building.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\old-typical-phone.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\email.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\location.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\customer-service.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\search.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\reload.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\plus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\plus1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\reload1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Screenshot 2026-05-27 170816.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

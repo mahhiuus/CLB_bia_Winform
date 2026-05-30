@@ -21,6 +21,11 @@ namespace Bài_Tập_Lớn.GUI
         private HoaDonUi _hoaDonUi = null;
         private NhanVienUI _nhanVienUI = null;
         private BanBiaPanel _banBiaPanel = null;
+        private KhachHangPanel _khachHangPanel = null;
+        private NhaCungCapPanel _nhaCungCapPanel = null;
+        private TaiKhoanPanel _taiKhoanPanel = null;
+        private SanPhamPanel _sanPhamPanel = null;
+        private MenuSanPham _menuSanPham = null;
         private bool _isTransitioning = false;
 
         // ── Skeleton ─────────────────────────────────────────────
@@ -506,17 +511,34 @@ namespace Bài_Tập_Lớn.GUI
         private void guna2ControlBox1_Click(object sender, EventArgs e) { }
         private void guna2HtmlLabel1_Click(object sender, EventArgs e) { }
         private void guna2Panel3_Paint(object sender, PaintEventArgs e) { }
-        private void guna2Button3_Click(object sender, EventArgs e) { }
+        private void guna2Button3_Click(object sender, EventArgs e) {
+        
+         if(_menuSanPham == null || _menuSanPham.IsDisposed)
+                _menuSanPham = new MenuSanPham();
+            OpenChildForm(_menuSanPham, sender);
+
+        }
         private void guna2Button4_Click(object sender, EventArgs e)
         {
             if (_hoaDonUi == null || _hoaDonUi.IsDisposed)
                 _hoaDonUi = new HoaDonUi();
             OpenChildForm(_hoaDonUi, sender);
         }
-        private void guna2Button5_Click(object sender, EventArgs e) { }
+        private void guna2Button5_Click(object sender, EventArgs e) {
+        
+            if(_taiKhoanPanel == null || _taiKhoanPanel.IsDisposed)
+                _taiKhoanPanel = new TaiKhoanPanel();
+            OpenChildForm(_taiKhoanPanel, sender);
+        }
         private void guna2Button6_Click(object sender, EventArgs e) { }
         private void guna2Button7_Click(object sender, EventArgs e) { }
-        private void guna2Button8_Click(object sender, EventArgs e) { }
+        private void guna2Button8_Click(object sender, EventArgs e) {
+        
+        if(_sanPhamPanel == null || _sanPhamPanel.IsDisposed)
+                _sanPhamPanel = new SanPhamPanel();
+            OpenChildForm(_sanPhamPanel, sender);
+
+        }
         private void guna2Button9_Click(object sender, EventArgs e) {
 
             if (_banBiaPanel == null || _banBiaPanel.IsDisposed)            
@@ -526,7 +548,9 @@ namespace Bài_Tập_Lớn.GUI
             }
         
         private void guna2Button10_Click(object sender, EventArgs e) {
-
+            if(_khachHangPanel == null || _khachHangPanel.IsDisposed)
+                _khachHangPanel = new KhachHangPanel();
+            OpenChildForm(_khachHangPanel, sender);
         }
         private void menutxt_Click(object sender, EventArgs e) { }
         private void ParentMainContent_Paint(object sender, PaintEventArgs e) { }
@@ -536,6 +560,13 @@ namespace Bài_Tập_Lớn.GUI
             if(_nhanVienUI == null || _nhanVienUI.IsDisposed)
                 _nhanVienUI = new NhanVienUI(); 
             OpenChildForm(_nhanVienUI, sender);
+        }
+
+        private void guna2Button2_Click(object sender, EventArgs e)
+        {
+            if(_nhaCungCapPanel == null || _nhaCungCapPanel.IsDisposed)
+                _nhaCungCapPanel = new NhaCungCapPanel();
+                OpenChildForm(_nhaCungCapPanel, sender);
         }
     }
 
