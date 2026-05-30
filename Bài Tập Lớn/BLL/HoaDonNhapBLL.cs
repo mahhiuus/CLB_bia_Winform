@@ -72,4 +72,35 @@ public class HoaDonNhapBLL
     }
 
     public List<HoaDonNhapDTO> TimKiem(string keyword) => hoaDonNhapDAL.TimKiem(keyword);
+
+    public List<HoaDonNhapDTO> LayTheoNgay(DateTime tuNgay, DateTime denNgay)
+    {
+        if (tuNgay > denNgay)
+        {
+            throw new ArgumentException("Từ ngày không được lớn hơn Đến ngày!");
+        }
+        return hoaDonNhapDAL.LayTheoNgay(tuNgay, denNgay);
+    }
+
+    public List<HoaDonNhapDTO> LayTopHoaDon(int limit)
+    {
+        if (limit <= 0) limit = 10;
+        return hoaDonNhapDAL.LayTopHoaDon(limit);
+    }
+
+    public List<HoaDonNhapDTO> LayTopHoaDonTheoNgay(DateTime ngay, int limit)
+    {
+        if (limit <= 0) limit = 10;
+        return hoaDonNhapDAL.LayTopHoaDonTheoNgay(ngay, limit);
+    }
+
+    public List<HoaDonNhapDTO> LayTopHoaDonTheoThang(int thang, int nam, int limit)
+    {
+        if (thang < 1 || thang > 12 || nam < 1)
+        {
+            throw new ArgumentException("Tháng hoặc năm truyền vào không hợp lệ!");
+        }
+        if (limit <= 0) limit = 10;
+        return hoaDonNhapDAL.LayTopHoaDonTheoThang(thang, nam, limit);
+    }
 }

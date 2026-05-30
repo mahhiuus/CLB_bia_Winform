@@ -42,6 +42,7 @@ namespace Bài_Tập_Lớn.GUI
         {
             InitializeComponent();
             this.Load += SoDoBanUi_Load;
+            this.VisibleChanged += SoDoBanUi_VisibleChanged;
         }
 
         private void SoDoBanUi_Load(object sender, EventArgs e)
@@ -50,6 +51,7 @@ namespace Bài_Tập_Lớn.GUI
             BuildLayout();
             RefreshMap();
         }
+
 
         // ════════════════════════════════════════════════════════
         //  Load ảnh bàn bida
@@ -448,6 +450,14 @@ namespace Bài_Tập_Lớn.GUI
             path.AddArc(bounds.X, bounds.Bottom - d, d, d, 90, 90);
             path.CloseFigure();
             return path;
+        }
+
+        private void SoDoBanUi_VisibleChanged(object sender, EventArgs e)
+        {
+            if (this.Visible)
+            {
+                RefreshMap();
+            }
         }
 
         // ── Stub event handlers ──

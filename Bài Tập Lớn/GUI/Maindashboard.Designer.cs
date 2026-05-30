@@ -110,7 +110,7 @@
             this.ParentSideBar.Margin = new System.Windows.Forms.Padding(2);
             this.ParentSideBar.Name = "ParentSideBar";
             this.ParentSideBar.Padding = new System.Windows.Forms.Padding(12);
-            this.ParentSideBar.Size = new System.Drawing.Size(501, 1182);
+            this.ParentSideBar.Size = new System.Drawing.Size(501, 756);
             this.ParentSideBar.TabIndex = 23;
             this.ParentSideBar.Paint += new System.Windows.Forms.PaintEventHandler(this.guna2Panel1_Paint);
             // 
@@ -141,7 +141,7 @@
             this.MainSideBar.Controls.Add(this.btnTrangChu);
             this.MainSideBar.Dock = System.Windows.Forms.DockStyle.Fill;
             this.MainSideBar.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(251)))));
-            this.MainSideBar.Location = new System.Drawing.Point(10, 10);
+            this.MainSideBar.Location = new System.Drawing.Point(12, 12);
             this.MainSideBar.Margin = new System.Windows.Forms.Padding(2);
             this.MainSideBar.Name = "MainSideBar";
             this.MainSideBar.Padding = new System.Windows.Forms.Padding(15);
@@ -149,7 +149,7 @@
             this.MainSideBar.ShadowDecoration.Color = System.Drawing.Color.White;
             this.MainSideBar.ShadowDecoration.Depth = 50;
             this.MainSideBar.ShadowDecoration.Enabled = true;
-            this.MainSideBar.Size = new System.Drawing.Size(381, 736);
+            this.MainSideBar.Size = new System.Drawing.Size(477, 732);
             this.MainSideBar.TabIndex = 0;
             this.MainSideBar.Paint += new System.Windows.Forms.PaintEventHandler(this.guna2Panel2_Paint);
             // 
@@ -172,7 +172,7 @@
             this.guna2Button2.Image = global::Bài_Tập_Lớn.Properties.Resources.building;
             this.guna2Button2.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.guna2Button2.ImageSize = new System.Drawing.Size(22, 22);
-            this.guna2Button2.Location = new System.Drawing.Point(19, 746);
+            this.guna2Button2.Location = new System.Drawing.Point(20, 485);
             this.guna2Button2.Margin = new System.Windows.Forms.Padding(4);
             this.guna2Button2.Name = "guna2Button2";
             this.guna2Button2.Padding = new System.Windows.Forms.Padding(12);
@@ -201,7 +201,7 @@
             this.guna2Button1.Image = global::Bài_Tập_Lớn.Properties.Resources.users_alt;
             this.guna2Button1.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.guna2Button1.ImageSize = new System.Drawing.Size(22, 22);
-            this.guna2Button1.Location = new System.Drawing.Point(19, 830);
+            this.guna2Button1.Location = new System.Drawing.Point(20, 582);
             this.guna2Button1.Margin = new System.Windows.Forms.Padding(4);
             this.guna2Button1.Name = "guna2Button1";
             this.guna2Button1.Padding = new System.Windows.Forms.Padding(12);
@@ -244,7 +244,7 @@
             this.guna2Panel3.BackgroundImage = global::Bài_Tập_Lớn.Properties.Resources.logobia;
             this.guna2Panel3.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.guna2Panel3.BorderColor = System.Drawing.Color.Transparent;
-            this.guna2Panel3.Location = new System.Drawing.Point(14, 11);
+            this.guna2Panel3.Location = new System.Drawing.Point(15, 16);
             this.guna2Panel3.Margin = new System.Windows.Forms.Padding(2);
             this.guna2Panel3.Name = "guna2Panel3";
             this.guna2Panel3.Size = new System.Drawing.Size(43, 43);
@@ -270,7 +270,7 @@
             this.guna2Button7.Image = global::Bài_Tập_Lớn.Properties.Resources.leave;
             this.guna2Button7.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.guna2Button7.ImageSize = new System.Drawing.Size(22, 22);
-            this.guna2Button7.Location = new System.Drawing.Point(31, 1144);
+            this.guna2Button7.Location = new System.Drawing.Point(20, 642);
             this.guna2Button7.Margin = new System.Windows.Forms.Padding(4);
             this.guna2Button7.Name = "guna2Button7";
             this.guna2Button7.Padding = new System.Windows.Forms.Padding(12);
@@ -299,7 +299,7 @@
             this.guna2Button5.Image = global::Bài_Tập_Lớn.Properties.Resources.user_logout;
             this.guna2Button5.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.guna2Button5.ImageSize = new System.Drawing.Size(22, 22);
-            this.guna2Button5.Location = new System.Drawing.Point(20, 476);
+            this.guna2Button5.Location = new System.Drawing.Point(20, 390);
             this.guna2Button5.Margin = new System.Windows.Forms.Padding(2);
             this.guna2Button5.Name = "guna2Button5";
             this.guna2Button5.Padding = new System.Windows.Forms.Padding(12);
@@ -328,7 +328,7 @@
             this.guna2Button8.Image = global::Bài_Tập_Lớn.Properties.Resources.room_service;
             this.guna2Button8.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.guna2Button8.ImageSize = new System.Drawing.Size(22, 22);
-            this.guna2Button8.Location = new System.Drawing.Point(19, 662);
+            this.guna2Button8.Location = new System.Drawing.Point(20, 533);
             this.guna2Button8.Margin = new System.Windows.Forms.Padding(4);
             this.guna2Button8.Name = "guna2Button8";
             this.guna2Button8.Padding = new System.Windows.Forms.Padding(12);
@@ -357,7 +357,7 @@
             this.guna2Button9.Image = global::Bài_Tập_Lớn.Properties.Resources.ball_pile;
             this.guna2Button9.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.guna2Button9.ImageSize = new System.Drawing.Size(22, 22);
-            this.guna2Button9.Location = new System.Drawing.Point(20, 420);
+            this.guna2Button9.Location = new System.Drawing.Point(20, 286);
             this.guna2Button9.Margin = new System.Windows.Forms.Padding(2);
             this.guna2Button9.Name = "guna2Button9";
             this.guna2Button9.Padding = new System.Windows.Forms.Padding(12);
@@ -386,7 +386,7 @@
             this.guna2Button10.Image = global::Bài_Tập_Lớn.Properties.Resources.users_alt;
             this.guna2Button10.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.guna2Button10.ImageSize = new System.Drawing.Size(22, 22);
-            this.guna2Button10.Location = new System.Drawing.Point(14, 730);
+            this.guna2Button10.Location = new System.Drawing.Point(20, 434);
             this.guna2Button10.Margin = new System.Windows.Forms.Padding(2);
             this.guna2Button10.Name = "guna2Button10";
             this.guna2Button10.Padding = new System.Windows.Forms.Padding(12);
@@ -414,11 +414,11 @@
             this.admintxt.HoverState.FillColor = System.Drawing.Color.Transparent;
             this.admintxt.HoverState.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.admintxt.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
-            this.admintxt.Location = new System.Drawing.Point(-4, 465);
+            this.admintxt.Location = new System.Drawing.Point(1, 348);
             this.admintxt.Margin = new System.Windows.Forms.Padding(4);
             this.admintxt.Name = "admintxt";
             this.admintxt.Padding = new System.Windows.Forms.Padding(10);
-            this.admintxt.Size = new System.Drawing.Size(102, 54);
+            this.admintxt.Size = new System.Drawing.Size(91, 49);
             this.admintxt.TabIndex = 6;
             this.admintxt.Text = "Admin";
             this.admintxt.Click += new System.EventHandler(this.admintxt_Click);
@@ -441,11 +441,11 @@
             this.guna2Button6.HoverState.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.guna2Button6.Image = global::Bài_Tập_Lớn.Properties.Resources.calculator_bill;
             this.guna2Button6.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
-            this.guna2Button6.Location = new System.Drawing.Point(20, 318);
+            this.guna2Button6.Location = new System.Drawing.Point(20, 247);
             this.guna2Button6.Margin = new System.Windows.Forms.Padding(2);
             this.guna2Button6.Name = "guna2Button6";
             this.guna2Button6.Padding = new System.Windows.Forms.Padding(10);
-            this.guna2Button6.Size = new System.Drawing.Size(278, 60);
+            this.guna2Button6.Size = new System.Drawing.Size(278, 55);
             this.guna2Button6.TabIndex = 5;
             this.guna2Button6.Text = "Hóa Đơn Nhập";
             this.guna2Button6.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -469,11 +469,11 @@
             this.menutxt.HoverState.FillColor = System.Drawing.Color.Transparent;
             this.menutxt.HoverState.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.menutxt.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
-            this.menutxt.Location = new System.Drawing.Point(2, 60);
+            this.menutxt.Location = new System.Drawing.Point(15, 57);
             this.menutxt.Margin = new System.Windows.Forms.Padding(2);
             this.menutxt.Name = "menutxt";
             this.menutxt.Padding = new System.Windows.Forms.Padding(10);
-            this.menutxt.Size = new System.Drawing.Size(96, 54);
+            this.menutxt.Size = new System.Drawing.Size(86, 49);
             this.menutxt.TabIndex = 4;
             this.menutxt.Text = "Menu";
             this.menutxt.Click += new System.EventHandler(this.menutxt_Click);
@@ -496,13 +496,13 @@
             this.guna2Button4.HoverState.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.guna2Button4.Image = global::Bài_Tập_Lớn.Properties.Resources.file_invoice_dollar__1_;
             this.guna2Button4.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
-            this.guna2Button4.Location = new System.Drawing.Point(20, 264);
+            this.guna2Button4.Location = new System.Drawing.Point(20, 211);
             this.guna2Button4.Margin = new System.Windows.Forms.Padding(2);
             this.guna2Button4.Name = "guna2Button4";
             this.guna2Button4.Padding = new System.Windows.Forms.Padding(10);
-            this.guna2Button4.Size = new System.Drawing.Size(278, 60);
+            this.guna2Button4.Size = new System.Drawing.Size(266, 53);
             this.guna2Button4.TabIndex = 3;
-            this.guna2Button4.Text = "Hóa đơn bán";
+            this.guna2Button4.Text = "Hóa đơn Bán";
             this.guna2Button4.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.guna2Button4.Click += new System.EventHandler(this.guna2Button4_Click);
             // 
@@ -525,11 +525,11 @@
             this.guna2Button3.Image = global::Bài_Tập_Lớn.Properties.Resources.fast_food;
             this.guna2Button3.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.guna2Button3.ImageSize = new System.Drawing.Size(22, 22);
-            this.guna2Button3.Location = new System.Drawing.Point(20, 213);
+            this.guna2Button3.Location = new System.Drawing.Point(20, 175);
             this.guna2Button3.Margin = new System.Windows.Forms.Padding(2);
             this.guna2Button3.Name = "guna2Button3";
             this.guna2Button3.Padding = new System.Windows.Forms.Padding(10);
-            this.guna2Button3.Size = new System.Drawing.Size(278, 60);
+            this.guna2Button3.Size = new System.Drawing.Size(266, 49);
             this.guna2Button3.TabIndex = 2;
             this.guna2Button3.Text = "Đồ Ăn Uống";
             this.guna2Button3.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -554,11 +554,11 @@
             this.btnSoDoBan.Image = global::Bài_Tập_Lớn.Properties.Resources.balls;
             this.btnSoDoBan.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.btnSoDoBan.ImageSize = new System.Drawing.Size(22, 22);
-            this.btnSoDoBan.Location = new System.Drawing.Point(20, 159);
+            this.btnSoDoBan.Location = new System.Drawing.Point(20, 137);
             this.btnSoDoBan.Margin = new System.Windows.Forms.Padding(2);
             this.btnSoDoBan.Name = "btnSoDoBan";
             this.btnSoDoBan.Padding = new System.Windows.Forms.Padding(10);
-            this.btnSoDoBan.Size = new System.Drawing.Size(278, 60);
+            this.btnSoDoBan.Size = new System.Drawing.Size(278, 45);
             this.btnSoDoBan.TabIndex = 1;
             this.btnSoDoBan.Text = "Sơ Đồ Bàn";
             this.btnSoDoBan.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -582,11 +582,11 @@
             this.btnTrangChu.HoverState.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnTrangChu.Image = global::Bài_Tập_Lớn.Properties.Resources.home;
             this.btnTrangChu.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
-            this.btnTrangChu.Location = new System.Drawing.Point(20, 106);
+            this.btnTrangChu.Location = new System.Drawing.Point(20, 95);
             this.btnTrangChu.Margin = new System.Windows.Forms.Padding(2);
             this.btnTrangChu.Name = "btnTrangChu";
             this.btnTrangChu.Padding = new System.Windows.Forms.Padding(10);
-            this.btnTrangChu.Size = new System.Drawing.Size(278, 60);
+            this.btnTrangChu.Size = new System.Drawing.Size(278, 49);
             this.btnTrangChu.TabIndex = 0;
             this.btnTrangChu.Text = "Trang Chủ";
             this.btnTrangChu.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -600,7 +600,7 @@
             // 
             this.ParentMainContent.BackColor = System.Drawing.Color.Transparent;
             this.ParentMainContent.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ParentMainContent.Location = new System.Drawing.Point(401, 32);
+            this.ParentMainContent.Location = new System.Drawing.Point(501, 32);
             this.ParentMainContent.Margin = new System.Windows.Forms.Padding(2);
             this.ParentMainContent.Name = "ParentMainContent";
             this.ParentMainContent.Padding = new System.Windows.Forms.Padding(10);
@@ -608,7 +608,7 @@
             this.ParentMainContent.ShadowDecoration.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(251)))));
             this.ParentMainContent.ShadowDecoration.Depth = 10;
             this.ParentMainContent.ShadowDecoration.Shadow = new System.Windows.Forms.Padding(8);
-            this.ParentMainContent.Size = new System.Drawing.Size(708, 756);
+            this.ParentMainContent.Size = new System.Drawing.Size(608, 756);
             this.ParentMainContent.TabIndex = 24;
             this.ParentMainContent.Paint += new System.Windows.Forms.PaintEventHandler(this.ParentMainContent_Paint);
             // 
