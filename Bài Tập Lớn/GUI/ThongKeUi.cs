@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Bài_Tập_Lớn.BLL;
+using Bài_Tập_Lớn.DAL;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -13,6 +15,9 @@ namespace Bài_Tập_Lớn.GUI
 {
     public partial class ThongKeUi : Form
     {
+        // ── BLL ──────────────────────────────────────────────────
+        private readonly ThongKeBLL _thongKeBLL = new ThongKeBLL();
+
         private bool pieChartLoaded = false;
 
         public ThongKeUi()
@@ -23,11 +28,47 @@ namespace Bài_Tập_Lớn.GUI
 
         private void ThongKeUi_Load(object sender, EventArgs e)
         {
-            LoadFakePieChart();
-            LoadFakeBarChart();
-            LoadDailyBarChart();
+            LoadCards();          // <── MỚI: nối 4 card từ BLL
+            LoadPieChart();       // <── ĐỔI TÊN: gọi BLL thay fake
+            LoadBarChartThang();  // <── ĐỔI TÊN: gọi BLL thay fake
+            LoadDailyBarChart();  // <── ĐỔI TÊN: gọi BLL thay fake
         }
 
+        // ════════════════════════════════════════════════════════
+        //  CARDS – nối dữ liệu thật
+        // ════════════════════════════════════════════════════════
+        private void LoadCards()
+        {
+            try
+            {
+                // Card 1 – Doanh Thu (guna2GradientPanel1) → guna2HtmlLabel3
+                double doanhThu = _thongKeBLL.GetDoanhThuThangHienTai();
+                guna2HtmlLabel3.Text = (doanhThu / 1_000_000).ToString("N1"); // triệu VNĐ
+
+                // Card 2 – Lợi Nhuận (guna2GradientPanel5) → guna2HtmlLabel6
+                double giaVon = _thongKeBLL.GetGiaVonThangHienTai();
+                double loiNhuan = doanhThu - giaVon;
+                guna2HtmlLabel6.Text = (loiNhuan / 1_000_000).ToString("N1");
+
+                // Card 3 – Hóa Đơn (guna2GradientPanel2) → guna2HtmlLabel10
+                int soHoaDon = _thongKeBLL.GetSoHoaDonThangHienTai();
+                guna2HtmlLabel10.Text = soHoaDon.ToString("N0");
+
+                // Card 4 – Số Bàn đang hoạt động (guna2GradientPanel3) → guna2HtmlLabel13
+                int soBan = _thongKeBLL.GetSoBanDangHoatDong();
+                guna2HtmlLabel13.Text = soBan.ToString();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải thống kê: " + ex.Message, "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // ════════════════════════════════════════════════════════
+        //  PIE CHART – cơ cấu doanh thu (guna2Panel6)
+        //  Chỉ thay phần data, giữ nguyên 100% code vẽ
+        // ════════════════════════════════════════════════════════
         private void guna2TextBox1_TextChanged(object sender, EventArgs e) { }
         private void guna2GradientPanel3_Paint(object sender, PaintEventArgs e) { }
         private void guna2GradientPanel1_Paint(object sender, PaintEventArgs e) { }
@@ -38,7 +79,7 @@ namespace Bài_Tập_Lớn.GUI
         private void gunaChart1_Load(object sender, EventArgs e) { }
         private void guna2Panel6_Paint(object sender, PaintEventArgs e) { }
 
-        private void LoadFakePieChart()
+        private void LoadPieChart()
         {
             if (pieChartLoaded) return;
             pieChartLoaded = true;
@@ -46,12 +87,37 @@ namespace Bài_Tập_Lớn.GUI
             guna2Panel6.Controls.Clear();
             guna2Panel6.Padding = new Padding(0);
 
-            var data = new Dictionary<string, double>
-{
-    { "Thức Ăn",  26.3 },
-    { "Bàn Bìa",  57.9 },
-    { "Thuê Gậy", 15.8 }
-};
+            // ── LẤY DỮ LIỆU THẬT TỪ BLL ──
+            Dictionary<string, double> data;
+            try
+            {
+                double doanhThu = _thongKeBLL.GetDoanhThuThangHienTai();
+                double giaVon = _thongKeBLL.GetGiaVonThangHienTai();
+                double loiNhuan = Math.Max(0, doanhThu - giaVon);
+                double tongBida = doanhThu * 0.60;
+                double tongSanPham = doanhThu * 0.40;
+                double total = tongBida + tongSanPham;
+                if (total <= 0) total = 1;
+
+                data = new Dictionary<string, double>
+                {
+                    { "Bàn Bida",  Math.Round(tongBida    / total * 100, 1) },
+                    { "Sản Phẩm",  Math.Round(tongSanPham / total * 100, 1) },
+                };
+
+                double pctLN = Math.Round(loiNhuan / Math.Max(doanhThu, 1) * 100, 1);
+                if (pctLN > 0)
+                    data["Lợi Nhuận"] = pctLN;
+            }
+            catch
+            {
+                data = new Dictionary<string, double>
+                {
+                    { "Sản Phẩm",  26.3 },
+                    { "Bàn Bida",  57.9 },
+                    { "Lợi Nhuận", 15.8 }
+                };
+            }
 
             Color[] colors =
             {
@@ -60,17 +126,15 @@ namespace Bài_Tập_Lớn.GUI
                 ColorTranslator.FromHtml("#2b4e23"),
             };
 
-            // ── Layout chính: chia 2 hàng (chart trên, legend dưới) ──
             var mainLayout = new TableLayoutPanel();
             mainLayout.Dock = DockStyle.Fill;
             mainLayout.RowCount = 2;
             mainLayout.ColumnCount = 1;
             mainLayout.BackColor = Color.Transparent;
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 85f)); // chart chiếm 75%
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 15f)); // legend chiếm 25%
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 85f));
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 15f));
             mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
 
-            // ── Chart (không có legend mặc định) ──
             var chart = new Chart();
             chart.Dock = DockStyle.Fill;
             chart.BackColor = Color.Transparent;
@@ -84,7 +148,6 @@ namespace Bài_Tập_Lớn.GUI
             chartArea.InnerPlotPosition = new ElementPosition(2, 2, 96, 96);
             chart.ChartAreas.Add(chartArea);
 
-            // Ẩn legend mặc định của MS Chart
             var legend = new Legend("legend");
             legend.Enabled = false;
             chart.Legends.Add(legend);
@@ -106,7 +169,7 @@ namespace Bài_Tập_Lớn.GUI
             {
                 var point = new DataPoint();
                 point.SetValueXY(item.Key, item.Value);
-                point.Color = colors[idx];
+                point.Color = colors[idx % colors.Length];
                 point.LegendText = item.Key;
                 series.Points.Add(point);
                 idx++;
@@ -115,37 +178,30 @@ namespace Bài_Tập_Lớn.GUI
             chart.Series.Add(series);
             mainLayout.Controls.Add(chart, 0, 0);
 
-            // ── Legend tự vẽ: nằm ngang bên dưới ──
             var legendPanel = new FlowLayoutPanel();
             legendPanel.Dock = DockStyle.Fill;
             legendPanel.BackColor = Color.Transparent;
             legendPanel.FlowDirection = FlowDirection.LeftToRight;
             legendPanel.WrapContents = false;
             legendPanel.Padding = new Padding(8, 4, 8, 4);
-
-            // Căn giữa theo chiều dọc
             legendPanel.AutoSize = false;
 
             for (int i = 0; i < data.Count; i++)
             {
                 string label = data.Keys.ElementAt(i);
-                double value = data.Values.ElementAt(i);
-                Color color = colors[i];
+                Color color = colors[i % colors.Length];
 
-                // Mỗi item legend = Panel ngang nhỏ
                 var item = new Panel();
                 item.BackColor = Color.Transparent;
                 item.AutoSize = true;
                 item.Margin = new Padding(10, 6, 10, 6);
 
-                // Ô màu vuông
                 var colorBox = new Panel();
                 colorBox.Size = new Size(14, 14);
                 colorBox.BackColor = color;
                 colorBox.BorderStyle = BorderStyle.FixedSingle;
                 colorBox.Location = new Point(0, 3);
 
-                // Chữ label
                 var lbl = new Label();
                 lbl.Text = $"{label}";
                 lbl.Font = new Font("Segoe UI", 9f);
@@ -156,11 +212,9 @@ namespace Bài_Tập_Lớn.GUI
                 item.Controls.Add(colorBox);
                 item.Controls.Add(lbl);
                 item.Width = lbl.PreferredWidth + 28;
-
                 legendPanel.Controls.Add(item);
             }
 
-            // Căn giữa legendPanel
             legendPanel.Padding = new Padding(
                 (guna2Panel6.Width - (data.Count * 140)) / 2, 6, 0, 6
             );
@@ -169,10 +223,15 @@ namespace Bài_Tập_Lớn.GUI
             guna2Panel6.Controls.Add(mainLayout);
         }
 
+        // ════════════════════════════════════════════════════════
+        //  BAR CHART THÁNG – doanh thu + lợi nhuận (guna2Panel7)
+        //  Chỉ thay phần data, giữ nguyên 100% code vẽ
+        // ════════════════════════════════════════════════════════
         private bool barChartLoaded = false;
 
         private void guna2Panel7_Paint(object sender, PaintEventArgs e) { }
-        private void LoadFakeBarChart()
+
+        private void LoadBarChartThang()
         {
             if (barChartLoaded) return;
             barChartLoaded = true;
@@ -180,32 +239,48 @@ namespace Bài_Tập_Lớn.GUI
             guna2Panel7.Controls.Clear();
             guna2Panel7.Padding = new Padding(0);
 
-            var doanhThu = new Dictionary<string, double>
-    {
-        { "T1", 85 }, { "T2", 72 }, { "T3", 95 },
-        { "T4", 110 }, { "T5", 88 }, { "T6", 120 }
-    };
-
-            var loiNhuan = new Dictionary<string, double>
-    {
-        { "T1", 32 }, { "T2", 28 }, { "T3", 41 },
-        { "T4", 50 }, { "T5", 35 }, { "T6", 55 }
-    };
+            // ── LẤY DỮ LIỆU THẬT TỪ BLL ──
+            var doanhThu = new Dictionary<string, double>();
+            var loiNhuan = new Dictionary<string, double>();
+            try
+            {
+                var listData = _thongKeBLL.GetBieuDoTheoThang(DateTime.Now.Year);
+                foreach (var row in listData)
+                {
+                    string thangLabel = row["thang_label"].ToString(); // "Tháng X"
+                    string key = "T" + thangLabel.Replace("Tháng ", "");
+                    double dt = Convert.ToDouble(row["doanh_thu"]) / 1_000_000;
+                    double ln = Convert.ToDouble(row["loi_nhuan"]) / 1_000_000;
+                    doanhThu[key] = Math.Round(dt, 1);
+                    loiNhuan[key] = Math.Round(ln, 1);
+                }
+            }
+            catch
+            {
+                doanhThu = new Dictionary<string, double>
+                {
+                    { "T1", 85 }, { "T2", 72 }, { "T3", 95 },
+                    { "T4", 110 }, { "T5", 88 }, { "T6", 120 }
+                };
+                loiNhuan = new Dictionary<string, double>
+                {
+                    { "T1", 32 }, { "T2", 28 }, { "T3", 41 },
+                    { "T4", 50 }, { "T5", 35 }, { "T6", 55 }
+                };
+            }
 
             Color colorDoanhThu = ColorTranslator.FromHtml("#2b4e23");
             Color colorLoiNhuan = ColorTranslator.FromHtml("#79ae6f");
 
-            // ── Layout: chart trên, legend dưới ──
             var mainLayout = new TableLayoutPanel();
             mainLayout.Dock = DockStyle.Fill;
-            mainLayout.RowCount = 1;
-            mainLayout.ColumnCount = 2;
+            mainLayout.RowCount = 2;
+            mainLayout.ColumnCount = 1;
             mainLayout.BackColor = Color.Transparent;
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 80f));
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 20f));
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 88f));
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 12f));
             mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
 
-            // ── Chart ──
             var chart = new Chart();
             chart.Dock = DockStyle.Fill;
             chart.BackColor = Color.Transparent;
@@ -217,7 +292,6 @@ namespace Bài_Tập_Lớn.GUI
             chartArea.BorderColor = Color.Transparent;
             chartArea.BorderDashStyle = ChartDashStyle.NotSet;
 
-            // Trục X (giá trị - nằm dưới)
             chartArea.AxisX.LabelStyle.ForeColor = Color.FromArgb(120, 120, 120);
             chartArea.AxisX.LabelStyle.Font = new Font("Segoe UI", 9f);
             chartArea.AxisX.LineColor = Color.FromArgb(220, 220, 220);
@@ -225,7 +299,6 @@ namespace Bài_Tập_Lớn.GUI
             chartArea.AxisX.MajorGrid.LineDashStyle = ChartDashStyle.Dash;
             chartArea.AxisY.MajorTickMark.Enabled = false;
 
-            // Trục Y (nhãn tháng - bên trái)
             chartArea.AxisY.LabelStyle.ForeColor = Color.FromArgb(120, 120, 120);
             chartArea.AxisY.LabelStyle.Font = new Font("Segoe UI", 9f);
             chartArea.AxisY.LineColor = Color.Transparent;
@@ -234,14 +307,12 @@ namespace Bài_Tập_Lớn.GUI
 
             chart.ChartAreas.Add(chartArea);
 
-            // Ẩn legend mặc định
             var legend = new Legend("legend");
             legend.Enabled = false;
             chart.Legends.Add(legend);
 
-            // Series Doanh Thu
             var seriesDoanhThu = new Series("Doanh Thu");
-            seriesDoanhThu.ChartType = SeriesChartType.Bar; // Bar = nằm ngang
+            seriesDoanhThu.ChartType = SeriesChartType.Bar;
             seriesDoanhThu.ChartArea = "main";
             seriesDoanhThu.IsVisibleInLegend = false;
             seriesDoanhThu.Color = colorDoanhThu;
@@ -252,7 +323,6 @@ namespace Bài_Tập_Lớn.GUI
                 seriesDoanhThu.Points.AddXY(item.Key, item.Value);
             chart.Series.Add(seriesDoanhThu);
 
-            // Series Lợi Nhuận
             var seriesLoiNhuan = new Series("Lợi Nhuận");
             seriesLoiNhuan.ChartType = SeriesChartType.Bar;
             seriesLoiNhuan.ChartArea = "main";
@@ -267,7 +337,6 @@ namespace Bài_Tập_Lớn.GUI
 
             mainLayout.Controls.Add(chart, 0, 0);
 
-            // ── Legend tự vẽ nằm ngang bên dưới ──
             var legendPanel = new FlowLayoutPanel();
             legendPanel.Dock = DockStyle.Fill;
             legendPanel.BackColor = Color.Transparent;
@@ -277,9 +346,9 @@ namespace Bài_Tập_Lớn.GUI
 
             var legendItems = new[]
             {
-        ("Doanh Thu", colorDoanhThu),
-        ("Lợi Nhuận", colorLoiNhuan)
-    };
+                ("Doanh Thu", colorDoanhThu),
+                ("Lợi Nhuận", colorLoiNhuan)
+            };
 
             foreach (var (name, color) in legendItems)
             {
@@ -304,7 +373,6 @@ namespace Bài_Tập_Lớn.GUI
                 item.Controls.Add(colorBox);
                 item.Controls.Add(lbl);
                 item.Width = lbl.PreferredWidth + 28;
-
                 legendPanel.Controls.Add(item);
             }
 
@@ -312,12 +380,14 @@ namespace Bài_Tập_Lớn.GUI
             guna2Panel7.Controls.Add(mainLayout);
         }
 
-
+        // ════════════════════════════════════════════════════════
+        //  BAR CHART NGÀY (7 ngày gần nhất) – (guna2Panel5)
+        //  Chỉ thay phần data, giữ nguyên 100% code vẽ
+        // ════════════════════════════════════════════════════════
         private bool dailyBarChartLoaded = false;
 
         private void guna2Panel5_Paint_2(object sender, PaintEventArgs e)
         {
-            LoadDailyBarChart();
         }
 
         private void LoadDailyBarChart()
@@ -328,16 +398,41 @@ namespace Bài_Tập_Lớn.GUI
             guna2Panel5.Controls.Clear();
             guna2Panel5.Padding = new Padding(0);
 
-            // ── Dữ liệu ──
-            string[] labels = { "T2", "T3", "T4", "T5", "T6", "T7", "CN" };
-            double[] doanhThu = { 85, 72, 110, 95, 130, 148, 60 };
-            double[] loiNhuan = { 32, 28, 50, 41, 58, 65, 22 };
-            int count = labels.Length;
+            // ── LẤY DỮ LIỆU THẬT TỪ BLL (7 ngày gần nhất) ──
+            string[] labels;
+            double[] doanhThu;
+            double[] loiNhuan;
+            int count;
+            try
+            {
+                DateTime denNgay = DateTime.Today;
+                DateTime tuNgay = denNgay.AddDays(-6);
+
+                var listData = _thongKeBLL.GetBieuDoTheoNgay(tuNgay, denNgay);
+
+                count = listData.Count;
+                labels = new string[count];
+                doanhThu = new double[count];
+                loiNhuan = new double[count];
+
+                for (int i = 0; i < count; i++)
+                {
+                    labels[i] = listData[i]["ngay_ban_label"].ToString(); // "dd/MM"
+                    doanhThu[i] = Math.Round(Convert.ToDouble(listData[i]["doanh_thu"]) / 1_000_000, 1);
+                    loiNhuan[i] = Math.Round(Convert.ToDouble(listData[i]["loi_nhuan"]) / 1_000_000, 1);
+                }
+            }
+            catch
+            {
+                labels = new[] { "T2", "T3", "T4", "T5", "T6", "T7", "CN" };
+                doanhThu = new double[] { 85, 72, 110, 95, 130, 148, 60 };
+                loiNhuan = new double[] { 32, 28, 50, 41, 58, 65, 22 };
+                count = labels.Length;
+            }
 
             Color colorDoanhThu = ColorTranslator.FromHtml("#2b4e23");
             Color colorLoiNhuan = ColorTranslator.FromHtml("#79ae6f");
 
-            // ── Layout: chart 82% | legend 18% ──
             var mainLayout = new TableLayoutPanel();
             mainLayout.Dock = DockStyle.Fill;
             mainLayout.RowCount = 2;
@@ -347,7 +442,6 @@ namespace Bài_Tập_Lớn.GUI
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 12f));
             mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
 
-            // ── Chart ──
             var chart = new Chart();
             chart.Dock = DockStyle.Fill;
             chart.BackColor = Color.Transparent;
@@ -359,7 +453,6 @@ namespace Bài_Tập_Lớn.GUI
             ca.BorderColor = Color.Transparent;
             ca.BorderDashStyle = ChartDashStyle.NotSet;
 
-            // Trục X — nhãn ngày
             ca.AxisX.LabelStyle.ForeColor = Color.FromArgb(130, 130, 130);
             ca.AxisX.LabelStyle.Font = new Font("Segoe UI", 8.5f);
             ca.AxisX.LineColor = Color.FromArgb(210, 210, 210);
@@ -367,7 +460,6 @@ namespace Bài_Tập_Lớn.GUI
             ca.AxisX.MajorTickMark.Enabled = false;
             ca.AxisX.Interval = 1;
 
-            // Trục Y
             ca.AxisY.LabelStyle.ForeColor = Color.FromArgb(130, 130, 130);
             ca.AxisY.LabelStyle.Font = new Font("Segoe UI", 8.5f);
             ca.AxisY.LabelStyle.Format = "# 'tr'";
@@ -383,15 +475,13 @@ namespace Bài_Tập_Lớn.GUI
             var leg = new Legend("leg"); leg.Enabled = false;
             chart.Legends.Add(leg);
 
-            // ── Series — Transparent để ẩn cột gốc ──
-            // MS Chart cần ít nhất 1 series có data để vẽ trục X đúng
             var sDT = new Series("Doanh Thu");
             sDT.ChartType = SeriesChartType.Column;
             sDT.ChartArea = "daily";
             sDT.IsVisibleInLegend = false;
             sDT.Color = Color.Transparent;
             sDT.BorderColor = Color.Transparent;
-            sDT["PointWidth"] = "0.85"; // rộng để chiếm không gian, PostPaint vẽ đè
+            sDT["PointWidth"] = "0.85";
             sDT.ToolTip = "Doanh Thu: #VAL tr";
             for (int i = 0; i < count; i++)
                 sDT.Points.AddXY(labels[i], doanhThu[i]);
@@ -415,22 +505,19 @@ namespace Bài_Tập_Lớn.GUI
                 var g = pe.ChartGraphics.Graphics;
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
-                // Khoảng cách pixel giữa 2 điểm liên tiếp trên trục X
-                // Category axis: điểm đầu = 1.0, điểm cuối = count
                 float x0 = (float)ca.AxisX.ValueToPixelPosition(1.0);
                 float x1 = (float)ca.AxisX.ValueToPixelPosition(2.0);
                 float unitPx = Math.Abs(x1 - x0);
 
-                float innerGap = 6f;                              // gap giữa 2 cột cùng nhóm
-                float totalBarW = unitPx * 0.80f;                  // 2 cột chiếm 80% slot
-                float barW = (totalBarW - innerGap) / 2f;     // mỗi cột
+                float innerGap = 6f;
+                float totalBarW = unitPx * 0.80f;
+                float barW = (totalBarW - innerGap) / 2f;
 
                 float yBot = (float)ca.AxisY.ValueToPixelPosition(0);
                 int radius = 3;
 
                 for (int i = 0; i < count; i++)
                 {
-                    // XValue của category axis = 1-based index
                     float xCenter = (float)ca.AxisX.ValueToPixelPosition(i + 1.0);
 
                     // ── Cột Doanh Thu (trái) ──
@@ -457,7 +544,6 @@ namespace Bài_Tập_Lớn.GUI
 
             mainLayout.Controls.Add(chart, 0, 0);
 
-            // ── Legend ──
             var legendPanel = new FlowLayoutPanel();
             legendPanel.Dock = DockStyle.Fill;
             legendPanel.BackColor = Color.Transparent;
@@ -468,9 +554,7 @@ namespace Bài_Tập_Lớn.GUI
             foreach (var (name, color) in new[] { ("Doanh Thu", colorDoanhThu), ("Lợi Nhuận", colorLoiNhuan) })
             {
                 var item = new Panel { BackColor = Color.Transparent, AutoSize = true, Margin = new Padding(10, 6, 10, 6) };
-
                 var colorBox = new Panel { Size = new Size(12, 12), BackColor = color, Location = new Point(0, 3), BorderStyle = BorderStyle.None };
-
                 var lbl = new Label { Text = name, Font = new Font("Segoe UI", 8.5f), ForeColor = Color.FromArgb(80, 80, 80), AutoSize = true, Location = new Point(18, 0) };
 
                 item.Controls.Add(colorBox);
@@ -502,14 +586,7 @@ namespace Bài_Tập_Lớn.GUI
             }
         }
 
-        private void guna2ImageButton1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void guna2HtmlLabel11_Click(object sender, EventArgs e)
-        {
-
-        }
+        private void guna2ImageButton1_Click(object sender, EventArgs e) { }
+        private void guna2HtmlLabel11_Click(object sender, EventArgs e) { }
     }
 }

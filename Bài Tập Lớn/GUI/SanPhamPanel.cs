@@ -207,6 +207,8 @@ namespace Bài_Tập_Lớn.GUI
             // Format cột giá
             ColGiaBan.DefaultCellStyle.Format = "N0";
             ColGiaBan.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            ColXoa.FlatStyle = FlatStyle.Flat;
+
         }
 
         // ══════════════════════════════════════════════════════════

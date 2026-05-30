@@ -38,6 +38,13 @@ namespace Bài_Tập_Lớn.GUI
         // ── Image cache ──
         private Image _imgActive, _imgDisable;
 
+        // ── Event thông báo ra ngoài khi 1 bàn được mở phiên ──
+        /// <summary>
+        /// Bắn ra MaBan vừa được mở phiên (DANG_CHOI).
+        /// Maindashboard subscribe để tự động chọn bàn đó ở MenuSanPham.
+        /// </summary>
+        public event EventHandler<string> BanDuocMo;
+
         public SoDoBanUi()
         {
             InitializeComponent();
@@ -159,7 +166,7 @@ namespace Bài_Tập_Lớn.GUI
             var tabThuong = new Panel { Width = 180, Dock = DockStyle.Left, BackColor = Color.Transparent, Cursor = Cursors.Hand };
             _lblTabThuong = new Label
             {
-                Text = "Khu Vực Bàn Thường",
+                Text = "KV Bàn Thường",
                 Dock = DockStyle.Fill,
                 BackColor = Color.Transparent,
                 Font = new Font("Segoe UI", 11, FontStyle.Bold),
@@ -179,7 +186,7 @@ namespace Bài_Tập_Lớn.GUI
             var tabVip = new Panel { Width = 160, Dock = DockStyle.Left, BackColor = Color.Transparent, Cursor = Cursors.Hand };
             _lblTabVip = new Label
             {
-                Text = "Khu Vực Bàn VIP",
+                Text = "KV Bàn VIP",
                 Dock = DockStyle.Fill,
                 BackColor = Color.Transparent,
                 Font = new Font("Segoe UI", 11, FontStyle.Regular),
@@ -398,6 +405,8 @@ namespace Bài_Tập_Lớn.GUI
                         _phienBLL.ThemPhien(phien);
                         _banBLL.CapNhatTrangThai(ban.MaBan, "DANG_CHOI");
                         RefreshMap();
+                        // Thông báo ra ngoài để MenuSanPham cập nhật ComboBox
+                        BanDuocMo?.Invoke(this, ban.MaBan);
                     }
                     catch (Exception ex)
                     {

@@ -131,11 +131,14 @@ namespace Bài_Tập_Lớn.GUI
                 var dsBan = _banBll.LayTatCaBan() ?? new List<BanBidaDTO>();
                 foreach (var ban in dsBan)
                 {
-                    string trangThai = ban.TrangThai == "Có khách" ? " 🟢" : " ⚪";
+                    // Chỉ hiện bàn đang active (DANG_CHOI)
+                    if (!string.Equals(ban.TrangThai, "DANG_CHOI", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
                     cboBan.Items.Add(new ComboItemBan
                     {
                         MaBan = ban.MaBan,
-                        TenHienThi = ban.TenBan + trangThai,
+                        TenHienThi = ban.TenBan + " 🟢",
                         BanDto = ban,
                     });
                 }
@@ -145,8 +148,31 @@ namespace Bài_Tập_Lớn.GUI
             }
             catch (Exception ex)
             {
-                // Không làm hỏng form — chỉ log lỗi
                 System.Diagnostics.Debug.WriteLine("NapDanhSachBan lỗi: " + ex.Message);
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  CHỌN BÀN TỪ BÊN NGOÀI (gọi từ Maindashboard)
+        // ══════════════════════════════════════════════════════════
+        /// <summary>
+        /// Maindashboard gọi hàm này sau khi SoDoBanUi mở 1 bàn,
+        /// để ComboBox tự động select đúng bàn đó.
+        /// </summary>
+        public void ChonBan(string maBan)
+        {
+            // Nạp lại danh sách bàn trước (phiên vừa mở cần có trong list)
+            NapDanhSachBan();
+
+            if (string.IsNullOrEmpty(maBan)) return;
+
+            foreach (ComboItemBan item in cboBan.Items)
+            {
+                if (item.MaBan == maBan)
+                {
+                    cboBan.SelectedItem = item;
+                    return;
+                }
             }
         }
 

@@ -204,6 +204,7 @@
     <Compile Include="BLL\NhaCungCapBLL.cs" />
     <Compile Include="BLL\NhanVienBLL.cs" />
     <Compile Include="BLL\SanPhamBLL.cs" />
+    <Compile Include="BLL\ThongKeBLL.cs" />
     <Compile Include="DAL\BanBidaDAL.cs" />
     <Compile Include="BLL\ChiTietHoaDonBanBLL.cs" />
     <Compile Include="BLL\ChiTietHoaDonNhapBLL.cs" />

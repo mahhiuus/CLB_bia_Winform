@@ -114,7 +114,21 @@ namespace Bài_Tập_Lớn.GUI
         private void btnSoDoBan_Click(object sender, EventArgs e)
         {
             if (_soDoBanForm == null || _soDoBanForm.IsDisposed)
+            {
                 _soDoBanForm = new SoDoBanUi();
+
+                // Khi SoDoBanUi mở 1 bàn → tự động cập nhật ComboBox ở MenuSanPham
+                _soDoBanForm.BanDuocMo += (s, maBan) =>
+                {
+                    // Tạo MenuSanPham nếu chưa có
+                    if (_menuSanPham == null || _menuSanPham.IsDisposed)
+                        _menuSanPham = new MenuSanPham();
+
+                    // Nếu MenuSanPham đang hiển thị thì chọn bàn luôn,
+                    // nếu không thì chỉ cập nhật thầm để khi người dùng mở ra đã đúng bàn
+                    _menuSanPham.ChonBan(maBan);
+                };
+            }
             OpenChildForm(_soDoBanForm, sender);
         }
 
@@ -512,9 +526,10 @@ namespace Bài_Tập_Lớn.GUI
         private void guna2ControlBox1_Click(object sender, EventArgs e) { }
         private void guna2HtmlLabel1_Click(object sender, EventArgs e) { }
         private void guna2Panel3_Paint(object sender, PaintEventArgs e) { }
-        private void guna2Button3_Click(object sender, EventArgs e) {
-        
-         if(_menuSanPham == null || _menuSanPham.IsDisposed)
+        private void guna2Button3_Click(object sender, EventArgs e)
+        {
+
+            if (_menuSanPham == null || _menuSanPham.IsDisposed)
                 _menuSanPham = new MenuSanPham();
             OpenChildForm(_menuSanPham, sender);
 
@@ -525,35 +540,40 @@ namespace Bài_Tập_Lớn.GUI
                 _hoaDonUi = new HoaDonUi();
             OpenChildForm(_hoaDonUi, sender);
         }
-        private void guna2Button5_Click(object sender, EventArgs e) {
-        
-            if(_taiKhoanPanel == null || _taiKhoanPanel.IsDisposed)
+        private void guna2Button5_Click(object sender, EventArgs e)
+        {
+
+            if (_taiKhoanPanel == null || _taiKhoanPanel.IsDisposed)
                 _taiKhoanPanel = new TaiKhoanPanel();
             OpenChildForm(_taiKhoanPanel, sender);
         }
-        private void guna2Button6_Click(object sender, EventArgs e) {
+        private void guna2Button6_Click(object sender, EventArgs e)
+        {
             if (_hoaDonNhapUi == null || _hoaDonNhapUi.IsDisposed)
                 _hoaDonNhapUi = new HoaDonNhapUi();
             OpenChildForm(_hoaDonNhapUi, sender);
         }
         private void guna2Button7_Click(object sender, EventArgs e) { }
-        private void guna2Button8_Click(object sender, EventArgs e) {
-        
-        if(_sanPhamPanel == null || _sanPhamPanel.IsDisposed)
+        private void guna2Button8_Click(object sender, EventArgs e)
+        {
+
+            if (_sanPhamPanel == null || _sanPhamPanel.IsDisposed)
                 _sanPhamPanel = new SanPhamPanel();
             OpenChildForm(_sanPhamPanel, sender);
 
         }
-        private void guna2Button9_Click(object sender, EventArgs e) {
+        private void guna2Button9_Click(object sender, EventArgs e)
+        {
 
-            if (_banBiaPanel == null || _banBiaPanel.IsDisposed)            
+            if (_banBiaPanel == null || _banBiaPanel.IsDisposed)
                 _banBiaPanel = new BanBiaPanel();
-                OpenChildForm(_banBiaPanel, sender);
+            OpenChildForm(_banBiaPanel, sender);
 
-            }
-        
-        private void guna2Button10_Click(object sender, EventArgs e) {
-            if(_khachHangPanel == null || _khachHangPanel.IsDisposed)
+        }
+
+        private void guna2Button10_Click(object sender, EventArgs e)
+        {
+            if (_khachHangPanel == null || _khachHangPanel.IsDisposed)
                 _khachHangPanel = new KhachHangPanel();
             OpenChildForm(_khachHangPanel, sender);
         }
@@ -562,16 +582,16 @@ namespace Bài_Tập_Lớn.GUI
 
         private void guna2Button1_Click(object sender, EventArgs e)
         {
-            if(_nhanVienUI == null || _nhanVienUI.IsDisposed)
-                _nhanVienUI = new NhanVienUI(); 
+            if (_nhanVienUI == null || _nhanVienUI.IsDisposed)
+                _nhanVienUI = new NhanVienUI();
             OpenChildForm(_nhanVienUI, sender);
         }
 
         private void guna2Button2_Click(object sender, EventArgs e)
         {
-            if(_nhaCungCapPanel == null || _nhaCungCapPanel.IsDisposed)
+            if (_nhaCungCapPanel == null || _nhaCungCapPanel.IsDisposed)
                 _nhaCungCapPanel = new NhaCungCapPanel();
-                OpenChildForm(_nhaCungCapPanel, sender);
+            OpenChildForm(_nhaCungCapPanel, sender);
         }
     }
 

@@ -108,6 +108,24 @@ namespace Bài_Tập_Lớn.UI
                 NativeDrag.SendMessage(Handle, 0xA1, 0x2, 0);
             }
         }
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // ConfirmDeleteUI
+            // 
+            this.ClientSize = new System.Drawing.Size(282, 253);
+            this.Name = "ConfirmDeleteUI";
+            this.Load += new System.EventHandler(this.ConfirmDeleteUI_Load);
+            this.ResumeLayout(false);
+
+        }
+
+        private void ConfirmDeleteUI_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 
     internal static class NativeDrag

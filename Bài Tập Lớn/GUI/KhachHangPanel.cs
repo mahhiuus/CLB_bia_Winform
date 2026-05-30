@@ -185,6 +185,7 @@ namespace Bài_Tập_Lớn.GUI
             Column5.Width = 120;
             Column6.Width = 120;
             Column7.Width = 90;
+            Column7.FlatStyle = FlatStyle.Flat;
         }
 
         // ══════════════════════════════════════════════════════════

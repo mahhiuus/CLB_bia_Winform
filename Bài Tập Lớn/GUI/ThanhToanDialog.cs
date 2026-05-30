@@ -233,6 +233,24 @@ namespace Bài_Tập_Lớn.GUI
             TextAlign = ContentAlignment.MiddleRight
         };
 
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // ThanhToanDialog
+            // 
+            this.ClientSize = new System.Drawing.Size(282, 253);
+            this.Name = "ThanhToanDialog";
+            this.Load += new System.EventHandler(this.ThanhToanDialog_Load);
+            this.ResumeLayout(false);
+
+        }
+
+        private void ThanhToanDialog_Load(object sender, EventArgs e)
+        {
+
+        }
+
         private GraphicsPath RoundedPath(Rectangle bounds, int radius)
         {
             var p = new GraphicsPath();

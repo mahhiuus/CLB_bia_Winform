@@ -89,14 +89,17 @@ namespace Bài_Tập_Lớn.DAL
         public double GetGiaVonThangHienTai()
         {
             string sql = @"
-                SELECT ISNULL(SUM(c.so_luong * ISNULL((
-                    SELECT SUM(n.so_luong * n.don_gia_nhap) / NULLIF(SUM(n.so_luong), 0) 
-                    FROM chi_tiet_hoa_don_nhap n 
-                    WHERE n.ma_sp = c.ma_sp
-                ), 0)), 0)
-                FROM chi_tiet_hoa_don_ban c 
-                JOIN hoa_don_ban h ON c.ma_hdb = h.ma_hdb 
-                WHERE MONTH(h.ngay_ban) = MONTH(GETDATE()) 
+                WITH gia_von_tb AS (
+                    SELECT ma_sp,
+                           SUM(so_luong * don_gia_nhap) / NULLIF(SUM(so_luong), 0) AS don_gia_von
+                    FROM chi_tiet_hoa_don_nhap
+                    GROUP BY ma_sp
+                )
+                SELECT ISNULL(SUM(c.so_luong * ISNULL(g.don_gia_von, 0)), 0)
+                FROM chi_tiet_hoa_don_ban c
+                JOIN hoa_don_ban h ON c.ma_hdb = h.ma_hdb
+                LEFT JOIN gia_von_tb g ON g.ma_sp = c.ma_sp
+                WHERE MONTH(h.ngay_ban) = MONTH(GETDATE())
                   AND YEAR(h.ngay_ban) = YEAR(GETDATE())";
             try
             {
@@ -115,13 +118,16 @@ namespace Bài_Tập_Lớn.DAL
         public double GetGiaVonTheoNgay(DateTime ngay)
         {
             string sql = @"
-                SELECT ISNULL(SUM(c.so_luong * ISNULL((
-                    SELECT SUM(n.so_luong * n.don_gia_nhap) / NULLIF(SUM(n.so_luong), 0) 
-                    FROM chi_tiet_hoa_don_nhap n 
-                    WHERE n.ma_sp = c.ma_sp
-                ), 0)), 0)
-                FROM chi_tiet_hoa_don_ban c 
-                JOIN hoa_don_ban h ON c.ma_hdb = h.ma_hdb 
+                WITH gia_von_tb AS (
+                    SELECT ma_sp,
+                           SUM(so_luong * don_gia_nhap) / NULLIF(SUM(so_luong), 0) AS don_gia_von
+                    FROM chi_tiet_hoa_don_nhap
+                    GROUP BY ma_sp
+                )
+                SELECT ISNULL(SUM(c.so_luong * ISNULL(g.don_gia_von, 0)), 0)
+                FROM chi_tiet_hoa_don_ban c
+                JOIN hoa_don_ban h ON c.ma_hdb = h.ma_hdb
+                LEFT JOIN gia_von_tb g ON g.ma_sp = c.ma_sp
                 WHERE CAST(h.ngay_ban AS DATE) = CAST(@Ngay AS DATE)";
             try
             {
@@ -140,13 +146,16 @@ namespace Bài_Tập_Lớn.DAL
         public double GetGiaVonTheoThang(int thang, int nam)
         {
             string sql = @"
-                SELECT ISNULL(SUM(c.so_luong * ISNULL((
-                    SELECT SUM(n.so_luong * n.don_gia_nhap) / NULLIF(SUM(n.so_luong), 0) 
-                    FROM chi_tiet_hoa_don_nhap n 
-                    WHERE n.ma_sp = c.ma_sp
-                ), 0)), 0)
-                FROM chi_tiet_hoa_don_ban c 
-                JOIN hoa_don_ban h ON c.ma_hdb = h.ma_hdb 
+                WITH gia_von_tb AS (
+                    SELECT ma_sp,
+                           SUM(so_luong * don_gia_nhap) / NULLIF(SUM(so_luong), 0) AS don_gia_von
+                    FROM chi_tiet_hoa_don_nhap
+                    GROUP BY ma_sp
+                )
+                SELECT ISNULL(SUM(c.so_luong * ISNULL(g.don_gia_von, 0)), 0)
+                FROM chi_tiet_hoa_don_ban c
+                JOIN hoa_don_ban h ON c.ma_hdb = h.ma_hdb
+                LEFT JOIN gia_von_tb g ON g.ma_sp = c.ma_sp
                 WHERE MONTH(h.ngay_ban) = @Thang AND YEAR(h.ngay_ban) = @Nam";
             try
             {
@@ -173,7 +182,6 @@ namespace Bài_Tập_Lớn.DAL
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    // Dapper trả về danh sách đối tượng dynamic, ta có thể dễ dàng đọc thuộc tính
                     return conn.Query<dynamic>(sql, new { TuNgay = tuNgay, DenNgay = denNgay }).ToList();
                 }
             }

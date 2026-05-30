@@ -17,8 +17,11 @@ namespace Bài_Tập_Lớn.GUI
 
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.tableLayoutOuter = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutMain = new System.Windows.Forms.TableLayoutPanel();
+            this.panelHeader = new Guna.UI2.WinForms.Guna2CustomGradientPanel();
+            this.lblTitle = new Guna.UI2.WinForms.Guna2Button();
             this.panelToolbar = new Guna.UI2.WinForms.Guna2Panel();
             this.btnReload = new Guna.UI2.WinForms.Guna2Button();
             this.btnTimKiem = new Guna.UI2.WinForms.Guna2Button();
@@ -44,10 +47,10 @@ namespace Bài_Tập_Lớn.GUI
             this.lblTongTienVal = new System.Windows.Forms.Label();
             this.lblTongTien = new System.Windows.Forms.Label();
             this.separatorFooter = new System.Windows.Forms.Panel();
-            this.panelHeader = new Guna.UI2.WinForms.Guna2CustomGradientPanel();
-            this.lblTitle = new Guna.UI2.WinForms.Guna2Button();
+            this.guna2Elipse1 = new Guna.UI2.WinForms.Guna2Elipse(this.components);
             this.tableLayoutOuter.SuspendLayout();
             this.tableLayoutMain.SuspendLayout();
+            this.panelHeader.SuspendLayout();
             this.panelToolbar.SuspendLayout();
             this.panelCardWrap.SuspendLayout();
             this.panelRightBar.SuspendLayout();
@@ -57,7 +60,6 @@ namespace Bài_Tập_Lớn.GUI
             this.panelDonHang.SuspendLayout();
             this.panelOrderList.SuspendLayout();
             this.panelRightFooter.SuspendLayout();
-            this.panelHeader.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutOuter
@@ -97,6 +99,36 @@ namespace Bài_Tập_Lớn.GUI
             this.tableLayoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 46F));
             this.tableLayoutMain.Size = new System.Drawing.Size(994, 879);
             this.tableLayoutMain.TabIndex = 0;
+            // 
+            // panelHeader
+            // 
+            this.panelHeader.BackgroundImage = global::Bài_Tập_Lớn.Properties.Resources.Screenshot_2026_05_27_170816;
+            this.panelHeader.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.panelHeader.Controls.Add(this.lblTitle);
+            this.panelHeader.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelHeader.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(49)))), ((int)(((byte)(81)))), ((int)(((byte)(30)))));
+            this.panelHeader.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(66)))), ((int)(((byte)(122)))), ((int)(((byte)(67)))));
+            this.panelHeader.FillColor3 = System.Drawing.Color.Transparent;
+            this.panelHeader.FillColor4 = System.Drawing.Color.Transparent;
+            this.panelHeader.Location = new System.Drawing.Point(3, 3);
+            this.panelHeader.Name = "panelHeader";
+            this.panelHeader.Size = new System.Drawing.Size(988, 194);
+            this.panelHeader.TabIndex = 0;
+            this.panelHeader.Paint += new System.Windows.Forms.PaintEventHandler(this.panelHeader_Paint);
+            // 
+            // lblTitle
+            // 
+            this.lblTitle.BackColor = System.Drawing.Color.Transparent;
+            this.lblTitle.Cursor = System.Windows.Forms.Cursors.Default;
+            this.lblTitle.Dock = System.Windows.Forms.DockStyle.Left;
+            this.lblTitle.FillColor = System.Drawing.Color.Transparent;
+            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
+            this.lblTitle.ForeColor = System.Drawing.Color.White;
+            this.lblTitle.Location = new System.Drawing.Point(0, 0);
+            this.lblTitle.Name = "lblTitle";
+            this.lblTitle.Size = new System.Drawing.Size(340, 194);
+            this.lblTitle.TabIndex = 0;
+            this.lblTitle.Text = " Menu Sản Phẩm";
             // 
             // panelToolbar
             // 
@@ -425,35 +457,10 @@ namespace Bài_Tập_Lớn.GUI
             this.separatorFooter.Size = new System.Drawing.Size(224, 1);
             this.separatorFooter.TabIndex = 3;
             // 
-            // panelHeader
+            // guna2Elipse1
             // 
-            this.panelHeader.BackgroundImage = global::Bài_Tập_Lớn.Properties.Resources.Screenshot_2026_05_27_170816;
-            this.panelHeader.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.panelHeader.Controls.Add(this.lblTitle);
-            this.panelHeader.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelHeader.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(49)))), ((int)(((byte)(81)))), ((int)(((byte)(30)))));
-            this.panelHeader.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(66)))), ((int)(((byte)(122)))), ((int)(((byte)(67)))));
-            this.panelHeader.FillColor3 = System.Drawing.Color.Transparent;
-            this.panelHeader.FillColor4 = System.Drawing.Color.Transparent;
-            this.panelHeader.Location = new System.Drawing.Point(3, 3);
-            this.panelHeader.Name = "panelHeader";
-            this.panelHeader.Size = new System.Drawing.Size(988, 194);
-            this.panelHeader.TabIndex = 0;
-            this.panelHeader.Paint += new System.Windows.Forms.PaintEventHandler(this.panelHeader_Paint);
-            // 
-            // lblTitle
-            // 
-            this.lblTitle.BackColor = System.Drawing.Color.Transparent;
-            this.lblTitle.Cursor = System.Windows.Forms.Cursors.Default;
-            this.lblTitle.Dock = System.Windows.Forms.DockStyle.Left;
-            this.lblTitle.FillColor = System.Drawing.Color.Transparent;
-            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
-            this.lblTitle.ForeColor = System.Drawing.Color.White;
-            this.lblTitle.Location = new System.Drawing.Point(0, 0);
-            this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(340, 194);
-            this.lblTitle.TabIndex = 0;
-            this.lblTitle.Text = " Menu Sản Phẩm";
+            this.guna2Elipse1.BorderRadius = 20;
+            this.guna2Elipse1.TargetControl = this;
             // 
             // MenuSanPham
             // 
@@ -468,6 +475,7 @@ namespace Bài_Tập_Lớn.GUI
             this.Text = "Menu Sản Phẩm";
             this.tableLayoutOuter.ResumeLayout(false);
             this.tableLayoutMain.ResumeLayout(false);
+            this.panelHeader.ResumeLayout(false);
             this.panelToolbar.ResumeLayout(false);
             this.panelCardWrap.ResumeLayout(false);
             this.panelRightBar.ResumeLayout(false);
@@ -478,7 +486,6 @@ namespace Bài_Tập_Lớn.GUI
             this.panelDonHang.ResumeLayout(false);
             this.panelOrderList.ResumeLayout(false);
             this.panelRightFooter.ResumeLayout(false);
-            this.panelHeader.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -516,5 +523,6 @@ namespace Bài_Tập_Lớn.GUI
         private System.Windows.Forms.Label lblTongTien;
         private System.Windows.Forms.Label lblTongTienVal;
         private Guna.UI2.WinForms.Guna2Button btnThanhToan;
+        private Guna.UI2.WinForms.Guna2Elipse guna2Elipse1;
     }
 }
