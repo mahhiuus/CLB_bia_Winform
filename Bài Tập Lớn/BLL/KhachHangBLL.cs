@@ -70,5 +70,20 @@ namespace Bài_Tập_Lớn.BLL
         {
             return dal.TimKiem(keyword);
         }
+
+        // [MỚI] Cộng điểm tích lũy cho khách hàng thân thiết
+        // Lấy KH hiện tại, cộng thêm soLan điểm rồi cập nhật lại
+        public bool CongTichLuy(string maKH, int soLan = 1)
+        {
+            if (string.IsNullOrWhiteSpace(maKH))
+                throw new Exception("Mã khách hàng không hợp lệ!");
+
+            var kh = dal.TimTheoMaKhachHang(maKH);
+            if (kh == null)
+                throw new Exception($"Không tìm thấy khách hàng: {maKH}");
+
+            kh.DiemTichLuy += soLan;
+            return dal.CapNhatKhachHang(kh);
+        }
     }
 }

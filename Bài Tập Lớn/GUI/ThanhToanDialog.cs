@@ -1,169 +1,326 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
+using System.Linq;
 using System.Windows.Forms;
+using Guna.UI2.WinForms;
+using iTextSharp.text.pdf;
+// Alias để tránh xung đột với System.Drawing.Font
+using PdfDocument = iTextSharp.text.Document;
+using PdfFont = iTextSharp.text.Font;
+using PdfPageSize = iTextSharp.text.PageSize;
+using PdfParagraph = iTextSharp.text.Paragraph;
+using PdfChunk = iTextSharp.text.Chunk;
+using PdfPhrase = iTextSharp.text.Phrase;
+using PdfElement = iTextSharp.text.Element;
+using PdfBaseColor = iTextSharp.text.BaseColor;
+using PdfBaseFont = iTextSharp.text.pdf.BaseFont;
 using Bài_Tập_Lớn.BLL;
 using Bài_Tập_Lớn.DTO;
+using Bài_Tập_Lớn.Session;
+using Bài_Tập_Lớn.UI; // [MỚI] Thêm thư viện UI để dùng OverlayForm
 
 namespace Bài_Tập_Lớn.GUI
 {
-    public class ThanhToanDialog : Form
+    // ═══════════════════════════════════════════════════════════════
+    //  THANH TOÁN DIALOG  (v6)
+    //  THAY ĐỔI SO VỚI v5:
+    //  1. Thêm ComboBox cmbKhachHang: dropdown tên khách hàng thân thiết
+    //     - Mặc định "(Không chọn)"
+    //     - Nếu KH ≥ 50 điểm → tự động giảm 10% tổng bill + cộng 1 lần tích lũy
+    //  2. Thêm ComboBox cmbGiamGiaSuKien: nhân viên chọn % giảm giá sự kiện
+    //     - Các mức: Không giảm / 5% / 10% / 15% / 20%
+    //  3. Hai khoản giảm cộng dồn: GiảmThânThiết% + GiảmSựKiện%
+    //  4. Hiển thị lblGiamGia (dòng chiết khấu) và cập nhật lblTongTien realtime
+    //  5. PDF xuất thêm dòng chiết khấu nếu có
+    // ═══════════════════════════════════════════════════════════════
+    public partial class ThanhToanDialog : Form
     {
-        // ── Public result ──
+        // ── Public result ──────────────────────────────────────────
         public bool IsPaid { get; private set; } = false;
+        public HoaDonBanDTO HoaDonDaTao { get; private set; } = null;
 
-        // ── Data ──
+        // ── Data ───────────────────────────────────────────────────
         private readonly BanBidaDTO _ban;
         private readonly PhienChoiDTO _phien;
+        private readonly List<ChiTietPhienDTO> _dsChiTiet;
+
+        // ── Cache tên SP (truyền từ ngoài) ────────────────────────
+        private readonly Dictionary<string, string> _cacheTenSP;
+
+        // ── Chế độ preview (hiện hóa đơn đã xong, chỉ đọc) ───────
+        private readonly bool _isPreviewMode = false;
+        private readonly HoaDonBanDTO _hoaDonPreview = null;
+
+        // ── BLL ────────────────────────────────────────────────────
         private readonly PhienChoiBLL _phienBLL = new PhienChoiBLL();
         private readonly BanBidaBLL _banBLL = new BanBidaBLL();
+        private readonly HoaDonBanBLL _hoaDonBLL = new HoaDonBanBLL();
+        private readonly KhachHangBLL _khachHangBLL = new KhachHangBLL();
 
-        // ── Live timer ──
+        // ── Live timer ─────────────────────────────────────────────
         private System.Windows.Forms.Timer _clock;
-        private Label lblThoiGian, lblTienGio, lblTongTien;
 
-        // ── Colors ──
-        static readonly Color GREEN_DARK  = ColorTranslator.FromHtml("#2b4e23");
-        static readonly Color GREEN_LIGHT = ColorTranslator.FromHtml("#79ae6f");
-        static readonly Color CREAM       = Color.FromArgb(255, 255, 251);
-        static readonly Color GRAY_TEXT   = Color.FromArgb(90, 90, 90);
+        // ── Drag state ─────────────────────────────────────────────
+        private bool _dragging = false;
+        private Point _dragStart = Point.Empty;
 
-        public ThanhToanDialog(BanBidaDTO ban, PhienChoiDTO phien)
+        // ── Khách hàng đang chọn ──────────────────────────────────
+        private KhachHangDTO _khachHangDuocChon = null;  // null = không chọn KH
+        private const int DIEM_TICH_LUY_TOI_THIEU = 50; // Ngưỡng điểm hưởng 10%
+        private const double GIAM_THAN_THIET = 0.10;    // 10% cho KH thân thiết
+
+        // ── [MỚI] Overlay ─────────────────────────────────────────
+        private OverlayForm _overlay;
+
+        // ── Colours ───────────────────────────────────────────────
+        static readonly Color GREEN_DARK = Color.FromArgb(43, 78, 35);
+        static readonly Color GREEN_LIGHT = Color.FromArgb(121, 174, 111);
+
+        // ══════════════════════════════════════════════════════════
+        //  Constructor chính — chế độ thanh toán
+        // ══════════════════════════════════════════════════════════
+        public ThanhToanDialog(
+            BanBidaDTO ban,
+            PhienChoiDTO phien,
+            List<ChiTietPhienDTO> dsChiTiet = null,
+            Dictionary<string, string> cacheTenSP = null)
         {
-            _ban   = ban;
+            _ban = ban;
             _phien = phien;
-            BuildUI();
-            StartClock();
+            _dsChiTiet = dsChiTiet ?? new List<ChiTietPhienDTO>();
+            _cacheTenSP = cacheTenSP ?? new Dictionary<string, string>();
+
+            InitializeComponent();
+            PopulateStaticLabels();
         }
 
-        private void BuildUI()
+        // ══════════════════════════════════════════════════════════
+        //  Constructor overload — chế độ preview hóa đơn (chỉ đọc)
+        // ══════════════════════════════════════════════════════════
+        public ThanhToanDialog(
+            BanBidaDTO ban,
+            PhienChoiDTO phien,
+            List<ChiTietPhienDTO> dsChiTiet,
+            Dictionary<string, string> cacheTenSP,
+            HoaDonBanDTO hoaDonPreview)
         {
-            // ── Form ──
-            Text            = "Thanh Toán — " + _ban.TenBan;
-            Size            = new Size(460, 520);
-            StartPosition   = FormStartPosition.CenterParent;
-            FormBorderStyle = FormBorderStyle.None;
-            BackColor       = CREAM;
-            ShowInTaskbar   = false;
+            _ban = ban;
+            _phien = phien;
+            _dsChiTiet = dsChiTiet ?? new List<ChiTietPhienDTO>();
+            _cacheTenSP = cacheTenSP ?? new Dictionary<string, string>();
+            _isPreviewMode = true;
+            _hoaDonPreview = hoaDonPreview;
 
-            // Bo tròn form
-            int r = 20;
-            var path = new GraphicsPath();
-            path.AddArc(0, 0, r*2, r*2, 180, 90);
-            path.AddArc(Width-r*2, 0, r*2, r*2, 270, 90);
-            path.AddArc(Width-r*2, Height-r*2, r*2, r*2, 0, 90);
-            path.AddArc(0, Height-r*2, r*2, r*2, 90, 90);
-            path.CloseFigure();
-            Region = new Region(path);
-
-            // ── Header ──
-            var header = new Panel { Dock = DockStyle.Top, Height = 70, BackColor = GREEN_DARK };
-            var headerPath = new GraphicsPath();
-            headerPath.AddArc(0, 0, r*2, r*2, 180, 90);
-            headerPath.AddArc(header.Width - r*2, 0, r*2, r*2, 270, 90);
-            headerPath.AddLine(header.Width, header.Height, 0, header.Height);
-            headerPath.CloseFigure();
-            header.Paint += (s, e) => {
-                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                using (var b = new SolidBrush(GREEN_DARK))
-                using (var hp = new GraphicsPath()) {
-                    hp.AddArc(0, 0, r*2, r*2, 180, 90);
-                    hp.AddArc(header.Width-r*2, 0, r*2, r*2, 270, 90);
-                    hp.AddLine(header.Width, header.Height, 0, header.Height);
-                    hp.CloseFigure();
-                    e.Graphics.FillPath(b, hp);
-                }
-                using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
-                using (var font = new Font("Segoe UI", 16, FontStyle.Bold))
-                    e.Graphics.DrawString("💳  THANH TOÁN", font, Brushes.White, new RectangleF(0,0,header.Width,header.Height), sf);
-            };
-
-            // Nút đóng X
-            var btnClose = new Button {
-                Text = "✕", Size = new Size(32,32),
-                Location = new Point(Width-44, 18),
-                FlatStyle = FlatStyle.Flat, BackColor = Color.Transparent,
-                ForeColor = Color.White, Font = new Font("Segoe UI",10,FontStyle.Bold), Cursor = Cursors.Hand
-            };
-            btnClose.FlatAppearance.BorderSize = 0;
-            btnClose.Click += (s,e) => Close();
-            header.Controls.Add(btnClose);
-            Controls.Add(header);
-
-            // ── Body ──
-            var body = new TableLayoutPanel {
-                Dock = DockStyle.Fill, BackColor = Color.Transparent,
-                Padding = new Padding(30, 16, 30, 20),
-                RowCount = 7, ColumnCount = 2
-            };
-            body.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
-            body.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
-            for (int i = 0; i < 6; i++)
-                body.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            body.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
-
-            int row = 0;
-
-            // Tên bàn
-            AddRow(body, row++, "🎱  Bàn", _ban.TenBan + $" ({_ban.LoaiBan})", boldRight: true);
-
-            // Giờ bắt đầu
-            AddRow(body, row++, "⏱  Bắt đầu", _phien.ThoiGianBatDau.ToString("HH:mm:ss  dd/MM/yyyy"));
-
-            // Thời gian chơi (live)
-            lblThoiGian = MakeValueLabel("--:--:--");
-            AddRowWithLabel(body, row++, "🕐  Thời gian", lblThoiGian);
-
-            // Giá / giờ
-            AddRow(body, row++, "💰  Giá/giờ", _ban.GiaTheoGio.ToString("N0") + " đ");
-
-            // Separator
-            var sep = new Panel { Height = 1, BackColor = Color.FromArgb(220,220,220), Margin = new Padding(0,8,0,8) };
-            body.Controls.Add(sep, 0, row);
-            body.SetColumnSpan(sep, 2);
-            row++;
-
-            // Tiền giờ chơi (live)
-            lblTienGio = MakeValueLabel("0 đ", GREEN_DARK, 13, FontStyle.Bold);
-            AddRowWithLabel(body, row++, "⏳  Tiền giờ", lblTienGio);
-
-            // Tổng tiền (live)
-            lblTongTien = MakeValueLabel("0 đ", GREEN_DARK, 16, FontStyle.Bold);
-            AddRowWithLabel(body, row++, "💵  TỔNG TIỀN", lblTongTien, labelBig: true);
-
-            Controls.Add(body);
-
-            // ── Footer: nút thanh toán ──
-            var footer = new Panel { Dock = DockStyle.Bottom, Height = 70, BackColor = Color.Transparent, Padding = new Padding(30,10,30,10) };
-
-            var btnPay = new Button {
-                Text = "✔  XÁC NHẬN THANH TOÁN",
-                Dock = DockStyle.Fill, FlatStyle = FlatStyle.Flat,
-                BackColor = GREEN_DARK, ForeColor = Color.White,
-                Font = new Font("Segoe UI", 12, FontStyle.Bold),
-                Cursor = Cursors.Hand
-            };
-            btnPay.FlatAppearance.BorderSize = 0;
-            btnPay.Region = new Region(RoundedPath(btnPay.ClientRectangle, 10));
-            btnPay.Paint += (s,e) => {
-                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                using (var b = new SolidBrush(GREEN_DARK))
-                using (var p = RoundedPath(new Rectangle(0,0,btnPay.Width,btnPay.Height), 10))
-                    e.Graphics.FillPath(b, p);
-                using (var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
-                    e.Graphics.DrawString(btnPay.Text, btnPay.Font, Brushes.White, new RectangleF(0,0,btnPay.Width,btnPay.Height), sf);
-            };
-            btnPay.Click += BtnPay_Click;
-            footer.Controls.Add(btnPay);
-            Controls.Add(footer);
-
-            // Kéo form bằng header
-            bool dragging = false; Point dragStart = Point.Empty;
-            header.MouseDown += (s,e) => { dragging = true; dragStart = e.Location; };
-            header.MouseMove += (s,e) => { if(dragging) Location = new Point(Location.X+e.X-dragStart.X, Location.Y+e.Y-dragStart.Y); };
-            header.MouseUp   += (s,e) => dragging = false;
+            InitializeComponent();
+            PopulateStaticLabels();
         }
 
+        // ══════════════════════════════════════════════════════════
+        //  [MỚI] HIỆN OVERLAY
+        // ══════════════════════════════════════════════════════════
+        public void ShowOverlay(Form parent)
+        {
+            _overlay = new OverlayForm();
+            _overlay.Show(parent);
+            _overlay.StartFade();
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  LOAD
+        // ══════════════════════════════════════════════════════════
+        private void ThanhToanDialog_Load(object sender, EventArgs e)
+        {
+            ApplyRoundedRegion(this, 20);
+            NapDanhSachKhachHang();
+
+            if (_isPreviewMode)
+            {
+                // Chế độ xem hóa đơn: ẩn các control nhập liệu
+                if (_hoaDonPreview != null)
+                {
+                    TimeSpan elapsed = _hoaDonPreview.NgayBan - _phien.ThoiGianBatDau;
+                    lblThoiGian.Text = elapsed.ToString(@"hh\:mm\:ss");
+                    lblTienGio.Text = _hoaDonPreview.TienBida.ToString("N0") + " đ";
+                    lblTienSP.Text = _hoaDonPreview.TienSanPham.ToString("N0") + " đ";
+                    lblTongTien.Text = _hoaDonPreview.TongTien.ToString("N0") + " đ";
+
+                    // Ẩn dòng giảm giá nếu không có chiết khấu
+                    if (_hoaDonPreview.TongTien < (_hoaDonPreview.TienBida + _hoaDonPreview.TienSanPham))
+                    {
+                        double giamGia = (_hoaDonPreview.TienBida + _hoaDonPreview.TienSanPham) - _hoaDonPreview.TongTien;
+                        lblGiamGia.Text = "-" + giamGia.ToString("N0") + " đ";
+                        lblLGiamGia.Visible = true;
+                        lblGiamGia.Visible = true;
+                    }
+                    else
+                    {
+                        lblLGiamGia.Visible = false;
+                        lblGiamGia.Visible = false;
+                    }
+                }
+
+                // Ẩn toàn bộ control chọn KH & giảm giá sự kiện
+                lblLKhachHang.Visible = false;
+                cmbKhachHang.Visible = false;
+                lblThongTinKH.Visible = false;
+                lblLGiamSuKien.Visible = false;
+                cmbGiamGiaSuKien.Visible = false;
+
+                btnPay.Visible = false;
+                btnCancel.Text = "✕  Đóng";
+            }
+            else
+            {
+                StartClock();
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  NẠP DANH SÁCH KHÁCH HÀNG VÀO COMBOBOX
+        // ══════════════════════════════════════════════════════════
+        private void NapDanhSachKhachHang()
+        {
+            cmbKhachHang.Items.Clear();
+
+            // Phần tử đầu tiên: không chọn
+            cmbKhachHang.Items.Add(new ComboBoxKhachHangItem(null));
+
+            try
+            {
+                var dsKH = _khachHangBLL.LayTatCaKhachHang();
+                if (dsKH != null)
+                    foreach (var kh in dsKH)
+                        cmbKhachHang.Items.Add(new ComboBoxKhachHangItem(kh));
+            }
+            catch
+            {
+                // Nếu BLL chưa có hoặc lỗi DB → chỉ giữ "(Không chọn)"
+            }
+
+            cmbKhachHang.SelectedIndex = 0;
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  COMBOBOX KHÁCH HÀNG ĐỔI LỰA CHỌN
+        // ══════════════════════════════════════════════════════════
+        private void CmbKhachHang_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cmbKhachHang.SelectedItem is ComboBoxKhachHangItem item)
+            {
+                _khachHangDuocChon = item.KhachHang;
+            }
+            else
+            {
+                _khachHangDuocChon = null;
+            }
+
+            CapNhatThongTinKH();
+            UpdateTotals(); // Tính lại tổng tiền sau khi chọn KH
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  COMBOBOX GIẢM GIÁ SỰ KIỆN ĐỔI LỰA CHỌN
+        // ══════════════════════════════════════════════════════════
+        private void CmbGiamGiaSuKien_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            UpdateTotals(); // Tính lại tổng khi đổi % sự kiện
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  HIỂN THỊ THÔNG TIN KHÁCH HÀNG BÊN DƯỚI COMBOBOX
+        // ══════════════════════════════════════════════════════════
+        private void CapNhatThongTinKH()
+        {
+            if (_khachHangDuocChon == null)
+            {
+                lblThongTinKH.Visible = false;
+                return;
+            }
+
+            lblThongTinKH.Visible = true;
+            bool duDiem = _khachHangDuocChon.DiemTichLuy >= DIEM_TICH_LUY_TOI_THIEU;
+
+            if (duDiem)
+                lblThongTinKH.Text = $"⭐ Thân thiết  |  {_khachHangDuocChon.DiemTichLuy} điểm  →  Giảm 10% + thêm 1 lượt tích lũy";
+            else
+                lblThongTinKH.Text = $"👤 {_khachHangDuocChon.DiemTichLuy} điểm  (cần ≥ {DIEM_TICH_LUY_TOI_THIEU} để hưởng ưu đãi)";
+
+            lblThongTinKH.ForeColor = duDiem ? Color.FromArgb(43, 120, 43) : Color.FromArgb(150, 100, 30);
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  LẤY % GIẢM GIÁ SỰ KIỆN TỪ COMBOBOX
+        // ══════════════════════════════════════════════════════════
+        private double LayPhanTramGiamSuKien()
+        {
+            if (cmbGiamGiaSuKien.SelectedItem == null) return 0;
+            var text = cmbGiamGiaSuKien.SelectedItem.ToString();
+            // Phần tử dạng "Không giảm" hoặc "5%" / "10%" / ...
+            if (text.EndsWith("%") && double.TryParse(text.TrimEnd('%'), out double pct))
+                return pct / 100.0;
+            return 0;
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  TÍNH TỔNG GIẢM GIÁ CỘNG DỒN
+        // ══════════════════════════════════════════════════════════
+        private double TinhTongPhanTramGiam()
+        {
+            double giam = 0;
+
+            // Giảm thân thiết 10% nếu KH đủ điểm
+            if (_khachHangDuocChon != null && _khachHangDuocChon.DiemTichLuy >= DIEM_TICH_LUY_TOI_THIEU)
+                giam += GIAM_THAN_THIET;
+
+            // Giảm sự kiện
+            giam += LayPhanTramGiamSuKien();
+
+            // Tối đa 100%
+            return Math.Min(giam, 1.0);
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  GÁN GIÁ TRỊ TĨNH VÀO LABELS
+        // ══════════════════════════════════════════════════════════
+        private void PopulateStaticLabels()
+        {
+            lblVBan.Text = $"{_ban.TenBan}  ({_ban.LoaiBan})";
+            lblVNhanVien.Text = SessionManager.Instance.TaiKhoanHienTai?.TenDangNhap
+                                  ?? "(không xác định)";
+            lblVMaPhien.Text = _phien.MaPhien;
+            lblVBatDau.Text = _phien.ThoiGianBatDau.ToString("HH:mm:ss  dd/MM/yyyy");
+            lblVGiaGio.Text = _ban.GiaTheoGio.ToString("N0") + " đ";
+
+            double tienSP = _dsChiTiet.Sum(ct => ct.SoLuong * ct.DonGia);
+            lblTienSP.Text = tienSP.ToString("N0") + " đ";
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  KÉO FORM
+        // ══════════════════════════════════════════════════════════
+        private void PanelHeader_MouseDown(object sender, MouseEventArgs e)
+        {
+            _dragging = true;
+            _dragStart = e.Location;
+        }
+
+        private void PanelHeader_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!_dragging) return;
+            Location = new Point(Location.X + e.X - _dragStart.X,
+                                 Location.Y + e.Y - _dragStart.Y);
+        }
+
+        private void PanelHeader_MouseUp(object sender, MouseEventArgs e)
+            => _dragging = false;
+
+        // ══════════════════════════════════════════════════════════
+        //  LIVE CLOCK
+        // ══════════════════════════════════════════════════════════
         private void StartClock()
         {
             UpdateTotals();
@@ -174,99 +331,392 @@ namespace Bài_Tập_Lớn.GUI
 
         private void UpdateTotals()
         {
-            if (lblThoiGian == null || lblTienGio == null || lblTongTien == null) return;
+            if (lblThoiGian == null) return;
+
             TimeSpan elapsed = DateTime.Now - _phien.ThoiGianBatDau;
-            double hours     = elapsed.TotalHours;
-            double tienGio   = Math.Ceiling(hours * _ban.GiaTheoGio / 1000) * 1000; // làm tròn 1000đ
+            double hours = elapsed.TotalHours;
+
+            double tienGio = Math.Ceiling(hours * _ban.GiaTheoGio / 1000.0) * 1000.0;
+            double tienSP = _dsChiTiet.Sum(ct => ct.SoLuong * ct.DonGia);
+            double tongBill = tienGio + tienSP;
+
+            // Tính giảm giá cộng dồn 
+            double pctGiam = TinhTongPhanTramGiam();
+            double soTienGiam = Math.Round(tongBill * pctGiam / 1000.0) * 1000.0; // Làm tròn 1.000đ
+            double tongSauGiam = tongBill - soTienGiam;
 
             lblThoiGian.Text = elapsed.ToString(@"hh\:mm\:ss");
-            lblTienGio.Text  = tienGio.ToString("N0") + " đ";
-            lblTongTien.Text = tienGio.ToString("N0") + " đ";  // có thể cộng thêm đồ ăn sau
+            lblTienGio.Text = tienGio.ToString("N0") + " đ";
+            lblTienSP.Text = tienSP.ToString("N0") + " đ";
+
+            // Dòng giảm giá: chỉ hiện khi có giảm
+            if (soTienGiam > 0)
+            {
+                double pctHienThi = pctGiam * 100;
+                lblGiamGia.Text = $"-{soTienGiam:N0} đ  ({pctHienThi:0}%)";
+                lblLGiamGia.Visible = true;
+                lblGiamGia.Visible = true;
+            }
+            else
+            {
+                lblLGiamGia.Visible = false;
+                lblGiamGia.Visible = false;
+            }
+
+            lblTongTien.Text = tongSauGiam.ToString("N0") + " đ";
         }
 
+        // ══════════════════════════════════════════════════════════
+        //  XÁC NHẬN THANH TOÁN
+        // ══════════════════════════════════════════════════════════
         private void BtnPay_Click(object sender, EventArgs e)
         {
             _clock?.Stop();
             DateTime now = DateTime.Now;
+
+            TimeSpan elapsed = now - _phien.ThoiGianBatDau;
+            double tienGio = Math.Ceiling(elapsed.TotalHours * _ban.GiaTheoGio / 1000.0) * 1000.0;
+            double tienSP = _dsChiTiet.Sum(ct => ct.SoLuong * ct.DonGia);
+            double tongBill = tienGio + tienSP;
+
+            // Tính giảm cộng dồn 
+            double pctGiam = TinhTongPhanTramGiam();
+            double soTienGiam = Math.Round(tongBill * pctGiam / 1000.0) * 1000.0;
+            double tongSauGiam = tongBill - soTienGiam;
+
+            var tk = SessionManager.Instance.TaiKhoanHienTai;
+            string maNV = tk?.MaNV ?? tk?.TenDangNhap ?? "";
+
+            // Ghi chú giảm giá vào hóa đơn 
+            string ghiChu = null;
+            if (pctGiam > 0)
+            {
+                var notes = new List<string>();
+                if (_khachHangDuocChon != null && _khachHangDuocChon.DiemTichLuy >= DIEM_TICH_LUY_TOI_THIEU)
+                    notes.Add("Giảm 10% KH thân thiết");
+                double pctSuKien = LayPhanTramGiamSuKien();
+                if (pctSuKien > 0)
+                    notes.Add($"Giảm {pctSuKien * 100:0}% sự kiện");
+                ghiChu = string.Join(" + ", notes);
+            }
+
             try
             {
+                // 1. Kết thúc phiên chơi
                 _phienBLL.KetThucPhien(_phien.MaPhien, now);
+
+                // 2. Cập nhật bàn → TRỐNG
                 _banBLL.CapNhatTrangThai(_ban.MaBan, "TRONG");
+
+                // 3. Tạo & lưu hóa đơn
+                var hdb = new HoaDonBanDTO
+                {
+                    MaHDB = _hoaDonBLL.SinhMaMoi(),
+                    MaPhien = _phien.MaPhien,
+                    MaKH = _khachHangDuocChon?.MaKH,
+                    MaNV = maNV,
+                    NgayBan = now,
+                    TienBida = tienGio,
+                    TienSanPham = tienSP,
+                    TongTien = tongSauGiam,
+                    GhiChu = ghiChu
+                };
+                _hoaDonBLL.Them(hdb);
+                HoaDonDaTao = hdb;
                 IsPaid = true;
-                MessageBox.Show("Thanh toán thành công!\nCảm ơn quý khách.", "Thành công",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                // 4. Cộng 1 lần tích lũy nếu KH thân thiết đủ điểm
+                if (_khachHangDuocChon != null && _khachHangDuocChon.DiemTichLuy >= DIEM_TICH_LUY_TOI_THIEU)
+                {
+                    try
+                    {
+                        _khachHangBLL.CongTichLuy(_khachHangDuocChon.MaKH, 1);
+                    }
+                    catch
+                    {
+                        // Không ảnh hưởng thanh toán nếu cộng điểm lỗi
+                    }
+                }
+
+                // 5. Hỏi xuất PDF
+                if (MessageBox.Show(
+                        "Bạn có muốn lưu hóa đơn ra file PDF không?",
+                        "Xuất hóa đơn",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question) == DialogResult.Yes)
+                    XuatVaXemPdf(hdb);
+
                 Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi khi thanh toán: " + ex.Message, "Lỗi",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi khi thanh toán:\n" + ex.Message,
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 _clock?.Start();
             }
         }
 
-        private void AddRow(TableLayoutPanel tbl, int row, string label, string value, bool boldRight = false)
+        // ══════════════════════════════════════════════════════════
+        //  NÚT HỦY
+        // ══════════════════════════════════════════════════════════
+        private void BtnCancel_Click(object sender, EventArgs e)
         {
-            tbl.Controls.Add(MakeLabelLeft(label), 0, row);
-            tbl.Controls.Add(MakeValueLabel(value, boldValue: boldRight), 1, row);
+            Close();
         }
 
-        private void AddRowWithLabel(TableLayoutPanel tbl, int row, string label, Label valueCtrl, bool labelBig = false)
+        // ══════════════════════════════════════════════════════════
+        //  XUẤT PDF + MỞ PREVIEW
+        // ══════════════════════════════════════════════════════════
+        private void XuatVaXemPdf(HoaDonBanDTO hdb)
         {
-            var lbl = MakeLabelLeft(label, labelBig);
-            tbl.Controls.Add(lbl, 0, row);
-            tbl.Controls.Add(valueCtrl, 1, row);
+            using (var sfd = new SaveFileDialog
+            {
+                Title = "Lưu hóa đơn PDF",
+                Filter = "PDF Documents (*.pdf)|*.pdf",
+                FileName = $"HoaDon_{hdb.MaHDB}_{hdb.NgayBan:yyyyMMdd_HHmm}.pdf",
+            })
+            {
+                if (sfd.ShowDialog() != DialogResult.OK) return;
+
+                try
+                {
+                    ExportToPdf(sfd.FileName, hdb);
+                    Process.Start(new ProcessStartInfo(sfd.FileName)
+                    { UseShellExecute = true });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi khi xuất PDF:\n" + ex.Message,
+                        "Lỗi xuất PDF", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
-        private Label MakeLabelLeft(string text, bool big = false) => new Label {
-            Text = text, AutoSize = true, Dock = DockStyle.Fill,
-            Font = new Font("Segoe UI", big ? 12 : 10, big ? FontStyle.Bold : FontStyle.Regular),
-            ForeColor = GRAY_TEXT, Margin = new Padding(0, 8, 0, 8),
-            TextAlign = ContentAlignment.MiddleLeft
-        };
-
-        private Label MakeValueLabel(string text, Color? color = null, float size = 11,
-            FontStyle style = FontStyle.Regular, bool boldValue = false) => new Label {
-            Text = text, AutoSize = true, Dock = DockStyle.Fill,
-            Font = new Font("Segoe UI", size, boldValue ? FontStyle.Bold : style),
-            ForeColor = color ?? GRAY_TEXT, Margin = new Padding(0, 8, 0, 8),
-            TextAlign = ContentAlignment.MiddleRight
-        };
-
-        private void InitializeComponent()
+        // ══════════════════════════════════════════════════════════
+        //  XUẤT PDF — khổ receipt nhiệt 80mm
+        // ══════════════════════════════════════════════════════════
+        private void ExportToPdf(string filePath, HoaDonBanDTO hdb)
         {
-            this.SuspendLayout();
-            // 
-            // ThanhToanDialog
-            // 
-            this.ClientSize = new System.Drawing.Size(282, 253);
-            this.Name = "ThanhToanDialog";
-            this.Load += new System.EventHandler(this.ThanhToanDialog_Load);
-            this.ResumeLayout(false);
+            // Tính chiều cao nội dung
+            int soMon = _dsChiTiet.Count;
+            float rowH = 16f;
+            float headerH = 120f;
+            float infoH = 130f;
+            float tableHeaderH = 22f;
+            float tableBodyH = soMon * rowH + 8f;
 
+            bool coGiam = hdb.TongTien < (hdb.TienBida + hdb.TienSanPham);
+            float totalH = coGiam ? 96f : 80f;
+            float footerH = 50f;
+
+            float pageHeight = headerH + infoH + tableHeaderH + tableBodyH + totalH + footerH;
+            float pageWidth = 226.77f;
+            float marginLR = 10f;
+            float marginTB = 12f;
+
+            var pageSize = new iTextSharp.text.Rectangle(pageWidth, pageHeight);
+            var doc = new PdfDocument(pageSize, marginLR, marginLR, marginTB, marginTB);
+            var writer = PdfWriter.GetInstance(doc, new FileStream(filePath, FileMode.Create));
+            doc.Open();
+
+            // ── Fonts ───────────────────────────────────────────────
+            string fontPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "arial.ttf");
+            PdfBaseFont bf = PdfBaseFont.CreateFont(fontPath,
+                PdfBaseFont.IDENTITY_H, PdfBaseFont.EMBEDDED);
+
+            var fShopName = new PdfFont(bf, 11f, PdfFont.BOLD, PdfBaseColor.BLACK);
+            var fTitle = new PdfFont(bf, 9f, PdfFont.BOLD, new PdfBaseColor(43, 78, 35));
+            var fSub = new PdfFont(bf, 7f, PdfFont.NORMAL, new PdfBaseColor(120, 120, 120));
+            var fLabel = new PdfFont(bf, 7.5f, PdfFont.NORMAL, PdfBaseColor.BLACK);
+            var fValue = new PdfFont(bf, 7.5f, PdfFont.BOLD, PdfBaseColor.BLACK);
+            var fColHead = new PdfFont(bf, 7f, PdfFont.BOLD, PdfBaseColor.WHITE);
+            var fCell = new PdfFont(bf, 7f, PdfFont.NORMAL, PdfBaseColor.BLACK);
+            var fTotal = new PdfFont(bf, 10f, PdfFont.BOLD, new PdfBaseColor(200, 55, 55));
+            var fDiscount = new PdfFont(bf, 8f, PdfFont.BOLD, new PdfBaseColor(43, 120, 43));
+            var fFooter = new PdfFont(bf, 7f, PdfFont.ITALIC, new PdfBaseColor(140, 140, 140));
+
+            var sepGray = new iTextSharp.text.pdf.draw.LineSeparator(
+                0.4f, 100f, PdfBaseColor.LIGHT_GRAY, PdfElement.ALIGN_CENTER, 1);
+            var sepGreen = new iTextSharp.text.pdf.draw.LineSeparator(
+                0.6f, 100f, new PdfBaseColor(43, 78, 35), PdfElement.ALIGN_CENTER, 1);
+
+            // ── Header ──────────────────────────────────────────────
+            doc.Add(new PdfParagraph("DOUBLE2N BILLIARDS", fShopName)
+            { Alignment = PdfElement.ALIGN_CENTER, SpacingAfter = 2f });
+            doc.Add(new PdfParagraph("HÓA ĐƠN THANH TOÁN", fTitle)
+            { Alignment = PdfElement.ALIGN_CENTER, SpacingAfter = 2f });
+            doc.Add(new PdfParagraph(hdb.NgayBan.ToString("HH:mm  dd/MM/yyyy"), fSub)
+            { Alignment = PdfElement.ALIGN_CENTER, SpacingAfter = 4f });
+            doc.Add(new PdfChunk(sepGray));
+            doc.Add(new PdfParagraph(" "));
+
+            // ── Thông tin phiên ─────────────────────────────────────
+            AddReceiptRow(doc, "Mã HĐ", hdb.MaHDB, fLabel, fValue);
+            AddReceiptRow(doc, "Nhân viên", hdb.MaNV, fLabel, fValue);
+            AddReceiptRow(doc, "Bàn", _ban.TenBan + $" ({_ban.LoaiBan})", fLabel, fValue);
+            AddReceiptRow(doc, "Mã phiên", hdb.MaPhien, fLabel, fValue);
+            AddReceiptRow(doc, "Giá/giờ", _ban.GiaTheoGio.ToString("N0") + " đ", fLabel, fValue);
+
+            // In tên KH nếu có
+            if (_khachHangDuocChon != null)
+                AddReceiptRow(doc, "Khách hàng", _khachHangDuocChon.HoTen, fLabel, fValue);
+
+            doc.Add(new PdfChunk(sepGray));
+            doc.Add(new PdfParagraph(" "));
+
+            // ── Bảng sản phẩm ───────────────────────────────────────
+            if (_dsChiTiet.Count > 0)
+            {
+                var tbl = new PdfPTable(4) { WidthPercentage = 100, SpacingAfter = 2f };
+                tbl.SetWidths(new float[] { 38f, 10f, 22f, 22f });
+
+                foreach ((string txt, bool right) in new[]{
+                    ("Sản phẩm", false), ("SL", true), ("Đơn giá", true), ("T.tiền", true)})
+                {
+                    tbl.AddCell(new PdfPCell(new PdfPhrase(txt, fColHead))
+                    {
+                        BackgroundColor = new PdfBaseColor(43, 78, 35),
+                        Padding = 4f,
+                        HorizontalAlignment = right ? PdfElement.ALIGN_RIGHT : PdfElement.ALIGN_LEFT,
+                        BorderColor = PdfBaseColor.WHITE,
+                    });
+                }
+
+                bool alt = false;
+                foreach (var ct in _dsChiTiet)
+                {
+                    var bg = alt ? new PdfBaseColor(245, 250, 245) : PdfBaseColor.WHITE;
+                    string tenSP = LayTenSPTuCache(ct.MaSP);
+                    tbl.AddCell(ReceiptCell(tenSP, fCell, bg, false));
+                    tbl.AddCell(ReceiptCell(ct.SoLuong.ToString(), fCell, bg, true));
+                    tbl.AddCell(ReceiptCell(ct.DonGia.ToString("N0") + "đ", fCell, bg, true));
+                    tbl.AddCell(ReceiptCell((ct.SoLuong * ct.DonGia).ToString("N0") + "đ", fCell, bg, true));
+                    alt = !alt;
+                }
+                doc.Add(tbl);
+            }
+
+            doc.Add(new PdfChunk(sepGray));
+            doc.Add(new PdfParagraph(" "));
+
+            // ── Tổng kết ────────────────────────────────────────────
+            AddReceiptRow(doc, "Tiền giờ chơi", hdb.TienBida.ToString("N0") + " đ", fLabel, fValue);
+            AddReceiptRow(doc, "Tiền sản phẩm", hdb.TienSanPham.ToString("N0") + " đ", fLabel, fValue);
+
+            // In dòng chiết khấu nếu có
+            if (coGiam)
+            {
+                double soTienGiam = (hdb.TienBida + hdb.TienSanPham) - hdb.TongTien;
+                string ghiChuGiam = string.IsNullOrWhiteSpace(hdb.GhiChu) ? "Chiết khấu" : hdb.GhiChu;
+                AddReceiptRow(doc, ghiChuGiam, "-" + soTienGiam.ToString("N0") + " đ", fLabel, fDiscount);
+            }
+
+            doc.Add(new PdfParagraph(" ") { SpacingAfter = 2f });
+            doc.Add(new PdfChunk(sepGreen));
+            doc.Add(new PdfParagraph(" "));
+
+            doc.Add(new PdfParagraph($"TỔNG TIỀN:  {hdb.TongTien:N0} đ", fTotal)
+            { Alignment = PdfElement.ALIGN_RIGHT, SpacingAfter = 4f });
+
+            doc.Add(new PdfChunk(sepGray));
+            doc.Add(new PdfParagraph(" "));
+
+            // ── Footer ──────────────────────────────────────────────
+            doc.Add(new PdfParagraph("Cảm ơn quý khách và hẹn gặp lại!", fFooter)
+            { Alignment = PdfElement.ALIGN_CENTER });
+
+            doc.Close();
         }
 
-        private void ThanhToanDialog_Load(object sender, EventArgs e)
+        // ── Receipt helper: 1 dòng label – value ──────────────────
+        private static void AddReceiptRow(PdfDocument doc, string label, string value,
+                                          PdfFont fLabel, PdfFont fValue)
         {
-
+            var tbl = new PdfPTable(2) { WidthPercentage = 100, SpacingAfter = 1f };
+            tbl.SetWidths(new float[] { 45f, 55f });
+            tbl.AddCell(new PdfPCell(new PdfPhrase(label, fLabel))
+            { Border = PdfPCell.NO_BORDER, Padding = 2f });
+            tbl.AddCell(new PdfPCell(new PdfPhrase(value, fValue))
+            {
+                Border = PdfPCell.NO_BORDER,
+                Padding = 2f,
+                HorizontalAlignment = PdfElement.ALIGN_RIGHT
+            });
+            doc.Add(tbl);
         }
 
-        private GraphicsPath RoundedPath(Rectangle bounds, int radius)
+        // ── Receipt helper: 1 cell bảng SP ───────────────────────
+        private static PdfPCell ReceiptCell(string text, PdfFont font,
+                                             PdfBaseColor bg, bool right)
         {
-            var p = new GraphicsPath();
+            return new PdfPCell(new PdfPhrase(text, font))
+            {
+                BackgroundColor = bg,
+                Padding = 3f,
+                HorizontalAlignment = right ? PdfElement.ALIGN_RIGHT : PdfElement.ALIGN_LEFT,
+                BorderColor = new PdfBaseColor(230, 230, 230),
+            };
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  Helper: Lấy tên SP từ cache
+        // ══════════════════════════════════════════════════════════
+        private string LayTenSPTuCache(string maSP)
+        {
+            if (_cacheTenSP != null && _cacheTenSP.TryGetValue(maSP, out string ten)
+                && !string.IsNullOrWhiteSpace(ten))
+                return ten;
+            return maSP;
+        }
+
+        // ── Bo tròn form ──────────────────────────────────────────
+        private static void ApplyRoundedRegion(Form frm, int radius)
+        {
+            var path = new GraphicsPath();
             int d = radius * 2;
-            p.AddArc(bounds.X, bounds.Y, d, d, 180, 90);
-            p.AddArc(bounds.Right-d, bounds.Y, d, d, 270, 90);
-            p.AddArc(bounds.Right-d, bounds.Bottom-d, d, d, 0, 90);
-            p.AddArc(bounds.X, bounds.Bottom-d, d, d, 90, 90);
-            p.CloseFigure();
-            return p;
+            path.AddArc(0, 0, d, d, 180, 90);
+            path.AddArc(frm.Width - d, 0, d, d, 270, 90);
+            path.AddArc(frm.Width - d, frm.Height - d, d, d, 0, 90);
+            path.AddArc(0, frm.Height - d, d, d, 90, 90);
+            path.CloseFigure();
+            frm.Region = new Region(path);
         }
 
+        // ══════════════════════════════════════════════════════════
+        //  CLEANUP
+        // ══════════════════════════════════════════════════════════
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
-            _clock?.Stop(); _clock?.Dispose();
+            _clock?.Stop();
+            _clock?.Dispose();
             base.OnFormClosed(e);
+
+            // [MỚI] Đóng overlay khi form đóng
+            _overlay?.Close();
+            _overlay = null;
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  Wrapper item cho ComboBox khách hàng
+    //  → ToString() hiển thị tên, nhưng vẫn giữ reference KhachHangDTO
+    // ══════════════════════════════════════════════════════════════
+    internal class ComboBoxKhachHangItem
+    {
+        public KhachHangDTO KhachHang { get; }
+
+        public ComboBoxKhachHangItem(KhachHangDTO kh)
+        {
+            KhachHang = kh;
+        }
+
+        public override string ToString()
+        {
+            if (KhachHang == null) return "(Không chọn)";
+            string star = KhachHang.DiemTichLuy >= 50 ? "⭐ " : "";
+            // In tên KH
+            return $"{star}{KhachHang.HoTen}  [{KhachHang.DiemTichLuy} điểm]";
         }
     }
 }

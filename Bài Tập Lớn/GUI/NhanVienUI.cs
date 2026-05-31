@@ -5,371 +5,398 @@ using Guna.UI2.WinForms;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Bài_Tập_Lớn.GUI
 {
     public partial class NhanVienUI : Form
     {
-        // ═══════════════════════════════════════════════════════
-        //  PALETTE — dùng xuyên suốt toàn form
-        // ═══════════════════════════════════════════════════════
-        static readonly Color GREEN_DARK = ColorTranslator.FromHtml("#2b4e23");
-        static readonly Color GREEN_LIGHT = ColorTranslator.FromHtml("#79ae6f");
-        static readonly Color GREEN_ACTIVE_BG = Color.FromArgb(232, 245, 232);
-        static readonly Color CREAM = Color.FromArgb(255, 255, 251);
-        static readonly Color BORDER_IDLE = Color.FromArgb(210, 220, 210);
-
-        // ═══════════════════════════════════════════════════════
-        //  ICON NỔI (floating action labels)
-        // ═══════════════════════════════════════════════════════
-        private Label _lblSua;
-        private Label _lblXoa;
-        private int _hoveredRowIndex = -1;
-
+        // ══════════════════════════════════════════════════════════
+        //  Fields
+        // ══════════════════════════════════════════════════════════
         private readonly NhanVienBLL _bll = new NhanVienBLL();
+        private bool _dangKhoiTao = true;
 
+        // ── Pagination ─────────────────────────────────────────────
+        private List<NhanVienDTO> _dsDayDu = new List<NhanVienDTO>();
+        private int _trangHienTai = 1;
+        private const int _soDoiMoiTrang = 10;
+        private int _tongSoTrang => (int)Math.Ceiling((double)_dsDayDu.Count / _soDoiMoiTrang);
+
+        // ── Pager controls (tạo bằng code, không dùng Designer) ───
+        private Guna2Button _btnPrev;
+        private Guna2Button _btnNext;
+        private Label _lblTrangInfo;
+
+        // ══════════════════════════════════════════════════════════
+        //  Khởi tạo
+        // ══════════════════════════════════════════════════════════
         public NhanVienUI()
         {
             InitializeComponent();
-            ApplyTheme();
-            this.BackColor = Color.White;
-        }
-
-        // ==================== ÁP DỤNG MÀU GIAO DIỆN ====================
-        private void ApplyTheme()
-        {
-            this.BackColor = CREAM;
-            this.tableLayoutPanel1.BackColor = CREAM;
-            this.MainHeader.FillColor = CREAM;
-            this.guna2Panel2.FillColor = CREAM;
-
-            this.guna2DataGridView1.BackgroundColor = CREAM;
-            this.guna2DataGridView1.ThemeStyle.BackColor = CREAM;
-            this.guna2DataGridView1.ThemeStyle.HeaderStyle.BackColor = GREEN_DARK;
-            this.guna2DataGridView1.ThemeStyle.RowsStyle.BackColor = CREAM;
-            this.guna2DataGridView1.ThemeStyle.RowsStyle.SelectionBackColor = GREEN_ACTIVE_BG;
-            this.guna2DataGridView1.ThemeStyle.RowsStyle.SelectionForeColor = GREEN_DARK;
-            this.guna2DataGridView1.ThemeStyle.AlternatingRowsStyle.SelectionBackColor = GREEN_ACTIVE_BG;
-            this.guna2DataGridView1.ThemeStyle.AlternatingRowsStyle.SelectionForeColor = GREEN_DARK;
-
-            this.btnTimKiem.BorderColor = GREEN_DARK;
-            this.btnTimKiem.FillColor = GREEN_LIGHT;
-            this.btnTimKiem.HoverState.FillColor = GREEN_DARK;
-
-            this.btnThem.BorderColor = GREEN_DARK;
-            this.btnThem.FillColor = GREEN_DARK;
-            this.btnThem.HoverState.FillColor = GREEN_LIGHT;
-
-            this.inputTimKiem.BorderColor = BORDER_IDLE;
-            this.inputTimKiem.FocusColor = GREEN_LIGHT;
-        }
-
-        // ==================== LOAD FORM ====================
-        private void NhanVienUI_Load(object sender, EventArgs e)
-        {
-            CauHinhDataGridView();
-            TaoIconNoi();
+            _dangKhoiTao = true;
+            CauHinhGrid();
+            TaoPhanTrang();
+            _dangKhoiTao = false;
             TaiDanhSach();
+
+            this.Load += (s, e) => ApDungBoTron();
+            guna2DataGridView1.Resize += (s, e) => ApDungBoTron();
         }
 
-        // ==================== CẤU HÌNH DATAGRIDVIEW ====================
-        private void CauHinhDataGridView()
+        // ══════════════════════════════════════════════════════════
+        //  Tạo nút phân trang vào guna2Panel3
+        // ══════════════════════════════════════════════════════════
+        private void TaoPhanTrang()
         {
-            guna2DataGridView1.AutoGenerateColumns = false;
-            guna2DataGridView1.Columns.Clear();
+            Color clrBtnNormal = Color.FromArgb(200, 200, 200);
+            Color clrBtnHover = Color.FromArgb(170, 170, 170);
+            Color clrText = Color.FromArgb(43, 78, 35);
+
+            _btnPrev = new Guna2Button
+            {
+                Text = "<",
+                Size = new Size(32, 28),
+                Location = new Point(6, 3),
+                BorderRadius = 6,
+                FillColor = clrBtnNormal,
+                ForeColor = Color.FromArgb(80, 80, 80),
+                Font = new Font("Segoe UI", 10f, FontStyle.Bold),
+                Cursor = Cursors.Hand,
+                BorderColor = Color.FromArgb(180, 180, 180),
+                BorderThickness = 1,
+            };
+            _btnPrev.HoverState.FillColor = clrBtnHover;
+            _btnPrev.HoverState.ForeColor = Color.FromArgb(50, 50, 50);
+            _btnPrev.Click += (s, e) => ChuyenTrang(_trangHienTai - 1);
+
+            _lblTrangInfo = new Label
+            {
+                Text = "Trang 1 / 1",
+                Size = new Size(110, 28),
+                Location = new Point(44, 3),
+                TextAlign = ContentAlignment.MiddleCenter,
+                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
+                ForeColor = clrText,
+                BackColor = Color.Transparent,
+            };
+
+            _btnNext = new Guna2Button
+            {
+                Text = ">",
+                Size = new Size(32, 28),
+                Location = new Point(160, 3),
+                BorderRadius = 6,
+                FillColor = clrBtnNormal,
+                ForeColor = Color.FromArgb(80, 80, 80),
+                Font = new Font("Segoe UI", 10f, FontStyle.Bold),
+                Cursor = Cursors.Hand,
+                BorderColor = Color.FromArgb(180, 180, 180),
+                BorderThickness = 1,
+            };
+            _btnNext.HoverState.FillColor = clrBtnHover;
+            _btnNext.HoverState.ForeColor = Color.FromArgb(50, 50, 50);
+            _btnNext.Click += (s, e) => ChuyenTrang(_trangHienTai + 1);
+
+            guna2Panel3.Controls.Add(_btnPrev);
+            guna2Panel3.Controls.Add(_lblTrangInfo);
+            guna2Panel3.Controls.Add(_btnNext);
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  Chuyển trang
+        // ══════════════════════════════════════════════════════════
+        private void ChuyenTrang(int trang)
+        {
+            if (trang < 1 || trang > _tongSoTrang) return;
+            _trangHienTai = trang;
+            HienThiTrangHienTai();
+        }
+
+        private void HienThiTrangHienTai()
+        {
+            var ds = _dsDayDu
+                .Skip((_trangHienTai - 1) * _soDoiMoiTrang)
+                .Take(_soDoiMoiTrang)
+                .ToList();
+
+            guna2DataGridView1.DataSource = null;
+            guna2DataGridView1.DataSource = ds;
+            guna2DataGridView1.ClearSelection();
+
+            int tongTrang = Math.Max(1, _tongSoTrang);
+            _lblTrangInfo.Text = $"Trang {_trangHienTai} / {tongTrang}";
+
+            _btnPrev.Enabled = _trangHienTai > 1;
+            _btnNext.Enabled = _trangHienTai < tongTrang;
+            _btnPrev.FillColor = _btnPrev.Enabled ? Color.FromArgb(200, 200, 200) : Color.FromArgb(225, 225, 225);
+            _btnNext.FillColor = _btnNext.Enabled ? Color.FromArgb(200, 200, 200) : Color.FromArgb(225, 225, 225);
+            _btnPrev.ForeColor = _btnPrev.Enabled ? Color.FromArgb(80, 80, 80) : Color.FromArgb(180, 180, 180);
+            _btnNext.ForeColor = _btnNext.Enabled ? Color.FromArgb(80, 80, 80) : Color.FromArgb(180, 180, 180);
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  Bo tròn DataGridView
+        // ══════════════════════════════════════════════════════════
+        private void ApDungBoTron()
+        {
+            const int r = 16;
+            var b = guna2DataGridView1.ClientRectangle;
+            var path = new GraphicsPath();
+            path.AddArc(b.X, b.Y, r * 2, r * 2, 180, 90);
+            path.AddArc(b.Right - r * 2, b.Y, r * 2, r * 2, 270, 90);
+            path.AddArc(b.Right - r * 2, b.Bottom - r * 2, r * 2, r * 2, 0, 90);
+            path.AddArc(b.X, b.Bottom - r * 2, r * 2, r * 2, 90, 90);
+            path.CloseFigure();
+            guna2DataGridView1.Region = new Region(path);
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  Thiết lập Grid
+        // ══════════════════════════════════════════════════════════
+        private void CauHinhGrid()
+        {
+            guna2DataGridView1.Enabled = true;
+            guna2DataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             guna2DataGridView1.ReadOnly = true;
+            guna2DataGridView1.AutoGenerateColumns = false;
 
-            var headerFont = new Font("Segoe UI Semibold", 10f, FontStyle.Bold);
-            var dataFont = new Font("Segoe UI", 10f);
+            // Bind DataPropertyName
+            colMaNV.DataPropertyName = "MaNV";
+            colHoTen.DataPropertyName = "HoTen";
+            colSdt.DataPropertyName = "Sdt";
+            colGioiTinh.DataPropertyName = "GioiTinh";
+            colChucVu.DataPropertyName = "ChucVu";
+            colNgaySinh.DataPropertyName = "NgaySinh";
 
-            void AddText(string name, string header, string prop, int w,
-                DataGridViewContentAlignment align = DataGridViewContentAlignment.MiddleLeft)
-            {
-                guna2DataGridView1.Columns.Add(new DataGridViewTextBoxColumn
-                {
-                    Name = name,
-                    HeaderText = header,
-                    DataPropertyName = prop,
-                    Width = w,
-                    SortMode = DataGridViewColumnSortMode.NotSortable,
-                    DefaultCellStyle = new DataGridViewCellStyle { Font = dataFont, Alignment = align }
-                });
-            }
+            // Độ rộng cột
+            colMaNV.Width = 90;
+            colHoTen.Width = 220;
+            colSdt.Width = 150;
+            colGioiTinh.Width = 110;
+            colChucVu.Width = 160;
+            colNgaySinh.Width = 130;
+            colXoa.Width = 110;   // nút Xóa
 
-            AddText("colMaNV", "Mã NV", "MaNV", 80, DataGridViewContentAlignment.MiddleCenter);
-            AddText("colHoTen", "Họ Tên", "HoTen", 205);
-            AddText("colSdt", "SĐT", "Sdt", 135, DataGridViewContentAlignment.MiddleCenter);
-            AddText("colGioiTinh", "Giới Tính", "GioiTinh", 95, DataGridViewContentAlignment.MiddleCenter);
-            AddText("colChucVu", "Chức Vụ", "ChucVu", 145, DataGridViewContentAlignment.MiddleCenter);
+            // Canh giữa cho các cột
+            colMaNV.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            colSdt.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            colGioiTinh.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            colChucVu.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            colNgaySinh.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            colNgaySinh.DefaultCellStyle.Format = "dd/MM/yyyy";
 
-            guna2DataGridView1.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "colNgaySinh",
-                HeaderText = "Ngày Sinh",
-                DataPropertyName = "NgaySinh",
-                Width = 115,
-                SortMode = DataGridViewColumnSortMode.NotSortable,
-                DefaultCellStyle = new DataGridViewCellStyle
-                {
-                    Font = dataFont,
-                    Alignment = DataGridViewContentAlignment.MiddleCenter,
-                    Format = "dd/MM/yyyy"
-                }
-            });
+            // Nút Xóa
+            colXoa.UseColumnTextForButtonValue = true;
+            colXoa.Text = "🗑  Xóa";
+            colXoa.FlatStyle = FlatStyle.Flat;
+            colXoa.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            colXoa.DefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
 
-            // Cột trống — chỗ đậu cho 2 icon nổi
-            guna2DataGridView1.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "colActions",
-                HeaderText = "",
-                Width = 90,
-                SortMode = DataGridViewColumnSortMode.NotSortable,
-                ReadOnly = true
-            });
+            // Tắt sort tất cả cột
+            foreach (DataGridViewColumn col in guna2DataGridView1.Columns)
+                col.SortMode = DataGridViewColumnSortMode.NotSortable;
 
-            // ── Header style ────────────────────────────────────────────────────
-            guna2DataGridView1.EnableHeadersVisualStyles = false;
-            guna2DataGridView1.ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
-            {
-                Font = headerFont,
-                BackColor = GREEN_DARK,
-                ForeColor = Color.White,
-                SelectionBackColor = GREEN_DARK,
-                SelectionForeColor = Color.White,
-                Alignment = DataGridViewContentAlignment.MiddleCenter,
-                WrapMode = DataGridViewTriState.False
-            };
-            guna2DataGridView1.ColumnHeadersHeight = 44;
-            guna2DataGridView1.ColumnHeadersHeightSizeMode =
-                DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-
-            guna2DataGridView1.ColumnHeaderMouseClick += (s, ev) =>
-            {
-                guna2DataGridView1.ColumnHeadersDefaultCellStyle.BackColor = GREEN_DARK;
-                guna2DataGridView1.ColumnHeadersDefaultCellStyle.SelectionBackColor = GREEN_DARK;
-            };
-
-            // ── Row / Cell styles ───────────────────────────────────────────────
             guna2DataGridView1.RowTemplate.Height = 40;
-            guna2DataGridView1.DefaultCellStyle = new DataGridViewCellStyle
-            {
-                Font = dataFont,
-                ForeColor = Color.FromArgb(35, 35, 35),
-                BackColor = CREAM,
-                SelectionBackColor = GREEN_ACTIVE_BG,
-                SelectionForeColor = GREEN_DARK
-            };
-            guna2DataGridView1.AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
-            {
-                Font = dataFont,
-                BackColor = Color.White,
-                ForeColor = Color.FromArgb(35, 35, 35),
-                SelectionBackColor = GREEN_ACTIVE_BG,
-                SelectionForeColor = GREEN_DARK
-            };
+            guna2DataGridView1.DefaultCellStyle.Padding = new Padding(8, 0, 8, 0);
+
+            txtTimKiem.PlaceholderText = "Tìm theo mã, họ tên, SĐT, chức vụ...";
         }
 
-        // ==================== TẠO ICON NỔI ====================
-        private void TaoIconNoi()
+        // ══════════════════════════════════════════════════════════
+        //  Load & Hiển thị dữ liệu
+        // ══════════════════════════════════════════════════════════
+        private void TaiDanhSach()
         {
-            var iconFont = new Font("Segoe MDL2 Assets", 13f);
-
-            _lblSua = new Label
+            try
             {
-                Text = "\uE70F",
-                Font = iconFont,
-                Size = new Size(38, 30),
-                TextAlign = ContentAlignment.MiddleCenter,
-                BackColor = GREEN_LIGHT,
-                ForeColor = Color.White,
-                Cursor = Cursors.Hand,
-                Visible = false,
-                BorderStyle = BorderStyle.None
-            };
-
-            _lblXoa = new Label
+                _dsDayDu = _bll.LayTatCaNhanVien();
+                _trangHienTai = 1;
+                HienThiTrangHienTai();
+            }
+            catch (Exception ex)
             {
-                Text = "\uE74D",
-                Font = iconFont,
-                Size = new Size(38, 30),
-                TextAlign = ContentAlignment.MiddleCenter,
-                BackColor = GREEN_DARK,
-                ForeColor = Color.White,
-                Cursor = Cursors.Hand,
-                Visible = false,
-                BorderStyle = BorderStyle.None
-            };
-
-            _lblSua.MouseEnter += (s, e) => _lblSua.BackColor = ColorTranslator.FromHtml("#5a9a50");
-            _lblSua.MouseLeave += IconLabel_MouseLeave;
-            _lblXoa.MouseEnter += (s, e) => _lblXoa.BackColor = ColorTranslator.FromHtml("#1e3a17");
-            _lblXoa.MouseLeave += IconLabel_MouseLeave;
-
-            _lblSua.Click += (s, e) => HandleSua();
-            _lblXoa.Click += (s, e) => HandleXoa();
-
-            guna2DataGridView1.Controls.Add(_lblXoa);
-            guna2DataGridView1.Controls.Add(_lblSua);
-            _lblSua.BringToFront();
-            _lblXoa.BringToFront();
-
-            guna2DataGridView1.CellMouseEnter += (s, ev) =>
-            {
-                if (ev.RowIndex < 0) return;
-                _hoveredRowIndex = ev.RowIndex;
-                CapNhatViTriIcon();
-            };
-
-            guna2DataGridView1.CellMouseLeave += (s, ev) =>
-            {
-                Point pos = guna2DataGridView1.PointToClient(Cursor.Position);
-                if (_lblSua.Bounds.Contains(pos) || _lblXoa.Bounds.Contains(pos)) return;
-                _lblSua.Visible = false;
-                _lblXoa.Visible = false;
-                _hoveredRowIndex = -1;
-            };
-
-            guna2DataGridView1.Scroll += (s, ev) => CapNhatViTriIcon();
-        }
-
-        private void IconLabel_MouseLeave(object sender, EventArgs e)
-        {
-            _lblSua.BackColor = GREEN_LIGHT;
-            _lblXoa.BackColor = GREEN_DARK;
-
-            Point pos = guna2DataGridView1.PointToClient(Cursor.Position);
-            bool overDgv = guna2DataGridView1.ClientRectangle.Contains(pos);
-            if (!overDgv)
-            {
-                _lblSua.Visible = false;
-                _lblXoa.Visible = false;
-                _hoveredRowIndex = -1;
+                MessageBox.Show(ex.Message, "Lỗi tải dữ liệu",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void CapNhatViTriIcon()
+        private void HienThiGrid(List<NhanVienDTO> ds)
         {
-            if (_hoveredRowIndex < 0 || _hoveredRowIndex >= guna2DataGridView1.Rows.Count)
+            _dsDayDu = ds;
+            _trangHienTai = 1;
+            HienThiTrangHienTai();
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  CellFormatting — nút Xóa đỏ
+        // ══════════════════════════════════════════════════════════
+        private void guna2DataGridView1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            if (e.ColumnIndex != guna2DataGridView1.Columns["colXoa"].Index) return;
+
+            e.CellStyle.BackColor = Color.FromArgb(220, 53, 53);
+            e.CellStyle.ForeColor = Color.White;
+            e.CellStyle.SelectionBackColor = Color.FromArgb(180, 20, 20);
+            e.CellStyle.SelectionForeColor = Color.White;
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  Hover / Press nút Xóa
+        // ══════════════════════════════════════════════════════════
+        private void guna2DataGridView1_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            if (e.ColumnIndex != guna2DataGridView1.Columns["colXoa"].Index) return;
+            guna2DataGridView1.Rows[e.RowIndex].Cells["colXoa"].Style.BackColor = Color.FromArgb(185, 28, 28);
+            guna2DataGridView1.Rows[e.RowIndex].Cells["colXoa"].Style.ForeColor = Color.White;
+        }
+
+        private void guna2DataGridView1_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            if (e.ColumnIndex != guna2DataGridView1.Columns["colXoa"].Index) return;
+            guna2DataGridView1.Rows[e.RowIndex].Cells["colXoa"].Style.BackColor = Color.Empty;
+            guna2DataGridView1.Rows[e.RowIndex].Cells["colXoa"].Style.ForeColor = Color.Empty;
+        }
+
+        private void guna2DataGridView1_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            if (e.ColumnIndex != guna2DataGridView1.Columns["colXoa"].Index) return;
+            guna2DataGridView1.Rows[e.RowIndex].Cells["colXoa"].Style.BackColor = Color.FromArgb(185, 28, 28);
+            guna2DataGridView1.Rows[e.RowIndex].Cells["colXoa"].Style.ForeColor = Color.White;
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  Tìm kiếm
+        // ══════════════════════════════════════════════════════════
+        private void ThucHienTimKiem()
+        {
+            try
             {
-                _lblSua.Visible = _lblXoa.Visible = false;
+                string keyword = txtTimKiem.Text.Trim();
+                var ds = string.IsNullOrWhiteSpace(keyword)
+                         ? _bll.LayTatCaNhanVien()
+                         : _bll.TimKiem(keyword);
+
+                HienThiGrid(ds);
+
+                if (ds.Count == 0)
+                    MessageBox.Show("Không tìm thấy nhân viên nào phù hợp.", "Kết quả",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Lỗi tìm kiếm",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  Sự kiện toolbar
+        // ══════════════════════════════════════════════════════════
+        private void btnReload_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                btnReload.Enabled = false;
+                btnReload.Text = "Đang tải...";
+                txtTimKiem.Text = "";
+                TaiDanhSach();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Lỗi tải lại dữ liệu",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnReload.Enabled = true;
+                btnReload.Text = "Tải Lại";
+            }
+        }
+
+        private void txtTimKiem_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+                ThucHienTimKiem();
+        }
+
+        private void btnTimKiem_Click(object sender, EventArgs e)
+        {
+            ThucHienTimKiem();
+        }
+
+        // ── Thêm mới ───────────────────────────────────────────────
+        private void btnThem_Click(object sender, EventArgs e)
+        {
+            var popup = new NhanVienPopupUI(null, _bll);
+            popup.StartPosition = FormStartPosition.CenterParent;
+            popup.FormClosed += (s, args) => TaiDanhSach();
+            popup.ShowDialog(this);
+        }
+
+        // ── Click vào cell ─────────────────────────────────────────
+        private void guna2DataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            if (e.ColumnIndex == guna2DataGridView1.Columns["colXoa"].Index)
+            {
+                XuLyXoa(e.RowIndex);
                 return;
             }
 
-            Rectangle rowRect = guna2DataGridView1.GetRowDisplayRectangle(_hoveredRowIndex, false);
-            if (rowRect.IsEmpty) { _lblSua.Visible = _lblXoa.Visible = false; return; }
-
-            const int iconW = 38, iconH = 30, gap = 6, margin = 10;
-            int y = rowRect.Top + (rowRect.Height - iconH) / 2;
-            int x2 = guna2DataGridView1.ClientSize.Width - margin - iconW;
-            int x1 = x2 - gap - iconW;
-
-            _lblSua.SetBounds(x1, y, iconW, iconH);
-            _lblXoa.SetBounds(x2, y, iconW, iconH);
-            _lblSua.Visible = _lblXoa.Visible = true;
-            _lblSua.BringToFront();
-            _lblXoa.BringToFront();
+            // Click vào bất kỳ cột dữ liệu nào → mở popup Sửa
+            string maNV = guna2DataGridView1.Rows[e.RowIndex].Cells["colMaNV"].Value?.ToString();
+            MoPopupSua(maNV);
         }
 
-        private void HandleSua()
+        // ── Mở popup Sửa ──────────────────────────────────────────
+        private void MoPopupSua(string maNV)
         {
-            if (_hoveredRowIndex < 0) return;
-            string maNV = guna2DataGridView1.Rows[_hoveredRowIndex]
-                              .Cells["colMaNV"].Value?.ToString();
             if (string.IsNullOrEmpty(maNV)) return;
 
             NhanVienDTO nv = _bll.TimTheoMa(maNV);
             if (nv == null) return;
 
             var popup = new NhanVienPopupUI(nv, _bll);
+            popup.StartPosition = FormStartPosition.CenterParent;
             popup.FormClosed += (s, args) => TaiDanhSach();
-            popup.ShowDialog();
+            popup.ShowDialog(this);
         }
 
-        private void HandleXoa()
+        // ── Xóa ───────────────────────────────────────────────────
+        private void XuLyXoa(int rowIndex)
         {
-            if (_hoveredRowIndex < 0) return;
-            string maNV = guna2DataGridView1.Rows[_hoveredRowIndex]
-                              .Cells["colMaNV"].Value?.ToString();
+            string maNV = guna2DataGridView1.Rows[rowIndex].Cells["colMaNV"].Value?.ToString();
+            string hoTen = guna2DataGridView1.Rows[rowIndex].Cells["colHoTen"].Value?.ToString();
             if (string.IsNullOrEmpty(maNV)) return;
 
-            var confirm = MessageBox.Show(
-                $"Bạn có chắc muốn xóa nhân viên [{maNV}]?",
-                "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-
-            if (confirm == DialogResult.Yes)
+            using (var dlg = new ConfirmDeleteUI(hoTen, "nhân viên"))
             {
-                try
-                {
-                    _bll.XoaNhanVien(maNV);
-                    MessageBox.Show("Xóa thành công!", "Thông báo",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    TaiDanhSach();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Lỗi xóa: " + ex.Message, "Lỗi",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                if (dlg.ShowDialog(this) != DialogResult.OK) return;
             }
-        }
 
-        private void TaiDanhSach(string keyword = "")
-        {
             try
             {
-                List<NhanVienDTO> ds = string.IsNullOrWhiteSpace(keyword)
-                    ? _bll.LayTatCaNhanVien()
-                    : _bll.TimKiem(keyword);
-
-                guna2DataGridView1.DataSource = null;
-                guna2DataGridView1.DataSource = ds;
+                _bll.XoaNhanVien(maNV);
+                MessageBox.Show("Xóa nhân viên thành công!", "Thành công",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                TaiDanhSach();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message, "Lỗi",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void btnTimKiem_Click_1(object sender, EventArgs e)
-            => TaiDanhSach(inputTimKiem.Text.Trim());
-
-        private void btnThem_Click(object sender, EventArgs e)
-        {
-            var popup = new NhanVienPopupUI(null, _bll);
-            popup.FormClosed += (s, args) => TaiDanhSach();
-            popup.ShowDialog();
-        }
-
-        private void guna2DataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
-        private void MainHeader_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void guna2HtmlLabel1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void guna2Panel2_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void inputTimKiem_Load(object sender, EventArgs e)
-        {
-
-        }
+        // ── Event stubs ────────────────────────────────────────────
+        private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e) { }
+        private void guna2Panel3_Paint(object sender, PaintEventArgs e) { }
     }
 }

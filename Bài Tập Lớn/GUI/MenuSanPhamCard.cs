@@ -36,7 +36,7 @@ namespace Bài_Tập_Lớn.GUI
 
         // ── State ─────────────────────────────────────────────────
         private SanPhamDTO _sp;
-        private bool _isHover;
+        private bool _isHover = false; // Mặc định false
 
         // ── Event ra ngoài ────────────────────────────────────────
         public event EventHandler<SanPhamDTO> OnThemVaoGio;
@@ -65,17 +65,48 @@ namespace Bài_Tập_Lớn.GUI
             _btnThem.ShadowDecoration.Depth = 6;
             _btnThem.ShadowDecoration.BorderRadius = 12;
 
-            // Bubble hover từ child controls lên card
-            foreach (Control c in this.Controls)
+            // Đệ quy gán event hover cho toàn bộ child controls để sửa lỗi kẹt hover
+            AttachHoverEvents(this);
+        }
+
+        // ═════════════════════════════════════════════════════════
+        //  Xử lý Hover thông minh (Tránh giật lag)
+        // ═════════════════════════════════════════════════════════
+        private void AttachHoverEvents(Control container)
+        {
+            foreach (Control c in container.Controls)
             {
-                c.MouseEnter += (s, e) => base.OnMouseEnter(e);
-                c.MouseLeave += (s, e) => base.OnMouseLeave(e);
+                c.MouseEnter += (s, e) => UpdateHoverState();
+                c.MouseLeave += (s, e) => UpdateHoverState();
+
+                // Nếu control có chứa control khác bên trong, đệ quy tiếp
+                if (c.HasChildren) AttachHoverEvents(c);
             }
-            foreach (Control c in _panelAnh.Controls)
+        }
+
+        private void UpdateHoverState()
+        {
+            // Kiểm tra chính xác xem chuột có đang nằm trong giới hạn của Card không
+            bool isNowHovering = ClientRectangle.Contains(PointToClient(MousePosition));
+
+            // CHỈ vẽ lại (Invalidate) khi trạng thái thực sự thay đổi (khắc phục lỗi giật lag)
+            if (_isHover != isNowHovering)
             {
-                c.MouseEnter += (s, e) => base.OnMouseEnter(e);
-                c.MouseLeave += (s, e) => base.OnMouseLeave(e);
+                _isHover = isNowHovering;
+                Invalidate();
             }
+        }
+
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            base.OnMouseEnter(e);
+            UpdateHoverState();
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            UpdateHoverState();
         }
 
         // ═════════════════════════════════════════════════════════
@@ -225,26 +256,6 @@ namespace Bài_Tập_Lớn.GUI
                     g.FillPath(br, path);
                 using (var pen = new Pen(_isHover ? CLR_ACCENT : CLR_BORDER, _isHover ? 1.5f : 1f))
                     g.DrawPath(pen, path);
-            }
-        }
-
-        // ═════════════════════════════════════════════════════════
-        //  Hover
-        // ═════════════════════════════════════════════════════════
-        protected override void OnMouseEnter(EventArgs e)
-        {
-            base.OnMouseEnter(e);
-            _isHover = true;
-            Invalidate();
-        }
-
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            base.OnMouseLeave(e);
-            if (!ClientRectangle.Contains(PointToClient(MousePosition)))
-            {
-                _isHover = false;
-                Invalidate();
             }
         }
 

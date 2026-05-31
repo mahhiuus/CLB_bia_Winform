@@ -77,6 +77,7 @@ namespace Bài_Tập_Lớn.GUI
             this.tableLayoutOuter.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutOuter.Size = new System.Drawing.Size(1260, 885);
             this.tableLayoutOuter.TabIndex = 0;
+            this.tableLayoutOuter.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutOuter_Paint);
             // 
             // tableLayoutMain
             // 
@@ -99,6 +100,7 @@ namespace Bài_Tập_Lớn.GUI
             this.tableLayoutMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 46F));
             this.tableLayoutMain.Size = new System.Drawing.Size(994, 879);
             this.tableLayoutMain.TabIndex = 0;
+            this.tableLayoutMain.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutMain_Paint);
             // 
             // panelHeader
             // 
@@ -129,6 +131,7 @@ namespace Bài_Tập_Lớn.GUI
             this.lblTitle.Size = new System.Drawing.Size(340, 194);
             this.lblTitle.TabIndex = 0;
             this.lblTitle.Text = " Menu Sản Phẩm";
+            this.lblTitle.Click += new System.EventHandler(this.lblTitle_Click);
             // 
             // panelToolbar
             // 
@@ -142,6 +145,7 @@ namespace Bài_Tập_Lớn.GUI
             this.panelToolbar.Padding = new System.Windows.Forms.Padding(0, 20, 12, 9);
             this.panelToolbar.Size = new System.Drawing.Size(988, 66);
             this.panelToolbar.TabIndex = 1;
+            this.panelToolbar.Paint += new System.Windows.Forms.PaintEventHandler(this.panelToolbar_Paint);
             // 
             // btnReload
             // 
@@ -187,6 +191,7 @@ namespace Bài_Tập_Lớn.GUI
             this.spacer1.Name = "spacer1";
             this.spacer1.Size = new System.Drawing.Size(13, 37);
             this.spacer1.TabIndex = 2;
+            this.spacer1.Paint += new System.Windows.Forms.PaintEventHandler(this.spacer1_Paint);
             // 
             // txtTimKiem
             // 
@@ -206,6 +211,7 @@ namespace Bài_Tập_Lớn.GUI
             this.txtTimKiem.SelectedText = "";
             this.txtTimKiem.Size = new System.Drawing.Size(408, 37);
             this.txtTimKiem.TabIndex = 3;
+            this.txtTimKiem.TextChanged += new System.EventHandler(this.txtTimKiem_TextChanged);
             this.txtTimKiem.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtTimKiem_KeyDown);
             // 
             // panelTabLoc
@@ -226,6 +232,7 @@ namespace Bài_Tập_Lớn.GUI
             this.panelCardWrap.Name = "panelCardWrap";
             this.panelCardWrap.Size = new System.Drawing.Size(988, 481);
             this.panelCardWrap.TabIndex = 3;
+            this.panelCardWrap.Paint += new System.Windows.Forms.PaintEventHandler(this.panelCardWrap_Paint);
             // 
             // flowCards
             // 
@@ -256,6 +263,7 @@ namespace Bài_Tập_Lớn.GUI
             this.panelRightBar.Name = "panelRightBar";
             this.panelRightBar.Size = new System.Drawing.Size(254, 879);
             this.panelRightBar.TabIndex = 1;
+            this.panelRightBar.Paint += new System.Windows.Forms.PaintEventHandler(this.panelRightBar_Paint);
             // 
             // tlRight
             // 
@@ -276,6 +284,7 @@ namespace Bài_Tập_Lớn.GUI
             this.tlRight.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 120F));
             this.tlRight.Size = new System.Drawing.Size(254, 879);
             this.tlRight.TabIndex = 0;
+            this.tlRight.Paint += new System.Windows.Forms.PaintEventHandler(this.tlRight_Paint);
             // 
             // panelRightHeader
             // 
@@ -290,6 +299,7 @@ namespace Bài_Tập_Lớn.GUI
             this.panelRightHeader.Name = "panelRightHeader";
             this.panelRightHeader.Size = new System.Drawing.Size(248, 65);
             this.panelRightHeader.TabIndex = 0;
+            this.panelRightHeader.Paint += new System.Windows.Forms.PaintEventHandler(this.panelRightHeader_Paint);
             // 
             // lblRightTitle
             // 
@@ -304,6 +314,7 @@ namespace Bài_Tập_Lớn.GUI
             this.lblRightTitle.Size = new System.Drawing.Size(248, 65);
             this.lblRightTitle.TabIndex = 0;
             this.lblRightTitle.Text = "🧾  Đơn Hàng";
+            this.lblRightTitle.Click += new System.EventHandler(this.lblRightTitle_Click);
             // 
             // panelSelectBan
             // 
@@ -317,6 +328,7 @@ namespace Bài_Tập_Lớn.GUI
             this.panelSelectBan.Padding = new System.Windows.Forms.Padding(12, 10, 12, 10);
             this.panelSelectBan.Size = new System.Drawing.Size(248, 82);
             this.panelSelectBan.TabIndex = 1;
+            this.panelSelectBan.Paint += new System.Windows.Forms.PaintEventHandler(this.panelSelectBan_Paint);
             // 
             // cboBan
             // 
@@ -346,6 +358,7 @@ namespace Bài_Tập_Lớn.GUI
             this.lblChonBan.Size = new System.Drawing.Size(79, 20);
             this.lblChonBan.TabIndex = 1;
             this.lblChonBan.Text = "Chọn bàn:";
+            this.lblChonBan.Click += new System.EventHandler(this.lblChonBan_Click);
             // 
             // panelDonHang
             // 
@@ -358,6 +371,7 @@ namespace Bài_Tập_Lớn.GUI
             this.panelDonHang.Name = "panelDonHang";
             this.panelDonHang.Size = new System.Drawing.Size(248, 594);
             this.panelDonHang.TabIndex = 2;
+            this.panelDonHang.Paint += new System.Windows.Forms.PaintEventHandler(this.panelDonHang_Paint);
             // 
             // panelOrderList
             // 
@@ -369,6 +383,7 @@ namespace Bài_Tập_Lớn.GUI
             this.panelOrderList.Name = "panelOrderList";
             this.panelOrderList.Size = new System.Drawing.Size(248, 566);
             this.panelOrderList.TabIndex = 0;
+            this.panelOrderList.Paint += new System.Windows.Forms.PaintEventHandler(this.panelOrderList_Paint);
             // 
             // flowOrderItems
             // 
@@ -382,6 +397,7 @@ namespace Bài_Tập_Lớn.GUI
             this.flowOrderItems.Size = new System.Drawing.Size(248, 566);
             this.flowOrderItems.TabIndex = 0;
             this.flowOrderItems.WrapContents = false;
+            this.flowOrderItems.Paint += new System.Windows.Forms.PaintEventHandler(this.flowOrderItems_Paint);
             // 
             // lblDonHangTitle
             // 
@@ -394,6 +410,7 @@ namespace Bài_Tập_Lớn.GUI
             this.lblDonHangTitle.TabIndex = 1;
             this.lblDonHangTitle.Text = "  Món đã gọi";
             this.lblDonHangTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblDonHangTitle.Click += new System.EventHandler(this.lblDonHangTitle_Click);
             // 
             // panelRightFooter
             // 
@@ -409,6 +426,7 @@ namespace Bài_Tập_Lớn.GUI
             this.panelRightFooter.Padding = new System.Windows.Forms.Padding(12, 10, 12, 10);
             this.panelRightFooter.Size = new System.Drawing.Size(248, 114);
             this.panelRightFooter.TabIndex = 3;
+            this.panelRightFooter.Paint += new System.Windows.Forms.PaintEventHandler(this.panelRightFooter_Paint);
             // 
             // btnThanhToan
             // 
@@ -423,7 +441,7 @@ namespace Bài_Tập_Lớn.GUI
             this.btnThanhToan.Name = "btnThanhToan";
             this.btnThanhToan.Size = new System.Drawing.Size(232, 42);
             this.btnThanhToan.TabIndex = 0;
-            this.btnThanhToan.Text = "💳  Thanh Toán";
+            this.btnThanhToan.Text = "Tổng Tiền";
             this.btnThanhToan.Click += new System.EventHandler(this.btnThanhToan_Click);
             // 
             // lblTongTienVal
@@ -437,6 +455,7 @@ namespace Bài_Tập_Lớn.GUI
             this.lblTongTienVal.TabIndex = 1;
             this.lblTongTienVal.Text = "0 ₫";
             this.lblTongTienVal.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblTongTienVal.Click += new System.EventHandler(this.lblTongTienVal_Click);
             // 
             // lblTongTien
             // 
@@ -448,6 +467,7 @@ namespace Bài_Tập_Lớn.GUI
             this.lblTongTien.Size = new System.Drawing.Size(120, 24);
             this.lblTongTien.TabIndex = 2;
             this.lblTongTien.Text = "Tổng tiền SP:";
+            this.lblTongTien.Click += new System.EventHandler(this.lblTongTien_Click);
             // 
             // separatorFooter
             // 
@@ -456,6 +476,7 @@ namespace Bài_Tập_Lớn.GUI
             this.separatorFooter.Name = "separatorFooter";
             this.separatorFooter.Size = new System.Drawing.Size(224, 1);
             this.separatorFooter.TabIndex = 3;
+            this.separatorFooter.Paint += new System.Windows.Forms.PaintEventHandler(this.separatorFooter_Paint);
             // 
             // guna2Elipse1
             // 

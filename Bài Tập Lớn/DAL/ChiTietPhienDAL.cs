@@ -9,18 +9,35 @@ namespace Bài_Tập_Lớn.DAL
 {
     internal class ChiTietPhienDAL
     {
-        public string SinhMaMoi()
+        // Map tên cột DB → property DTO (Dapper không tự map snake_case → PascalCase)
+        static ChiTietPhienDAL()
         {
-            string sql = @"SELECT ISNULL(MAX(CAST(SUBSTRING(ma_chi_tiet, 3, LEN(ma_chi_tiet)) AS INT)),0)
-                           FROM chi_tiet_phien";
+            Dapper.SqlMapper.SetTypeMap(typeof(Bài_Tập_Lớn.DTO.ChiTietPhienDTO),
+                new Dapper.CustomPropertyTypeMap(
+                    typeof(Bài_Tập_Lớn.DTO.ChiTietPhienDTO),
+                    (type, columnName) => type.GetProperties().FirstOrDefault(p =>
+                        string.Equals(p.Name, columnName.Replace("_", ""), StringComparison.OrdinalIgnoreCase)
+                        || (columnName == "ma_ctp" && p.Name == "MaCTP")
+                        || (columnName == "ma_sp" && p.Name == "MaSP")
+                        || (columnName == "ma_phien" && p.Name == "MaPhien")
+                        || (columnName == "so_luong" && p.Name == "SoLuong")
+                        || (columnName == "don_gia" && p.Name == "DonGia")
+                    )
+                )
+            );
+        }
+      public  string SinhMaMoi()
+        {
+            // ma_ctp có format 'CTP001', 'CTP002', ... → lấy phần số sau 3 ký tự đầu
+            string sql = @"SELECT ISNULL(MAX(CAST(SUBSTRING(ma_ctp, 4, LEN(ma_ctp)) AS INT)), 0)
+                   FROM chi_tiet_phien";
 
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
                     int soThuTu = conn.ExecuteScalar<int>(sql) + 1;
-
-                    return $"CT{soThuTu:D2}";
+                    return $"CTP{soThuTu:D3}";
                 }
             }
             catch (Exception ex)
@@ -95,17 +112,17 @@ namespace Bài_Tập_Lớn.DAL
             string sql = @"
                 INSERT INTO chi_tiet_phien
                 (
-                    ma_chi_tiet,
+                    ma_ctp,
                     ma_phien,
-                    ma_san_pham,
+                    ma_sp,
                     so_luong,
                     don_gia
                 )
                 VALUES
                 (
-                    @MaChiTiet,
+                    @MaCTP,
                     @MaPhien,
-                    @MaSanPham,
+                    @MaSP,
                     @SoLuong,
                     @DonGia
                 )";
@@ -114,7 +131,14 @@ namespace Bài_Tập_Lớn.DAL
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    int rows = conn.Execute(sql, ct);
+                    int rows = conn.Execute(sql, new
+                    {
+                        ct.MaCTP,
+                        ct.MaPhien,
+                        ct.MaSP,
+                        ct.SoLuong,
+                        ct.DonGia
+                    });
 
                     return rows > 0;
                 }
@@ -131,16 +155,23 @@ namespace Bài_Tập_Lớn.DAL
                 UPDATE chi_tiet_phien
                 SET
                     ma_phien = @MaPhien,
-                    ma_san_pham = @MaSanPham,
+                    ma_sp = @MaSP,
                     so_luong = @SoLuong,
                     don_gia = @DonGia
-                WHERE ma_chi_tiet = @MaChiTiet";
+                WHERE ma_ctp = @MaCTP";
 
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    int rows = conn.Execute(sql, ct);
+                    int rows = conn.Execute(sql, new
+                    {
+                        ct.MaCTP,
+                        ct.MaPhien,
+                        ct.MaSP,
+                        ct.SoLuong,
+                        ct.DonGia
+                    });
 
                     return rows > 0;
                 }
@@ -154,7 +185,7 @@ namespace Bài_Tập_Lớn.DAL
         public bool XoaChiTietPhien(string maChiTiet)
         {
             string sql = @"DELETE FROM chi_tiet_phien
-                           WHERE ma_chi_tiet = @MaChiTiet";
+                           WHERE ma_ctp = @MaChiTiet";
 
             try
             {

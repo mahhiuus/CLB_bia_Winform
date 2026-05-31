@@ -1,5 +1,6 @@
 ﻿using Bài_Tập_Lớn.BLL;
 using Bài_Tập_Lớn.DTO;
+using Bài_Tập_Lớn.UI; // Đã thêm thư viện UI để dùng OverlayForm
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -14,6 +15,9 @@ namespace Bài_Tập_Lớn.GUI
         private NhanVienBLL _bll;
         private NhanVienDTO _nv;
         private bool _isEdit;
+
+        // ==================== OVERLAY ====================
+        private OverlayForm _overlay;
 
         // ==================== TẠO BÓNG (SHADOW THUẦN WINFORMS) ====================
         // Không dùng API ngoài (dwmapi.dll) nên an toàn tuyệt đối, không gây văng app
@@ -67,6 +71,14 @@ namespace Bài_Tập_Lớn.GUI
             _nv = nv;
             _isEdit = (nv != null);
             this.Load += NhanVienPopupUI_FormLoad;
+        }
+
+        // ==================== HIỆN OVERLAY ====================
+        public void ShowOverlay(Form parent)
+        {
+            _overlay = new OverlayForm();
+            _overlay.Show(parent);
+            _overlay.StartFade();
         }
 
         // ==================== FORM LOAD ====================
@@ -230,7 +242,12 @@ namespace Bài_Tập_Lớn.GUI
                 _fadeTimer.Stop();
                 _fadeTimer.Dispose();
             }
+
             base.OnFormClosed(e);
+
+            // Đóng và dọn dẹp overlay
+            _overlay?.Close();
+            _overlay = null;
         }
 
         // ==================== EVENT TRỐNG ====================

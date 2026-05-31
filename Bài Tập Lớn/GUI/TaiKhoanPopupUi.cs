@@ -25,6 +25,14 @@ namespace Bài_Tập_Lớn.GUI
         public TaiKhoanDTO KetQua { get; private set; }
         public bool DaXoa { get; private set; } = false;
 
+        // ── Danh sách vai trò cố định ─────────────────────────────
+        // Hiển thị tiếng Việt nhưng lưu xuống DB dạng mã
+        private static readonly List<KeyValuePair<string, string>> _dsVaiTro = new List<KeyValuePair<string, string>>
+        {
+            new KeyValuePair<string, string>("Quản Lý", "admin"),
+            new KeyValuePair<string, string>("Nhân Viên", "Nhân viên")
+        };
+
         // ── Constructor: Thêm mới ─────────────────────────────────
         public TaiKhoanPopupUi()
         {
@@ -51,8 +59,10 @@ namespace Bài_Tập_Lớn.GUI
             inputMatKhau.Text = tk.MatKhau;        // mật khẩu hiện tại (readonly khi sửa)
             inputMatKhau.ReadOnly = true;          // không cho sửa trực tiếp — dùng khu vực Đổi MK
 
-            // Chọn đúng vai trò
-            cboVaiTros.SelectedItem = tk.VaiTro;
+            // Chọn đúng vai trò bằng SelectedValue
+            cboVaiTros.SelectedValue = tk.VaiTro;
+            if (cboVaiTros.SelectedIndex < 0 && cboVaiTros.Items.Count > 0)
+                cboVaiTros.SelectedIndex = 1; // Mặc định Nhân viên nếu không tìm thấy
 
             // Chọn đúng nhân viên
             if (!string.IsNullOrWhiteSpace(tk.MaNV))
@@ -72,7 +82,7 @@ namespace Bài_Tập_Lớn.GUI
                     cbNhanViens.SelectedIndex = 0; // "(Không gán)"
             }
 
-            // Khi sửa: hiện khu vực Đổi Mật Khẩu, hiện nút Xóa
+            // Khi sửa: hiện khu vực Đổi Mật Khẩu
             panelDoiMatKhau.Visible = true;
         }
 
@@ -92,16 +102,17 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ══════════════════════════════════════════════════════════
-        //  Nạp dữ liệu Guna2ComboBox
+        //  Nạp dữ liệu ComboBox
         // ══════════════════════════════════════════════════════════
         private void NapComboVaiTro()
         {
-            cboVaiTros.Items.Clear();
-            cboVaiTros.Items.Add("Admin");
-            cboVaiTros.Items.Add("Nhân viên");
+            // Dùng tính năng DataSource Binding thay vì vòng lặp Add
+            cboVaiTros.DataSource = new List<KeyValuePair<string, string>>(_dsVaiTro);
+            cboVaiTros.DisplayMember = "Key";    // Hiện "Quản Lý", "Nhân Viên"
+            cboVaiTros.ValueMember = "Value";    // Lưu "admin", "Nhân viên"
 
-            if (cboVaiTros.Items.Count > 1)
-                cboVaiTros.SelectedIndex = 1; // mặc định Nhân viên
+            if (cboVaiTros.Items.Count > 0)
+                cboVaiTros.SelectedIndex = 1; // Mặc định chọn Nhân viên
         }
 
         private void NapComboNhanVien()
@@ -197,7 +208,8 @@ namespace Bài_Tập_Lớn.GUI
                     MaTK = inputMaTK.Text.Trim(),
                     TenDangNhap = inputTenDangNhap.Text.Trim(),
                     MatKhau = inputMatKhau.Text.Trim(),
-                    VaiTro = cboVaiTros.SelectedItem.ToString(),
+                    // Lấy SelectedValue thay vì SelectedItem.ToString()
+                    VaiTro = cboVaiTros.SelectedValue?.ToString(),
                     MaNV = maNV,
                 };
 
@@ -310,10 +322,6 @@ namespace Bài_Tập_Lớn.GUI
         private void lblMatKhau_Click(object sender, EventArgs e) { }
         private void lblVaiTro_Click(object sender, EventArgs e) { }
         private void lblNhanVien_Click(object sender, EventArgs e) { }
-
-        private void cboVaiTros_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
+        private void cboVaiTros_SelectedIndexChanged(object sender, EventArgs e) { }
     }
 }

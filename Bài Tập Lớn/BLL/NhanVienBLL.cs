@@ -9,7 +9,11 @@ namespace Bài_Tập_Lớn.BLL
     {
         private readonly NhanVienDAL _dal = new NhanVienDAL();
 
-        public string SinhMaMoi() => _dal.SinhMaMoi();
+        public string SinhMaMoi()
+        {
+            NhanVienDAL nvdal = new NhanVienDAL();
+            return nvdal.SinhMaMoi();
+        }
 
         public List<NhanVienDTO> LayTatCaNhanVien() => _dal.LayTatCaNhanVien();
 

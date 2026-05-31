@@ -10,13 +10,16 @@ using System.Windows.Forms;
 namespace Bài_Tập_Lớn.GUI
 {
     // ═══════════════════════════════════════════════════════════════
-    //  MENU SAN PHAM  (v2 — có Right Bar)
-    //  – Hiển thị sản phẩm dạng card lưới
-    //  – Lọc theo Loại, Tìm kiếm, Phân trang 16 card/trang
-    //  – Right bar 260px: ComboBox chọn bàn → hiển thị món đã gọi
-    //    trong phiên đang chơi → tổng tiền SP → nút Thanh Toán
-    //  – Nút "+" card → thêm vào ChiTietPhien CỦA bàn đang chọn
-    //                 → đồng thời bắn event SanPhamDuocChon ra form cha
+    //  MENU SAN PHAM  (v3 — liên kết ThanhToanDialog)
+    //  THAY ĐỔI SO VỚI v2:
+    //  1. btnThanhToan_Click → mở ThanhToanDialog thật sự
+    //     (truyền _ban, _phien, _dsChiTiet, _cacheTenSP)
+    //  2. Sau khi dialog đóng (IsPaid = true):
+    //     – Hiển thị thông báo thành công kèm mã hóa đơn + tổng tiền
+    //     – Refresh comboBox bàn (bỏ bàn vừa thanh toán vì trạng thái → TRONG)
+    //     – Xóa đơn hàng right bar (reset về trạng thái chưa chọn bàn)
+    //  3. btnThanhToan chỉ Enabled khi: có phiên đang chơi VÀ ≥ 1 món
+    //     → CapNhatNutThanhToan() được gọi sau mỗi lần HienThiDonHang()
     // ═══════════════════════════════════════════════════════════════
     public partial class MenuSanPham : Form
     {
@@ -41,7 +44,7 @@ namespace Bài_Tập_Lớn.GUI
 
         // ── Phân trang ────────────────────────────────────────────
         private int _trangHienTai = 1;
-        private const int SO_CARD_MOI_TRANG = 16;
+        private const int SO_CARD_MOI_TRANG = 8;
         private int TongSoTrang => Math.Max(1,
             (int)Math.Ceiling((double)_dsHienThi.Count / SO_CARD_MOI_TRANG));
 
@@ -65,7 +68,7 @@ namespace Bài_Tập_Lớn.GUI
         private PhienChoiDTO _phienHienTai = null;
         /// <summary>Danh sách chi tiết món đã gọi trong phiên hiện tại</summary>
         private List<ChiTietPhienDTO> _dsChiTiet = new List<ChiTietPhienDTO>();
-        /// <summary>Cache tên SP theo MaSP để hiển thị trong right bar</summary>
+        /// <summary>Cache tên SP theo MaSP để hiển thị trong right bar VÀ truyền sang ThanhToanDialog</summary>
         private Dictionary<string, string> _cacheTenSP = new Dictionary<string, string>();
 
         // ── Event ra ngoài ────────────────────────────────────────
@@ -94,14 +97,12 @@ namespace Bài_Tập_Lớn.GUI
 
         private void RefreshMap()
         {
-            // Lưu lại bàn đang chọn để khôi phục sau khi nạp lại danh sách
+            // Lưu lại bàn đang chọn để khôi phục sau khi nạp lại
             string maBanCu = _banDangChon?.MaBan;
 
-            // Nạp lại dữ liệu bàn và sản phẩm
             NapDanhSachBan();
             TaiDanhSach();
 
-            // Khôi phục lại lựa chọn ComboBox nếu bàn cũ vẫn tồn tại
             if (!string.IsNullOrEmpty(maBanCu))
             {
                 foreach (ComboItemBan item in cboBan.Items)
@@ -114,7 +115,6 @@ namespace Bài_Tập_Lớn.GUI
                 }
             }
 
-            // Làm mới lại giỏ hàng (Right bar) dựa trên bàn đang chọn
             TaiChiTietPhienHienTai();
         }
 
@@ -131,7 +131,6 @@ namespace Bài_Tập_Lớn.GUI
                 var dsBan = _banBll.LayTatCaBan() ?? new List<BanBidaDTO>();
                 foreach (var ban in dsBan)
                 {
-                    // Chỉ hiện bàn đang active (DANG_CHOI)
                     if (!string.Equals(ban.TrangThai, "DANG_CHOI", StringComparison.OrdinalIgnoreCase))
                         continue;
 
@@ -155,13 +154,8 @@ namespace Bài_Tập_Lớn.GUI
         // ══════════════════════════════════════════════════════════
         //  CHỌN BÀN TỪ BÊN NGOÀI (gọi từ Maindashboard)
         // ══════════════════════════════════════════════════════════
-        /// <summary>
-        /// Maindashboard gọi hàm này sau khi SoDoBanUi mở 1 bàn,
-        /// để ComboBox tự động select đúng bàn đó.
-        /// </summary>
         public void ChonBan(string maBan)
         {
-            // Nạp lại danh sách bàn trước (phiên vừa mở cần có trong list)
             NapDanhSachBan();
 
             if (string.IsNullOrEmpty(maBan)) return;
@@ -210,7 +204,6 @@ namespace Bài_Tập_Lớn.GUI
                     return;
                 }
 
-                // Tìm phiên đang chơi của bàn (TrangThai = "Đang chơi")
                 _phienHienTai = _phienBll.TimPhienDangChoiTheoBan(_banDangChon.MaBan);
 
                 if (_phienHienTai != null)
@@ -243,7 +236,6 @@ namespace Bài_Tập_Lớn.GUI
 
             if (_phienHienTai == null || _dsChiTiet.Count == 0)
             {
-                // Hiện thông báo trống
                 var lbl = new Label
                 {
                     Text = _banDangChon == null
@@ -260,15 +252,16 @@ namespace Bài_Tập_Lớn.GUI
                 flowOrderItems.Controls.Add(lbl);
                 lblTongTienVal.Text = "0 ₫";
                 flowOrderItems.ResumeLayout();
+
+                // ── [MỚI] Cập nhật trạng thái nút Thanh Toán ──
+                CapNhatNutThanhToan();
                 return;
             }
 
             double tongTien = 0;
             foreach (var ct in _dsChiTiet)
             {
-                // Lấy tên SP từ cache hoặc BLL
                 string tenSP = LayTenSP(ct.MaSP);
-
                 var row = TaoOrderRow(ct, tenSP);
                 flowOrderItems.Controls.Add(row);
                 tongTien += ct.SoLuong * ct.DonGia;
@@ -276,6 +269,30 @@ namespace Bài_Tập_Lớn.GUI
 
             lblTongTienVal.Text = tongTien.ToString("N0") + " ₫";
             flowOrderItems.ResumeLayout();
+
+            // ── [MỚI] Cập nhật trạng thái nút Thanh Toán ──
+            CapNhatNutThanhToan();
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  CẬP NHẬT NÚT GIÁ TIỀN (chỉ hiển thị, không click)
+        // ══════════════════════════════════════════════════════════
+        private void CapNhatNutThanhToan()
+        {
+            double tongTien = _dsChiTiet.Sum(ct => ct.SoLuong * ct.DonGia);
+            bool coMon = _phienHienTai != null && _dsChiTiet.Count > 0;
+
+            btnThanhToan.Enabled = false;
+            btnThanhToan.Text = coMon
+                ? tongTien.ToString("N0") + " ₫"
+                : "0 ₫";
+            btnThanhToan.FillColor = coMon
+                ? CLR_ACCENT
+                : Color.FromArgb(215, 215, 210);
+            btnThanhToan.ForeColor = coMon
+                ? Color.White
+                : Color.FromArgb(160, 160, 158);
+            btnThanhToan.Cursor = Cursors.Default;
         }
 
         /// <summary>Tạo 1 dòng hiển thị 1 món trong right bar</summary>
@@ -307,7 +324,6 @@ namespace Bài_Tập_Lớn.GUI
             string maCTP = ct.MaCTP; // capture
             btnXoa.Click += (s, e) => XoaChiTietPhien(maCTP);
 
-            // Tên SP
             var lblTen = new Label
             {
                 Text = tenSP,
@@ -319,7 +335,6 @@ namespace Bài_Tập_Lớn.GUI
                 BackColor = Color.Transparent,
             };
 
-            // SL × giá
             var lblGia = new Label
             {
                 Text = $"{ct.SoLuong} × {ct.DonGia:N0} ₫",
@@ -331,7 +346,6 @@ namespace Bài_Tập_Lớn.GUI
                 BackColor = Color.Transparent,
             };
 
-            // Thành tiền
             var lblThanhTien = new Label
             {
                 Text = (ct.SoLuong * ct.DonGia).ToString("N0") + " ₫",
@@ -344,7 +358,6 @@ namespace Bài_Tập_Lớn.GUI
                 Anchor = AnchorStyles.Top | AnchorStyles.Right,
             };
 
-            // Đường kẻ dưới
             var line = new Panel
             {
                 Dock = DockStyle.Bottom,
@@ -369,7 +382,7 @@ namespace Bài_Tập_Lớn.GUI
             try
             {
                 _chiTietPhienBll.XoaChiTietPhien(maCTP);
-                TaiChiTietPhienHienTai(); // reload right bar
+                TaiChiTietPhienHienTai();
             }
             catch (Exception ex)
             {
@@ -379,40 +392,11 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ══════════════════════════════════════════════════════════
-        //  THANH TOÁN
+        //  btnThanhToan chỉ là hiển thị giá — không xử lý click
         // ══════════════════════════════════════════════════════════
         private void btnThanhToan_Click(object sender, EventArgs e)
         {
-            if (_banDangChon == null)
-            {
-                MessageBox.Show("Vui lòng chọn bàn trước!", "Thông báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            if (_phienHienTai == null)
-            {
-                MessageBox.Show("Bàn này chưa có phiên đang chơi!", "Thông báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            if (_dsChiTiet.Count == 0)
-            {
-                MessageBox.Show("Chưa có món nào trong đơn!", "Thông báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            // TODO: Mở form thanh toán hoặc xử lý nghiệp vụ thanh toán ở đây
-            // Ví dụ: new FormThanhToan(_phienHienTai, _dsChiTiet).ShowDialog();
-            MessageBox.Show(
-                $"Thanh toán bàn: {_banDangChon.TenBan}\n" +
-                $"Phiên: {_phienHienTai.MaPhien}\n" +
-                $"Tổng tiền SP: {lblTongTienVal.Text}",
-                "Thanh Toán",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+            // Nút chỉ trang trí, không làm gì
         }
 
         // ══════════════════════════════════════════════════════════
@@ -420,7 +404,6 @@ namespace Bài_Tập_Lớn.GUI
         // ══════════════════════════════════════════════════════════
         private void Card_OnThemVaoGio(object sender, SanPhamDTO sp)
         {
-            // 1. Thêm vào ChiTietPhien nếu đang có phiên
             if (_phienHienTai != null)
             {
                 ThemVaoChiTietPhien(sp);
@@ -431,9 +414,7 @@ namespace Bài_Tập_Lớn.GUI
                     $"Bàn \"{_banDangChon.TenBan}\" chưa có phiên đang chơi.\nKhởi động phiên trước rồi thêm món.",
                     "Chưa có phiên", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
-            // Nếu chưa chọn bàn → chỉ bắn event ra form cha (không lưu DB)
 
-            // 2. Bắn event ra form cha
             SanPhamDuocChon?.Invoke(this, sp);
         }
 
@@ -442,19 +423,16 @@ namespace Bài_Tập_Lớn.GUI
         {
             try
             {
-                // Kiểm tra đã có trong phiên chưa
                 var existing = _dsChiTiet.FirstOrDefault(
                     ct => ct.MaSP == sp.MaSP && ct.MaPhien == _phienHienTai.MaPhien);
 
                 if (existing != null)
                 {
-                    // Cộng thêm 1 số lượng
                     existing.SoLuong += 1;
                     _chiTietPhienBll.CapNhatChiTietPhien(existing);
                 }
                 else
                 {
-                    // Thêm mới
                     var ct = new ChiTietPhienDTO
                     {
                         MaCTP = _chiTietPhienBll.SinhMaMoi(),
@@ -465,12 +443,10 @@ namespace Bài_Tập_Lớn.GUI
                     };
                     _chiTietPhienBll.ThemChiTietPhien(ct);
 
-                    // Cache tên SP
                     if (!_cacheTenSP.ContainsKey(sp.MaSP))
                         _cacheTenSP[sp.MaSP] = sp.TenSP ?? sp.MaSP;
                 }
 
-                // Reload right bar
                 TaiChiTietPhienHienTai();
             }
             catch (Exception ex)
@@ -504,14 +480,13 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ══════════════════════════════════════════════════════════
-        //  TẢI DANH SÁCH SẢN PHẨM (giữ nguyên logic cũ)
+        //  TẢI DANH SÁCH SẢN PHẨM
         // ══════════════════════════════════════════════════════════
         private void TaiDanhSach()
         {
             try
             {
                 _dsDayDu = _bll.TimKiem("") ?? new List<SanPhamDTO>();
-                // Build cache tên SP từ toàn bộ danh sách luôn
                 foreach (var sp in _dsDayDu)
                     if (!string.IsNullOrEmpty(sp.MaSP))
                         _cacheTenSP[sp.MaSP] = sp.TenSP ?? sp.MaSP;
@@ -584,7 +559,7 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ══════════════════════════════════════════════════════════
-        //  Tab lọc loại (giữ nguyên)
+        //  Tab lọc loại
         // ══════════════════════════════════════════════════════════
         private void TaoTabLoc()
         {
@@ -632,7 +607,7 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ══════════════════════════════════════════════════════════
-        //  Phân trang (giữ nguyên)
+        //  Phân trang
         // ══════════════════════════════════════════════════════════
         private void TaoPhanTrang()
         {
@@ -708,16 +683,16 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ══════════════════════════════════════════════════════════
-        //  Sự kiện toolbar (giữ nguyên)
+        //  Sự kiện toolbar
         // ══════════════════════════════════════════════════════════
         private void btnReload_Click(object sender, EventArgs e)
         {
             txtTimKiem.Text = "";
             _tabChon = 0;
             CapNhatTabUI(0);
-            NapDanhSachBan();       // refresh combobox bàn luôn
+            NapDanhSachBan();
             TaiDanhSach();
-            TaiChiTietPhienHienTai(); // refresh right bar
+            TaiChiTietPhienHienTai();
         }
 
         private void btnTimKiem_Click(object sender, EventArgs e) => LocVaHienThi();
@@ -734,23 +709,38 @@ namespace Bài_Tập_Lớn.GUI
 
         private void panelHeader_Paint(object sender, PaintEventArgs e)
         {
-            int radius = 10; // Độ bo tròn 10px
+            int radius = 10;
             int d = radius * 2;
-
             var path = new System.Drawing.Drawing2D.GraphicsPath();
-
-            // Vẽ 4 góc bo tròn
-            path.AddArc(0, 0, d, d, 180, 90); // Góc trên trái
-            path.AddArc(panelHeader.Width - d, 0, d, d, 270, 90); // Góc trên phải
-            path.AddArc(panelHeader.Width - d, panelHeader.Height - d, d, d, 0, 90); // Góc dưới phải
-            path.AddArc(0, panelHeader.Height - d, d, d, 90, 90); // Góc dưới trái
+            path.AddArc(0, 0, d, d, 180, 90);
+            path.AddArc(panelHeader.Width - d, 0, d, d, 270, 90);
+            path.AddArc(panelHeader.Width - d, panelHeader.Height - d, d, d, 0, 90);
+            path.AddArc(0, panelHeader.Height - d, d, d, 90, 90);
             path.CloseFigure();
-
-            // Cắt panel theo đường cong vừa vẽ
             panelHeader.Region = new Region(path);
-
-            // (Tùy chọn) Nếu bạn muốn vẽ thêm chữ tiêu đề như các form trước, bạn có thể thêm code DrawString ở ngay dưới dòng này.
         }
+
+        private void tableLayoutOuter_Paint(object sender, PaintEventArgs e) { }
+        private void tableLayoutMain_Paint(object sender, PaintEventArgs e) { }
+        private void panelToolbar_Paint(object sender, PaintEventArgs e) { }
+        private void spacer1_Paint(object sender, PaintEventArgs e) { }
+        private void txtTimKiem_TextChanged(object sender, EventArgs e) { }
+        private void panelCardWrap_Paint(object sender, PaintEventArgs e) { }
+        private void panelRightBar_Paint(object sender, PaintEventArgs e) { }
+        private void tlRight_Paint(object sender, PaintEventArgs e) { }
+        private void panelRightHeader_Paint(object sender, PaintEventArgs e) { }
+        private void lblRightTitle_Click(object sender, EventArgs e) { }
+        private void panelSelectBan_Paint(object sender, PaintEventArgs e) { }
+        private void lblChonBan_Click(object sender, EventArgs e) { }
+        private void panelDonHang_Paint(object sender, PaintEventArgs e) { }
+        private void panelOrderList_Paint(object sender, PaintEventArgs e) { }
+        private void flowOrderItems_Paint(object sender, PaintEventArgs e) { }
+        private void lblDonHangTitle_Click(object sender, EventArgs e) { }
+        private void panelRightFooter_Paint(object sender, PaintEventArgs e) { }
+        private void lblTongTienVal_Click(object sender, EventArgs e) { }
+        private void lblTongTien_Click(object sender, EventArgs e) { }
+        private void separatorFooter_Paint(object sender, PaintEventArgs e) { }
+        private void lblTitle_Click(object sender, EventArgs e) { }
     }
 
     // ══════════════════════════════════════════════════════════════

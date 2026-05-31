@@ -11,7 +11,9 @@ namespace Bài_Tập_Lớn.DAL
     {
         public string SinhMaMoi()
         {
-            string sql = @"SELECT ISNULL(MAX(CAST(SUBSTRING(ma_nv, 3, LEN(ma_nv)) AS INT)), 0) FROM nhan_vien";
+            string sql = @"SELECT ISNULL(MAX(CAST(SUBSTRING(ma_nv, 3, LEN(ma_nv)) AS INT)), 0) 
+                   FROM tai_khoan 
+                   WHERE ma_nv LIKE 'NV%'";
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())

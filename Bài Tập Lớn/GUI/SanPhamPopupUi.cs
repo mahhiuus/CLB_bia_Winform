@@ -349,5 +349,10 @@ namespace Bài_Tập_Lớn.GUI
         private void lblSoLuong_Click(object sender, EventArgs e) { }
         private void lblLoai_Click(object sender, EventArgs e) { }
         private void lblNCC_Click(object sender, EventArgs e) { }
+
+        private void panelBody_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 }

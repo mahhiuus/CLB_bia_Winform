@@ -1,10 +1,12 @@
+using Bài_Tập_Lớn.BLL;
+using Bài_Tập_Lớn.DTO;
+using Bài_Tập_Lớn.Session;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Windows.Forms;
-using Bài_Tập_Lớn.BLL;
-using Bài_Tập_Lớn.DTO;
 
 namespace Bài_Tập_Lớn.GUI
 {
@@ -13,6 +15,8 @@ namespace Bài_Tập_Lớn.GUI
         // ── BLL ──
         private readonly BanBidaBLL _banBLL = new BanBidaBLL();
         private readonly PhienChoiBLL _phienBLL = new PhienChoiBLL();
+        private readonly ChiTietPhienBLL _chiTietPhienBLL = new ChiTietPhienBLL();
+        private readonly SanPhamBLL _sanPhamBLL = new SanPhamBLL();
 
         // ── Colors ──
         static readonly Color GREEN_DARK = ColorTranslator.FromHtml("#2b4e23");
@@ -398,7 +402,7 @@ namespace Bài_Tập_Lớn.GUI
                         {
                             MaPhien = _phienBLL.SinhMaMoi(),
                             MaBan = ban.MaBan,
-                            MaNV = "NV001",
+                            MaNV = SessionManager.Instance.TaiKhoanHienTai?.MaNV,
                             ThoiGianBatDau = DateTime.Now,
                             TrangThai = "DANG_CHOI"
                         };
@@ -417,7 +421,7 @@ namespace Bài_Tập_Lớn.GUI
             }
             else
             {
-                // Bàn đang chơi → mở dialog thanh toán
+                // Bàn đang chơi → nạp đủ dữ liệu rồi mở ThanhToanDialog
                 try
                 {
                     var phien = _phienBLL.TimPhienDangChoiTheoBan(ban.MaBan);
@@ -434,10 +438,32 @@ namespace Bài_Tập_Lớn.GUI
                         return;
                     }
 
-                    using (var dialog = new ThanhToanDialog(ban, phien))
+                    // ── Nạp chi tiết phiên ──────────────────────────────
+                    var dsChiTiet = _chiTietPhienBLL.TimTheoMaPhien(phien.MaPhien)
+                                    ?? new List<ChiTietPhienDTO>();
+
+                    // ── Build cache tên SP ───────────────────────────────
+                    var cacheTenSP = new Dictionary<string, string>();
+                    try
+                    {
+                        var dsSP = _sanPhamBLL.TimKiem("") ?? new List<SanPhamDTO>();
+                        foreach (var sp in dsSP)
+                            if (!string.IsNullOrEmpty(sp.MaSP))
+                                cacheTenSP[sp.MaSP] = sp.TenSP ?? sp.MaSP;
+                    }
+                    catch { /* fallback: cache rỗng, PDF dùng MaSP */ }
+
+                    // ── Mở ThanhToanDialog đầy đủ tham số ───────────────
+                    using (var dialog = new ThanhToanDialog(ban, phien, dsChiTiet, cacheTenSP))
                     {
                         dialog.ShowDialog(this);
-                        if (dialog.IsPaid) RefreshMap();
+                        if (dialog.IsPaid)
+                        {
+                            RefreshMap();
+                            // Hiển thị hóa đơn dạng preview (giống giao diện ThanhToanDialog)
+                            if (dialog.HoaDonDaTao != null)
+                                HienThiHoaDonSauThanhToan(dialog.HoaDonDaTao, ban, phien, dsChiTiet, cacheTenSP);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -445,6 +471,23 @@ namespace Bài_Tập_Lớn.GUI
                     MessageBox.Show("Lỗi: " + ex.Message, "Lỗi",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+            }
+        }
+
+        // ════════════════════════════════════════════════════════
+        //  Hiển thị hóa đơn sau khi thanh toán xong
+        //  (mở lại ThanhToanDialog ở chế độ preview — chỉ đọc)
+        // ════════════════════════════════════════════════════════
+        private void HienThiHoaDonSauThanhToan(
+            HoaDonBanDTO hoaDon,
+            BanBidaDTO ban,
+            PhienChoiDTO phien,
+            List<ChiTietPhienDTO> dsChiTiet,
+            Dictionary<string, string> cacheTenSP)
+        {
+            using (var preview = new ThanhToanDialog(ban, phien, dsChiTiet, cacheTenSP, hoaDon))
+            {
+                preview.ShowDialog(this);
             }
         }
 

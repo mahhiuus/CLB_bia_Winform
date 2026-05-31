@@ -95,6 +95,7 @@ namespace Bài_Tập_Lớn.GUI
             this.panelBody.Name = "panelBody";
             this.panelBody.Size = new System.Drawing.Size(740, 760);
             this.panelBody.TabIndex = 1;
+            this.panelBody.Paint += new System.Windows.Forms.PaintEventHandler(this.panelBody_Paint);
             // 
             // lblMaSP
             // 
