@@ -36,7 +36,10 @@ namespace Bài_Tập_Lớn.GUI
 
         // ── State ─────────────────────────────────────────────────
         private SanPhamDTO _sp;
-        private bool _isHover = false; // Mặc định false
+        private bool _isHover = false;
+
+        // ── [THÊM] Property để MenuSanPham nhận diện card ────────
+        public string MaSP { get; private set; }
 
         // ── Event ra ngoài ────────────────────────────────────────
         public event EventHandler<SanPhamDTO> OnThemVaoGio;
@@ -52,12 +55,10 @@ namespace Bài_Tập_Lớn.GUI
                           ControlStyles.AllPaintingInWmPaint |
                           ControlStyles.ResizeRedraw, true);
 
-            // Gán Paint events tại đây — KHÔNG để trong Designer.cs
             _panelAnh.Paint += PanelAnh_Paint;
             _picAnh.Paint += PicAnh_Paint;
             _lblLoai.Paint += LblLoai_Paint;
 
-            // HoverState nút "+"
             _btnThem.HoverState.FillColor = Color.FromArgb(56, 100, 46);
             _btnThem.HoverState.ForeColor = Color.White;
             _btnThem.ShadowDecoration.Enabled = true;
@@ -65,12 +66,11 @@ namespace Bài_Tập_Lớn.GUI
             _btnThem.ShadowDecoration.Depth = 6;
             _btnThem.ShadowDecoration.BorderRadius = 12;
 
-            // Đệ quy gán event hover cho toàn bộ child controls để sửa lỗi kẹt hover
             AttachHoverEvents(this);
         }
 
         // ═════════════════════════════════════════════════════════
-        //  Xử lý Hover thông minh (Tránh giật lag)
+        //  Hover thông minh
         // ═════════════════════════════════════════════════════════
         private void AttachHoverEvents(Control container)
         {
@@ -78,18 +78,13 @@ namespace Bài_Tập_Lớn.GUI
             {
                 c.MouseEnter += (s, e) => UpdateHoverState();
                 c.MouseLeave += (s, e) => UpdateHoverState();
-
-                // Nếu control có chứa control khác bên trong, đệ quy tiếp
                 if (c.HasChildren) AttachHoverEvents(c);
             }
         }
 
         private void UpdateHoverState()
         {
-            // Kiểm tra chính xác xem chuột có đang nằm trong giới hạn của Card không
             bool isNowHovering = ClientRectangle.Contains(PointToClient(MousePosition));
-
-            // CHỈ vẽ lại (Invalidate) khi trạng thái thực sự thay đổi (khắc phục lỗi giật lag)
             if (_isHover != isNowHovering)
             {
                 _isHover = isNowHovering;
@@ -97,17 +92,8 @@ namespace Bài_Tập_Lớn.GUI
             }
         }
 
-        protected override void OnMouseEnter(EventArgs e)
-        {
-            base.OnMouseEnter(e);
-            UpdateHoverState();
-        }
-
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            base.OnMouseLeave(e);
-            UpdateHoverState();
-        }
+        protected override void OnMouseEnter(EventArgs e) { base.OnMouseEnter(e); UpdateHoverState(); }
+        protected override void OnMouseLeave(EventArgs e) { base.OnMouseLeave(e); UpdateHoverState(); }
 
         // ═════════════════════════════════════════════════════════
         //  Nạp dữ liệu
@@ -116,35 +102,44 @@ namespace Bài_Tập_Lớn.GUI
         {
             if (sp == null) return;
             _sp = sp;
+            MaSP = sp.MaSP;   // ← gán MaSP để MenuSanPham tìm được card
 
             _lblTen.Text = sp.TenSP ?? "–";
             _lblLoai.Text = FormatLoai(sp.Loai);
             _lblGia.Text = sp.GiaBan.ToString("N0") + " ₫";
 
-            int sl = sp.SoLuongTon;
-            if (sl <= 0)
+            CapNhatTonKho(sp.SoLuongTon);   // ← dùng method chung
+            HienThiAnh(sp.HinhAnh);
+        }
+
+        // ═════════════════════════════════════════════════════════
+        //  [THÊM] Cập nhật tồn kho tại chỗ — không NapDuLieu lại
+        //  Gọi từ MenuSanPham.CapNhatTonKhoTrenCard() sau mỗi lần
+        //  thêm hoặc giảm món để tránh rebuild toàn bộ card
+        // ═════════════════════════════════════════════════════════
+        public void CapNhatTonKho(int tonMoi)
+        {
+            if (tonMoi <= 0)
             {
                 _lblSoLuong.Text = "Hết hàng";
                 _lblSoLuong.ForeColor = CLR_SL_NONE;
                 _btnThem.Enabled = false;
                 _btnThem.FillColor = Color.FromArgb(200, 200, 200);
             }
-            else if (sl <= 5)
+            else if (tonMoi <= 5)
             {
-                _lblSoLuong.Text = $"Còn ít: {sl}";
+                _lblSoLuong.Text = $"Còn ít: {tonMoi}";
                 _lblSoLuong.ForeColor = CLR_SL_LOW;
                 _btnThem.Enabled = true;
                 _btnThem.FillColor = CLR_PRIMARY;
             }
             else
             {
-                _lblSoLuong.Text = $"Còn: {sl}";
+                _lblSoLuong.Text = $"Còn: {tonMoi}";
                 _lblSoLuong.ForeColor = CLR_SL_OK;
                 _btnThem.Enabled = true;
                 _btnThem.FillColor = CLR_PRIMARY;
             }
-
-            HienThiAnh(sp.HinhAnh);
         }
 
         // ── Tải ảnh ───────────────────────────────────────────────
@@ -224,10 +219,9 @@ namespace Bài_Tập_Lớn.GUI
             g.SmoothingMode = SmoothingMode.AntiAlias;
             var r = new Rectangle(0, 0, _lblLoai.Width - 1, _lblLoai.Height - 1);
             using (var path = RoundedPath(r, 6))
-            {
-                using (var br = new SolidBrush(CLR_ACCENT))
-                    g.FillPath(br, path);
-            }
+            using (var br = new SolidBrush(CLR_ACCENT))
+                g.FillPath(br, path);
+
             using (var sf = new StringFormat
             { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center })
             using (var br = new SolidBrush(Color.White))
@@ -244,12 +238,10 @@ namespace Bài_Tập_Lớn.GUI
             var g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Shadow
             using (var path = RoundedPath(new Rectangle(4, 4, Width - 8, Height - 8), 14))
             using (var br = new SolidBrush(Color.FromArgb(18, 0, 0, 0)))
                 g.FillPath(br, path);
 
-            // Nền card
             using (var path = RoundedPath(new Rectangle(2, 2, Width - 6, Height - 6), 14))
             {
                 using (var br = new SolidBrush(_isHover ? CLR_CARD_HOV : CLR_CARD))
@@ -284,9 +276,6 @@ namespace Bài_Tập_Lớn.GUI
             }
         }
 
-        private void _lblGia_Click(object sender, EventArgs e)
-        {
-
-        }
+        private void _lblGia_Click(object sender, EventArgs e) { }
     }
 }

@@ -10,16 +10,16 @@ using System.Windows.Forms;
 namespace Bài_Tập_Lớn.GUI
 {
     // ═══════════════════════════════════════════════════════════════
-    //  MENU SAN PHAM  (v3 — liên kết ThanhToanDialog)
-    //  THAY ĐỔI SO VỚI v2:
-    //  1. btnThanhToan_Click → mở ThanhToanDialog thật sự
-    //     (truyền _ban, _phien, _dsChiTiet, _cacheTenSP)
-    //  2. Sau khi dialog đóng (IsPaid = true):
-    //     – Hiển thị thông báo thành công kèm mã hóa đơn + tổng tiền
-    //     – Refresh comboBox bàn (bỏ bàn vừa thanh toán vì trạng thái → TRONG)
-    //     – Xóa đơn hàng right bar (reset về trạng thái chưa chọn bàn)
-    //  3. btnThanhToan chỉ Enabled khi: có phiên đang chơi VÀ ≥ 1 món
-    //     → CapNhatNutThanhToan() được gọi sau mỗi lần HienThiDonHang()
+    //  MENU SAN PHAM  (v4 — no full re-render)
+    //  THAY ĐỔI SO VỚI v3:
+    //  1. Card sản phẩm KHÔNG bị reload khi thêm món:
+    //     – Cập nhật label tồn kho trực tiếp trên card hiện có
+    //     – Không gọi HienThiTrangHienTai() sau khi thêm món
+    //  2. Right bar cập nhật tại chỗ (patch), KHÔNG rebuild toàn bộ:
+    //     – PatchDonHang(maSP): tìm row đang có → chỉ đổi text SL + thành tiền
+    //     – ThemDongMoiVaoDon(ct): thêm 1 dòng mới vào cuối, không xóa list
+    //  3. Nút − giảm SoLuong 1; nếu = 0 mới xóa khỏi DB
+    //  4. _tonKhoTam: giữ nguyên logic RAM, không trừ DB khi order
     // ═══════════════════════════════════════════════════════════════
     public partial class MenuSanPham : Form
     {
@@ -62,20 +62,21 @@ namespace Bài_Tập_Lớn.GUI
         private int _tabChon = 0;
 
         // ── Right bar state ───────────────────────────────────────
-        /// <summary>Bàn đang được chọn ở right bar (null = chưa chọn)</summary>
         private BanBidaDTO _banDangChon = null;
-        /// <summary>Phiên đang chơi của bàn đang chọn (null = bàn trống)</summary>
         private PhienChoiDTO _phienHienTai = null;
-        /// <summary>Danh sách chi tiết món đã gọi trong phiên hiện tại</summary>
         private List<ChiTietPhienDTO> _dsChiTiet = new List<ChiTietPhienDTO>();
-        /// <summary>Cache tên SP theo MaSP để hiển thị trong right bar VÀ truyền sang ThanhToanDialog</summary>
         private Dictionary<string, string> _cacheTenSP = new Dictionary<string, string>();
 
+        // ── Tồn kho tạm trong RAM (không trừ DB khi order) ───────
+        // Key = MaSP, Value = số lượng đã order nhưng chưa thanh toán
+        private Dictionary<string, int> _tonKhoTam = new Dictionary<string, int>();
+
         // ── Event ra ngoài ────────────────────────────────────────
-        /// <summary>
-        /// Form cha subscribe event này để nhận SanPhamDTO khi người dùng nhấn "+" trên card.
-        /// </summary>
         public event EventHandler<SanPhamDTO> SanPhamDuocChon;
+
+        // ── Tag dùng để nhận diện các sub-control bên trong row ──
+        private const string TAG_LBL_SL = "lbl_sl";      // "2 × 15,000 ₫"
+        private const string TAG_LBL_THANH = "lbl_thanh";   // "30,000 ₫"
 
         // ═════════════════════════════════════════════════════════
         //  Khởi tạo
@@ -97,24 +98,16 @@ namespace Bài_Tập_Lớn.GUI
 
         private void RefreshMap()
         {
-            // Lưu lại bàn đang chọn để khôi phục sau khi nạp lại
             string maBanCu = _banDangChon?.MaBan;
-
             NapDanhSachBan();
             TaiDanhSach();
-
             if (!string.IsNullOrEmpty(maBanCu))
             {
                 foreach (ComboItemBan item in cboBan.Items)
                 {
-                    if (item.MaBan == maBanCu)
-                    {
-                        cboBan.SelectedItem = item;
-                        break;
-                    }
+                    if (item.MaBan == maBanCu) { cboBan.SelectedItem = item; break; }
                 }
             }
-
             TaiChiTietPhienHienTai();
         }
 
@@ -127,13 +120,11 @@ namespace Bài_Tập_Lớn.GUI
             {
                 cboBan.Items.Clear();
                 cboBan.Items.Add(new ComboItemBan { MaBan = "", TenHienThi = "-- Chọn bàn --" });
-
                 var dsBan = _banBll.LayTatCaBan() ?? new List<BanBidaDTO>();
                 foreach (var ban in dsBan)
                 {
                     if (!string.Equals(ban.TrangThai, "DANG_CHOI", StringComparison.OrdinalIgnoreCase))
                         continue;
-
                     cboBan.Items.Add(new ComboItemBan
                     {
                         MaBan = ban.MaBan,
@@ -141,9 +132,7 @@ namespace Bài_Tập_Lớn.GUI
                         BanDto = ban,
                     });
                 }
-
-                if (cboBan.Items.Count > 0)
-                    cboBan.SelectedIndex = 0;
+                if (cboBan.Items.Count > 0) cboBan.SelectedIndex = 0;
             }
             catch (Exception ex)
             {
@@ -151,28 +140,14 @@ namespace Bài_Tập_Lớn.GUI
             }
         }
 
-        // ══════════════════════════════════════════════════════════
-        //  CHỌN BÀN TỪ BÊN NGOÀI (gọi từ Maindashboard)
-        // ══════════════════════════════════════════════════════════
         public void ChonBan(string maBan)
         {
             NapDanhSachBan();
-
             if (string.IsNullOrEmpty(maBan)) return;
-
             foreach (ComboItemBan item in cboBan.Items)
-            {
-                if (item.MaBan == maBan)
-                {
-                    cboBan.SelectedItem = item;
-                    return;
-                }
-            }
+                if (item.MaBan == maBan) { cboBan.SelectedItem = item; return; }
         }
 
-        // ══════════════════════════════════════════════════════════
-        //  SỰ KIỆN: ComboBox chọn bàn
-        // ══════════════════════════════════════════════════════════
         private void cboBan_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (cboBan.SelectedItem is ComboItemBan item && !string.IsNullOrEmpty(item.MaBan))
@@ -185,12 +160,14 @@ namespace Bài_Tập_Lớn.GUI
                 _banDangChon = null;
                 _phienHienTai = null;
                 _dsChiTiet = new List<ChiTietPhienDTO>();
+                _tonKhoTam.Clear();
                 HienThiDonHang();
             }
         }
 
         // ══════════════════════════════════════════════════════════
-        //  TẢI chi tiết phiên đang chơi của bàn đang chọn
+        //  TẢI chi tiết phiên đang chơi — chỉ gọi khi cần rebuild
+        //  toàn bộ right bar (đổi bàn, reload, thanh toán xong)
         // ══════════════════════════════════════════════════════════
         private void TaiChiTietPhienHienTai()
         {
@@ -205,16 +182,9 @@ namespace Bài_Tập_Lớn.GUI
                 }
 
                 _phienHienTai = _phienBll.TimPhienDangChoiTheoBan(_banDangChon.MaBan);
-
-                if (_phienHienTai != null)
-                {
-                    _dsChiTiet = _chiTietPhienBll.TimTheoMaPhien(_phienHienTai.MaPhien)
-                                 ?? new List<ChiTietPhienDTO>();
-                }
-                else
-                {
-                    _dsChiTiet = new List<ChiTietPhienDTO>();
-                }
+                _dsChiTiet = _phienHienTai != null
+                    ? (_chiTietPhienBll.TimTheoMaPhien(_phienHienTai.MaPhien) ?? new List<ChiTietPhienDTO>())
+                    : new List<ChiTietPhienDTO>();
 
                 HienThiDonHang();
             }
@@ -227,7 +197,9 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ══════════════════════════════════════════════════════════
-        //  HIỂN THỊ đơn hàng trong right bar
+        //  HIỂN THỊ ĐƠN HÀNG — rebuild toàn bộ right bar
+        //  Chỉ gọi khi: đổi bàn / reload / thanh toán xong
+        //  KHÔNG gọi khi: thêm / trừ món (dùng Patch thay thế)
         // ══════════════════════════════════════════════════════════
         private void HienThiDonHang()
         {
@@ -236,11 +208,11 @@ namespace Bài_Tập_Lớn.GUI
 
             if (_phienHienTai == null || _dsChiTiet.Count == 0)
             {
-                var lbl = new Label
+                flowOrderItems.Controls.Add(new Label
                 {
                     Text = _banDangChon == null
-                                ? "Chọn bàn để xem đơn hàng"
-                                : "Bàn chưa có phiên hoặc chưa gọi món",
+                                    ? "Chọn bàn để xem đơn hàng"
+                                    : "Bàn chưa có phiên hoặc chưa gọi món",
                     Font = new Font("Segoe UI", 9f),
                     ForeColor = CLR_TEXT_SUB,
                     AutoSize = false,
@@ -248,65 +220,128 @@ namespace Bài_Tập_Lớn.GUI
                     Height = 48,
                     TextAlign = ContentAlignment.MiddleCenter,
                     BackColor = Color.Transparent,
-                };
-                flowOrderItems.Controls.Add(lbl);
+                });
                 lblTongTienVal.Text = "0 ₫";
                 flowOrderItems.ResumeLayout();
-
-                // ── [MỚI] Cập nhật trạng thái nút Thanh Toán ──
                 CapNhatNutThanhToan();
                 return;
             }
 
-            double tongTien = 0;
             foreach (var ct in _dsChiTiet)
-            {
-                string tenSP = LayTenSP(ct.MaSP);
-                var row = TaoOrderRow(ct, tenSP);
-                flowOrderItems.Controls.Add(row);
-                tongTien += ct.SoLuong * ct.DonGia;
-            }
+                flowOrderItems.Controls.Add(TaoOrderRow(ct, LayTenSP(ct.MaSP)));
 
-            lblTongTienVal.Text = tongTien.ToString("N0") + " ₫";
             flowOrderItems.ResumeLayout();
-
-            // ── [MỚI] Cập nhật trạng thái nút Thanh Toán ──
+            CapNhatTongTien();
             CapNhatNutThanhToan();
         }
 
         // ══════════════════════════════════════════════════════════
-        //  CẬP NHẬT NÚT GIÁ TIỀN (chỉ hiển thị, không click)
+        //  [MỚI] PATCH RIGHT BAR — cập nhật tại chỗ, không rebuild
         // ══════════════════════════════════════════════════════════
-        private void CapNhatNutThanhToan()
-        {
-            double tongTien = _dsChiTiet.Sum(ct => ct.SoLuong * ct.DonGia);
-            bool coMon = _phienHienTai != null && _dsChiTiet.Count > 0;
 
-            btnThanhToan.Enabled = false;
-            btnThanhToan.Text = coMon
-                ? tongTien.ToString("N0") + " ₫"
-                : "0 ₫";
-            btnThanhToan.FillColor = coMon
-                ? CLR_ACCENT
-                : Color.FromArgb(215, 215, 210);
-            btnThanhToan.ForeColor = coMon
-                ? Color.White
-                : Color.FromArgb(160, 160, 158);
-            btnThanhToan.Cursor = Cursors.Default;
+        /// <summary>
+        /// Gọi sau khi ThemVaoChiTietPhien thành công.
+        /// Nếu MaSP đã có row → cập nhật text tại chỗ.
+        /// Nếu chưa có → thêm row mới vào cuối.
+        /// </summary>
+        private void PatchThemMon(ChiTietPhienDTO ct)
+        {
+            var row = TimRowTheoMaSP(ct.MaSP);
+            if (row != null)
+            {
+                // Cập nhật text tại chỗ
+                CapNhatTextRow(row, ct);
+            }
+            else
+            {
+                // Thêm row mới vào cuối (không xóa list)
+                // Nếu đang hiển thị label "chưa gọi món" → xóa label đó trước
+                XoaLabelTrong();
+                flowOrderItems.Controls.Add(TaoOrderRow(ct, LayTenSP(ct.MaSP)));
+            }
+
+            CapNhatTongTien();
+            CapNhatNutThanhToan();
         }
 
-        /// <summary>Tạo 1 dòng hiển thị 1 món trong right bar</summary>
+        /// <summary>
+        /// Gọi sau khi GiamHoacXoaChiTietPhien thành công.
+        /// ct == null  → dòng đã bị xóa khỏi DB → xóa row.
+        /// ct != null  → cập nhật text tại chỗ.
+        /// </summary>
+        private void PatchXoaMon(string maSP, ChiTietPhienDTO ct)
+        {
+            var row = TimRowTheoMaSP(maSP);
+            if (row == null) return;
+
+            if (ct == null)
+            {
+                // Xóa hẳn row
+                flowOrderItems.Controls.Remove(row);
+                row.Dispose();
+
+                // Nếu không còn món nào → hiện label trống
+                if (flowOrderItems.Controls.Count == 0)
+                    HienThiDonHang();
+            }
+            else
+            {
+                CapNhatTextRow(row, ct);
+            }
+
+            CapNhatTongTien();
+            CapNhatNutThanhToan();
+        }
+
+        // ── Tìm Panel row theo MaSP (dùng row.Name = maSP) ───────
+        private Panel TimRowTheoMaSP(string maSP)
+        {
+            foreach (Control c in flowOrderItems.Controls)
+                if (c is Panel p && p.Name == maSP)
+                    return p;
+            return null;
+        }
+
+        // ── Xóa label "chưa gọi món" nếu còn tồn tại ─────────────
+        private void XoaLabelTrong()
+        {
+            var labels = flowOrderItems.Controls.OfType<Label>().ToList();
+            foreach (var l in labels) { flowOrderItems.Controls.Remove(l); l.Dispose(); }
+        }
+
+        // ── Cập nhật text của 2 label bên trong row ───────────────
+        private static void CapNhatTextRow(Panel row, ChiTietPhienDTO ct)
+        {
+            foreach (Control c in row.Controls)
+            {
+                if (c.Tag as string == TAG_LBL_SL)
+                    c.Text = $"{ct.SoLuong} × {ct.DonGia:N0} ₫";
+                else if (c.Tag as string == TAG_LBL_THANH)
+                    c.Text = (ct.SoLuong * ct.DonGia).ToString("N0") + " ₫";
+            }
+        }
+
+        // ── Tính lại tổng tiền từ _dsChiTiet ─────────────────────
+        private void CapNhatTongTien()
+        {
+            double tong = _dsChiTiet.Sum(ct => ct.SoLuong * ct.DonGia);
+            lblTongTienVal.Text = tong.ToString("N0") + " ₫";
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  TẠO 1 DÒNG MÓN trong right bar
+        //  row.Name = MaSP  ← dùng để tra cứu khi patch
+        // ══════════════════════════════════════════════════════════
         private Panel TaoOrderRow(ChiTietPhienDTO ct, string tenSP)
         {
             var row = new Panel
             {
+                Name = ct.MaSP,           // ← key để TimRowTheoMaSP
                 Width = flowOrderItems.Width - 20,
                 Height = 44,
                 BackColor = Color.White,
-                Padding = new Padding(0),
             };
 
-            // Nút xóa (−)
             var btnXoa = new Guna2Button
             {
                 Text = "−",
@@ -321,8 +356,8 @@ namespace Bài_Tập_Lớn.GUI
             };
             btnXoa.HoverState.FillColor = Color.FromArgb(220, 60, 60);
             btnXoa.HoverState.ForeColor = Color.White;
-            string maCTP = ct.MaCTP; // capture
-            btnXoa.Click += (s, e) => XoaChiTietPhien(maCTP);
+            string maSPCapture = ct.MaSP;
+            btnXoa.Click += (s, e) => GiamHoacXoaMon(maSPCapture);
 
             var lblTen = new Label
             {
@@ -335,9 +370,11 @@ namespace Bài_Tập_Lớn.GUI
                 BackColor = Color.Transparent,
             };
 
+            // TAG để patch tìm được
             var lblGia = new Label
             {
                 Text = $"{ct.SoLuong} × {ct.DonGia:N0} ₫",
+                Tag = TAG_LBL_SL,
                 Font = new Font("Segoe UI", 8.5f),
                 ForeColor = CLR_TEXT_SUB,
                 Location = new Point(4, 24),
@@ -349,6 +386,7 @@ namespace Bài_Tập_Lớn.GUI
             var lblThanhTien = new Label
             {
                 Text = (ct.SoLuong * ct.DonGia).ToString("N0") + " ₫",
+                Tag = TAG_LBL_THANH,
                 Font = new Font("Segoe UI", 9f, FontStyle.Bold),
                 ForeColor = CLR_PRIMARY,
                 Location = new Point(row.Width - 100, 4),
@@ -370,57 +408,64 @@ namespace Bài_Tập_Lớn.GUI
             row.Controls.Add(lblGia);
             row.Controls.Add(lblTen);
             row.Controls.Add(line);
-
             return row;
         }
 
         // ══════════════════════════════════════════════════════════
-        //  XÓA 1 món khỏi phiên
+        //  CẬP NHẬT NÚT THANH TOÁN (chỉ hiển thị giá, không click)
         // ══════════════════════════════════════════════════════════
-        private void XoaChiTietPhien(string maCTP)
+        private void CapNhatNutThanhToan()
         {
-            try
-            {
-                _chiTietPhienBll.XoaChiTietPhien(maCTP);
-                TaiChiTietPhienHienTai();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi xóa món:\n" + ex.Message, "Lỗi",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
+            double tong = _dsChiTiet.Sum(ct => ct.SoLuong * ct.DonGia);
+            bool coMon = _phienHienTai != null && _dsChiTiet.Count > 0;
+
+            btnThanhToan.Enabled = false;
+            btnThanhToan.Text = coMon ? tong.ToString("N0") + " ₫" : "0 ₫";
+            btnThanhToan.FillColor = coMon ? CLR_ACCENT : Color.FromArgb(215, 215, 210);
+            btnThanhToan.ForeColor = coMon ? Color.White : Color.FromArgb(160, 160, 158);
+            btnThanhToan.Cursor = Cursors.Default;
         }
 
-        // ══════════════════════════════════════════════════════════
-        //  btnThanhToan chỉ là hiển thị giá — không xử lý click
-        // ══════════════════════════════════════════════════════════
-        private void btnThanhToan_Click(object sender, EventArgs e)
-        {
-            // Nút chỉ trang trí, không làm gì
-        }
+        private void btnThanhToan_Click(object sender, EventArgs e) { /* chỉ trang trí */ }
 
         // ══════════════════════════════════════════════════════════
-        //  NHẬN SỰ KIỆN từ card "+" → thêm vào phiên + bắn event
+        //  NHẬN SỰ KIỆN từ card "+" — KHÔNG gọi HienThiTrangHienTai
         // ══════════════════════════════════════════════════════════
         private void Card_OnThemVaoGio(object sender, SanPhamDTO sp)
         {
             if (_phienHienTai != null)
-            {
                 ThemVaoChiTietPhien(sp);
-            }
             else if (_banDangChon != null)
-            {
                 MessageBox.Show(
                     $"Bàn \"{_banDangChon.TenBan}\" chưa có phiên đang chơi.\nKhởi động phiên trước rồi thêm món.",
                     "Chưa có phiên", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
 
             SanPhamDuocChon?.Invoke(this, sp);
         }
 
-        /// <summary>Thêm hoặc cộng dồn SL vào ChiTietPhien</summary>
+        // ══════════════════════════════════════════════════════════
+        //  THÊM MÓN vào ChiTietPhien
+        //  – Trừ _tonKhoTam (RAM) ngay lập tức
+        //  – Cập nhật DB
+        //  – Patch right bar tại chỗ (không rebuild card)
+        // ══════════════════════════════════════════════════════════
         private void ThemVaoChiTietPhien(SanPhamDTO sp)
         {
+            // ── Kiểm tra tồn kho tạm ────────────────────────────
+            var spGoc = _dsDayDu.FirstOrDefault(x => x.MaSP == sp.MaSP);
+            int tonTam = _tonKhoTam.ContainsKey(sp.MaSP) ? _tonKhoTam[sp.MaSP] : 0;
+            int tonConLai = (spGoc?.SoLuongTon ?? 0) - tonTam;
+
+            if (tonConLai <= 0)
+            {
+                MessageBox.Show($"Sản phẩm \"{sp.TenSP}\" đã hết hàng!",
+                    "Hết hàng", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // ── Trừ tồn kho TẠM trong RAM ────────────────────────
+            _tonKhoTam[sp.MaSP] = tonTam + 1;
+
             try
             {
                 var existing = _dsChiTiet.FirstOrDefault(
@@ -428,11 +473,16 @@ namespace Bài_Tập_Lớn.GUI
 
                 if (existing != null)
                 {
+                    // Cộng dồn SL
                     existing.SoLuong += 1;
                     _chiTietPhienBll.CapNhatChiTietPhien(existing);
+
+                    // Patch right bar tại chỗ
+                    PatchThemMon(existing);
                 }
                 else
                 {
+                    // Món mới
                     var ct = new ChiTietPhienDTO
                     {
                         MaCTP = _chiTietPhienBll.SinhMaMoi(),
@@ -442,28 +492,140 @@ namespace Bài_Tập_Lớn.GUI
                         DonGia = sp.GiaBan,
                     };
                     _chiTietPhienBll.ThemChiTietPhien(ct);
+                    _dsChiTiet.Add(ct);
 
                     if (!_cacheTenSP.ContainsKey(sp.MaSP))
                         _cacheTenSP[sp.MaSP] = sp.TenSP ?? sp.MaSP;
+
+                    // Patch right bar: thêm dòng mới
+                    PatchThemMon(ct);
                 }
 
-                TaiChiTietPhienHienTai();
+                // ── Cập nhật label tồn kho trực tiếp trên card ──
+                CapNhatTonKhoTrenCard(sp.MaSP);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi thêm món vào phiên:\n" + ex.Message, "Lỗi",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                // Hoàn tác tồn kho tạm
+                _tonKhoTam[sp.MaSP] = Math.Max(0, _tonKhoTam[sp.MaSP] - 1);
+                MessageBox.Show("Lỗi thêm món vào phiên:\n" + ex.Message,
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
         // ══════════════════════════════════════════════════════════
-        //  Lấy tên SP từ cache (tránh gọi DB liên tục)
+        //  GIẢM HOẶC XÓA MÓN (nút −)
+        //  SoLuong > 1 → giảm 1 và cập nhật DB
+        //  SoLuong = 1 → xóa khỏi DB và _dsChiTiet
+        // ══════════════════════════════════════════════════════════
+        private void GiamHoacXoaMon(string maSP)
+        {
+            var ct = _dsChiTiet.FirstOrDefault(x => x.MaSP == maSP);
+            if (ct == null) return;
+
+            try
+            {
+                if (ct.SoLuong > 1)
+                {
+                    ct.SoLuong -= 1;
+                    _chiTietPhienBll.CapNhatChiTietPhien(ct);
+
+                    // Hoàn tác tồn kho tạm
+                    if (_tonKhoTam.ContainsKey(maSP) && _tonKhoTam[maSP] > 0)
+                        _tonKhoTam[maSP]--;
+
+                    // Patch right bar tại chỗ
+                    PatchXoaMon(maSP, ct);
+                }
+                else
+                {
+                    // Xóa hẳn
+                    _chiTietPhienBll.XoaChiTietPhien(ct.MaCTP);
+                    _dsChiTiet.Remove(ct);
+
+                    if (_tonKhoTam.ContainsKey(maSP) && _tonKhoTam[maSP] > 0)
+                        _tonKhoTam[maSP]--;
+
+                    // Patch right bar: xóa row
+                    PatchXoaMon(maSP, null);
+                }
+
+                // Cập nhật label tồn kho trên card
+                CapNhatTonKhoTrenCard(maSP);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi giảm/xóa món:\n" + ex.Message,
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  [MỚI] CẬP NHẬT LABEL TỒN KHO TRỰC TIẾP TRÊN CARD
+        //  Không gọi HienThiTrangHienTai — chỉ tìm card đang có
+        //  và gọi card.CapNhatTonKho(tonHienThi)
+        // ══════════════════════════════════════════════════════════
+        private void CapNhatTonKhoTrenCard(string maSP)
+        {
+            var spGoc = _dsDayDu.FirstOrDefault(x => x.MaSP == maSP);
+            if (spGoc == null) return;
+
+            int tonTam = _tonKhoTam.ContainsKey(maSP) ? _tonKhoTam[maSP] : 0;
+            int tonHienThi = spGoc.SoLuongTon - tonTam;
+
+            foreach (Control c in flowCards.Controls)
+            {
+                if (c is MenuSanPhamCard card && card.MaSP == maSP)
+                {
+                    card.CapNhatTonKho(tonHienThi);
+                    break;
+                }
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  [MỚI] FETCH LẠI DB SAU THANH TOÁN VÀ CẬP NHẬT TẤT CẢ CARD
+        //  - Tải lại _dsDayDu từ DB (tồn kho thật sau khi đã trừ)
+        //  - Duyệt từng card đang render: cập nhật số tồn / hiện overlay hết hàng
+        // ══════════════════════════════════════════════════════════
+        private void CapNhatTatCaCardSauThanhToan()
+        {
+            try
+            {
+                // Fetch tồn kho thật từ DB
+                var dsThatSuDB = _bll.TimKiem("") ?? new System.Collections.Generic.List<SanPhamDTO>();
+
+                // Cập nhật _dsDayDu bằng dữ liệu mới từ DB
+                _dsDayDu = dsThatSuDB;
+                foreach (var sp in _dsDayDu)
+                    if (!string.IsNullOrEmpty(sp.MaSP))
+                        _cacheTenSP[sp.MaSP] = sp.TenSP ?? sp.MaSP;
+
+                // Duyệt từng card đang hiển thị và cập nhật tồn kho thật
+                // (_tonKhoTam đã được Clear() trước khi gọi hàm này)
+                foreach (Control c in flowCards.Controls)
+                {
+                    if (!(c is MenuSanPhamCard card)) continue;
+
+                    var spMoi = _dsDayDu.FirstOrDefault(x => x.MaSP == card.MaSP);
+                    if (spMoi == null) continue;
+
+                    int tonThucTe = spMoi.SoLuongTon;  // tồn kho thật sau khi DB đã trừ
+                    card.CapNhatTonKho(tonThucTe);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("CapNhatTatCaCardSauThanhToan lỗi: " + ex.Message);
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  Lấy tên SP từ cache
         // ══════════════════════════════════════════════════════════
         private string LayTenSP(string maSP)
         {
-            if (_cacheTenSP.TryGetValue(maSP, out string ten))
-                return ten;
-
+            if (_cacheTenSP.TryGetValue(maSP, out string ten)) return ten;
             try
             {
                 var ds = _bll.TimKiem(maSP);
@@ -472,11 +634,7 @@ namespace Bài_Tập_Lớn.GUI
                 _cacheTenSP[maSP] = tenSP;
                 return tenSP;
             }
-            catch
-            {
-                _cacheTenSP[maSP] = maSP;
-                return maSP;
-            }
+            catch { _cacheTenSP[maSP] = maSP; return maSP; }
         }
 
         // ══════════════════════════════════════════════════════════
@@ -490,7 +648,6 @@ namespace Bài_Tập_Lớn.GUI
                 foreach (var sp in _dsDayDu)
                     if (!string.IsNullOrEmpty(sp.MaSP))
                         _cacheTenSP[sp.MaSP] = sp.TenSP ?? sp.MaSP;
-
                 LocVaHienThi();
             }
             catch (Exception ex)
@@ -507,8 +664,7 @@ namespace Bài_Tập_Lớn.GUI
 
             _dsHienThi = _dsDayDu.Where(sp =>
                 (string.IsNullOrEmpty(loaiFilter) ||
-                 string.Equals(sp.Loai, loaiFilter, StringComparison.OrdinalIgnoreCase))
-                &&
+                 string.Equals(sp.Loai, loaiFilter, StringComparison.OrdinalIgnoreCase)) &&
                 (string.IsNullOrEmpty(keyword) ||
                  (sp.TenSP ?? "").ToLower().Contains(keyword))
             ).ToList();
@@ -517,6 +673,11 @@ namespace Bài_Tập_Lớn.GUI
             HienThiTrangHienTai();
         }
 
+        // ══════════════════════════════════════════════════════════
+        //  HIỂN THỊ TRANG CARD SẢN PHẨM
+        //  Chỉ gọi khi: load lần đầu / đổi trang / tìm kiếm / reload
+        //  KHÔNG gọi khi thêm/xóa món
+        // ══════════════════════════════════════════════════════════
         private void HienThiTrangHienTai()
         {
             flowCards.SuspendLayout();
@@ -524,7 +685,6 @@ namespace Bài_Tập_Lớn.GUI
             foreach (Control c in flowCards.Controls)
                 if (c is MenuSanPhamCard old)
                     old.OnThemVaoGio -= Card_OnThemVaoGio;
-
             flowCards.Controls.Clear();
 
             var dsTrang = _dsHienThi
@@ -547,8 +707,12 @@ namespace Bài_Tập_Lớn.GUI
             {
                 foreach (var sp in dsTrang)
                 {
+                    // Tính tồn kho hiển thị (trừ tạm)
+                    int tonTam = _tonKhoTam.ContainsKey(sp.MaSP) ? _tonKhoTam[sp.MaSP] : 0;
+                    var spHienThi = CloneSPVoiTon(sp, sp.SoLuongTon - tonTam);
+
                     var card = new MenuSanPhamCard();
-                    card.NapDuLieu(sp);
+                    card.NapDuLieu(spHienThi);
                     card.OnThemVaoGio += Card_OnThemVaoGio;
                     flowCards.Controls.Add(card);
                 }
@@ -557,6 +721,18 @@ namespace Bài_Tập_Lớn.GUI
             flowCards.ResumeLayout();
             CapNhatPhanTrang();
         }
+
+        // ── Clone DTO với tồn kho mới (không sửa object gốc) ─────
+        private static SanPhamDTO CloneSPVoiTon(SanPhamDTO sp, int tonMoi) =>
+            new SanPhamDTO
+            {
+                MaSP = sp.MaSP,
+                TenSP = sp.TenSP,
+                Loai = sp.Loai,
+                GiaBan = sp.GiaBan,
+                HinhAnh = sp.HinhAnh,
+                SoLuongTon = tonMoi,
+            };
 
         // ══════════════════════════════════════════════════════════
         //  Tab lọc loại
@@ -582,12 +758,7 @@ namespace Bài_Tập_Lớn.GUI
                 };
                 btn.HoverState.FillColor = CLR_ACCENT;
                 btn.HoverState.ForeColor = Color.White;
-                btn.Click += (s, e) =>
-                {
-                    _tabChon = idx;
-                    CapNhatTabUI(idx);
-                    LocVaHienThi();
-                };
+                btn.Click += (s, e) => { _tabChon = idx; CapNhatTabUI(idx); LocVaHienThi(); };
                 _tabBtns[i] = btn;
                 panelTabLoc.Controls.Add(btn);
                 x += 126;
@@ -690,13 +861,13 @@ namespace Bài_Tập_Lớn.GUI
             txtTimKiem.Text = "";
             _tabChon = 0;
             CapNhatTabUI(0);
+            _tonKhoTam.Clear();
             NapDanhSachBan();
             TaiDanhSach();
             TaiChiTietPhienHienTai();
         }
 
         private void btnTimKiem_Click(object sender, EventArgs e) => LocVaHienThi();
-
         private void txtTimKiem_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter) LocVaHienThi();
@@ -706,11 +877,9 @@ namespace Bài_Tập_Lớn.GUI
         private void panelTabLoc_Paint(object sender, PaintEventArgs e) { }
         private void panelPager_Paint(object sender, PaintEventArgs e) { }
         private void flowCards_Paint(object sender, PaintEventArgs e) { }
-
         private void panelHeader_Paint(object sender, PaintEventArgs e)
         {
-            int radius = 10;
-            int d = radius * 2;
+            int radius = 10, d = radius * 2;
             var path = new System.Drawing.Drawing2D.GraphicsPath();
             path.AddArc(0, 0, d, d, 180, 90);
             path.AddArc(panelHeader.Width - d, 0, d, d, 270, 90);
@@ -719,7 +888,6 @@ namespace Bài_Tập_Lớn.GUI
             path.CloseFigure();
             panelHeader.Region = new Region(path);
         }
-
         private void tableLayoutOuter_Paint(object sender, PaintEventArgs e) { }
         private void tableLayoutMain_Paint(object sender, PaintEventArgs e) { }
         private void panelToolbar_Paint(object sender, PaintEventArgs e) { }
@@ -751,7 +919,6 @@ namespace Bài_Tập_Lớn.GUI
         public string MaBan { get; set; }
         public string TenHienThi { get; set; }
         public BanBidaDTO BanDto { get; set; }
-
         public override string ToString() => TenHienThi;
     }
 }

@@ -476,6 +476,7 @@
             this.lblLGiamSuKien.TabIndex = 34;
             this.lblLGiamSuKien.Text = "🎉  Giảm giá sự kiện";
             this.lblLGiamSuKien.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblLGiamSuKien.Click += new System.EventHandler(this.lblLGiamSuKien_Click);
             // 
             // cmbGiamGiaSuKien
             // 
@@ -543,6 +544,7 @@
             this.lblGiamGia.TabIndex = 37;
             this.lblGiamGia.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.lblGiamGia.Visible = false;
+            this.lblGiamGia.Click += new System.EventHandler(this.lblGiamGia_Click);
             // 
             // lblLTongTien
             // 

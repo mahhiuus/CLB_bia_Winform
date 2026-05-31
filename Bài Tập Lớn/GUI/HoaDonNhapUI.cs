@@ -120,9 +120,8 @@ namespace Bài_Tập_Lớn.GUI
             btnCancelLoc.Click += BtnCancelLoc_Click;
 
             // [MỚI] Tạo nút Làm mới (Reload)
-            btnReload = CreateToolbarButton("Làm mới", 100);
+            btnReload = CreateToolbarButton("Làm mới", 130);
             btnReload.Click += BtnReload_Click;
-            btnReload.Margin = new Padding(5, 0, 0, 0);
 
             tlpToolbar.Controls.Add(dtpTuNgay, 0, 0);
             tlpToolbar.Controls.Add(lblDivider, 1, 0);

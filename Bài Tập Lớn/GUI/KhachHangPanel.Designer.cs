@@ -25,32 +25,33 @@
             this.guna2Button1 = new Guna.UI2.WinForms.Guna2Button();
             this.guna2Panel3 = new Guna.UI2.WinForms.Guna2Panel();
             this.guna2DataGridView1 = new Guna.UI2.WinForms.Guna2DataGridView();
-            this.Column7 = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.Column6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column7 = new System.Windows.Forms.DataGridViewButtonColumn();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.txtTimKiem = new Guna.UI2.WinForms.Guna2TextBox();
-            this.btnTimKiem = new Guna.UI2.WinForms.Guna2Button();
-            this.btnReload = new Guna.UI2.WinForms.Guna2Button();
-            this.guna2Panel4 = new Guna.UI2.WinForms.Guna2Panel();
-            this.btnThem = new Guna.UI2.WinForms.Guna2Button();
-            this.guna2Panel2 = new Guna.UI2.WinForms.Guna2Panel();
             this.guna2CustomGradientPanel2 = new Guna.UI2.WinForms.Guna2CustomGradientPanel();
             this.guna2Button2 = new Guna.UI2.WinForms.Guna2Button();
+            this.guna2Panel2 = new Guna.UI2.WinForms.Guna2Panel();
+            this.btnTimKiem = new Guna.UI2.WinForms.Guna2Button();
             this.guna2Panel1 = new Guna.UI2.WinForms.Guna2Panel();
+            this.btnReload = new Guna.UI2.WinForms.Guna2Button();
+            this.btnThem = new Guna.UI2.WinForms.Guna2Button();
+            this.guna2Panel4 = new Guna.UI2.WinForms.Guna2Panel();
+            this.txtTimKiem = new Guna.UI2.WinForms.Guna2TextBox();
             this.guna2CustomGradientPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.guna2DataGridView1)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
-            this.guna2Panel2.SuspendLayout();
             this.guna2CustomGradientPanel2.SuspendLayout();
+            this.guna2Panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // guna2Elipse1
             // 
+            this.guna2Elipse1.BorderRadius = 15;
             this.guna2Elipse1.TargetControl = this;
             // 
             // guna2CustomGradientPanel1
@@ -162,42 +163,12 @@
             this.guna2DataGridView1.CellMouseEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.guna2DataGridView1_CellMouseEnter);
             this.guna2DataGridView1.CellMouseLeave += new System.Windows.Forms.DataGridViewCellEventHandler(this.guna2DataGridView1_CellMouseLeave);
             // 
-            // Column7
+            // Column1
             // 
-            this.Column7.HeaderText = "Xóa";
-            this.Column7.MinimumWidth = 6;
-            this.Column7.Name = "Column7";
-            this.Column7.ReadOnly = true;
-            this.Column7.Text = "🗑 Xóa";
-            this.Column7.UseColumnTextForButtonValue = true;
-            // 
-            // Column6
-            // 
-            this.Column6.HeaderText = "Ngày Đăng Ký";
-            this.Column6.MinimumWidth = 6;
-            this.Column6.Name = "Column6";
-            this.Column6.ReadOnly = true;
-            // 
-            // Column5
-            // 
-            this.Column5.HeaderText = "Điểm Tích Lũy";
-            this.Column5.MinimumWidth = 6;
-            this.Column5.Name = "Column5";
-            this.Column5.ReadOnly = true;
-            // 
-            // Column4
-            // 
-            this.Column4.HeaderText = "Địa Chỉ";
-            this.Column4.MinimumWidth = 6;
-            this.Column4.Name = "Column4";
-            this.Column4.ReadOnly = true;
-            // 
-            // Column3
-            // 
-            this.Column3.HeaderText = "Số Điện Thoại";
-            this.Column3.MinimumWidth = 6;
-            this.Column3.Name = "Column3";
-            this.Column3.ReadOnly = true;
+            this.Column1.HeaderText = "Mã KH";
+            this.Column1.MinimumWidth = 6;
+            this.Column1.Name = "Column1";
+            this.Column1.ReadOnly = true;
             // 
             // Column2
             // 
@@ -206,12 +177,42 @@
             this.Column2.Name = "Column2";
             this.Column2.ReadOnly = true;
             // 
-            // Column1
+            // Column3
             // 
-            this.Column1.HeaderText = "Mã KH";
-            this.Column1.MinimumWidth = 6;
-            this.Column1.Name = "Column1";
-            this.Column1.ReadOnly = true;
+            this.Column3.HeaderText = "Số Điện Thoại";
+            this.Column3.MinimumWidth = 6;
+            this.Column3.Name = "Column3";
+            this.Column3.ReadOnly = true;
+            // 
+            // Column4
+            // 
+            this.Column4.HeaderText = "Địa Chỉ";
+            this.Column4.MinimumWidth = 6;
+            this.Column4.Name = "Column4";
+            this.Column4.ReadOnly = true;
+            // 
+            // Column5
+            // 
+            this.Column5.HeaderText = "Điểm Tích Lũy";
+            this.Column5.MinimumWidth = 6;
+            this.Column5.Name = "Column5";
+            this.Column5.ReadOnly = true;
+            // 
+            // Column6
+            // 
+            this.Column6.HeaderText = "Ngày Đăng Ký";
+            this.Column6.MinimumWidth = 6;
+            this.Column6.Name = "Column6";
+            this.Column6.ReadOnly = true;
+            // 
+            // Column7
+            // 
+            this.Column7.HeaderText = "Xóa";
+            this.Column7.MinimumWidth = 6;
+            this.Column7.Name = "Column7";
+            this.Column7.ReadOnly = true;
+            this.Column7.Text = "🗑 Xóa";
+            this.Column7.UseColumnTextForButtonValue = true;
             // 
             // tableLayoutPanel1
             // 
@@ -234,101 +235,6 @@
             this.tableLayoutPanel1.Size = new System.Drawing.Size(1280, 905);
             this.tableLayoutPanel1.TabIndex = 0;
             this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
-            // 
-            // txtTimKiem
-            // 
-            this.txtTimKiem.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
-            this.txtTimKiem.BorderRadius = 10;
-            this.txtTimKiem.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.txtTimKiem.DefaultText = "";
-            this.txtTimKiem.Dock = System.Windows.Forms.DockStyle.Left;
-            this.txtTimKiem.Font = new System.Drawing.Font("Segoe UI", 9.5F);
-            this.txtTimKiem.Location = new System.Drawing.Point(10, 0);
-            this.txtTimKiem.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.txtTimKiem.Name = "txtTimKiem";
-            this.txtTimKiem.PlaceholderText = "Tìm mã / họ tên / SĐT...";
-            this.txtTimKiem.SelectedText = "";
-            this.txtTimKiem.Size = new System.Drawing.Size(320, 30);
-            this.txtTimKiem.TabIndex = 0;
-            this.txtTimKiem.TextChanged += new System.EventHandler(this.txtTimKiem_TextChanged);
-            this.txtTimKiem.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtTimKiem_KeyDown);
-            // 
-            // btnTimKiem
-            // 
-            this.btnTimKiem.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
-            this.btnTimKiem.BorderRadius = 10;
-            this.btnTimKiem.BorderThickness = 1;
-            this.btnTimKiem.Dock = System.Windows.Forms.DockStyle.Left;
-            this.btnTimKiem.FillColor = System.Drawing.Color.Transparent;
-            this.btnTimKiem.Font = new System.Drawing.Font("Segoe UI Semibold", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnTimKiem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
-            this.btnTimKiem.Image = global::Bài_Tập_Lớn.Properties.Resources.search;
-            this.btnTimKiem.Location = new System.Drawing.Point(509, 0);
-            this.btnTimKiem.Name = "btnTimKiem";
-            this.btnTimKiem.Size = new System.Drawing.Size(127, 30);
-            this.btnTimKiem.TabIndex = 2;
-            this.btnTimKiem.Text = " Tìm Kiếm";
-            this.btnTimKiem.Click += new System.EventHandler(this.btnTimKiem_Click);
-            // 
-            // btnReload
-            // 
-            this.btnReload.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
-            this.btnReload.BorderRadius = 10;
-            this.btnReload.BorderThickness = 1;
-            this.btnReload.Dock = System.Windows.Forms.DockStyle.Left;
-            this.btnReload.FillColor = System.Drawing.Color.Transparent;
-            this.btnReload.Font = new System.Drawing.Font("Segoe UI Semibold", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnReload.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
-            this.btnReload.Image = global::Bài_Tập_Lớn.Properties.Resources.reload;
-            this.btnReload.Location = new System.Drawing.Point(350, 0);
-            this.btnReload.Name = "btnReload";
-            this.btnReload.Size = new System.Drawing.Size(139, 30);
-            this.btnReload.TabIndex = 4;
-            this.btnReload.Text = "Tải Lại";
-            this.btnReload.Click += new System.EventHandler(this.btnReload_Click);
-            // 
-            // guna2Panel4
-            // 
-            this.guna2Panel4.BackColor = System.Drawing.Color.Transparent;
-            this.guna2Panel4.Dock = System.Windows.Forms.DockStyle.Left;
-            this.guna2Panel4.Location = new System.Drawing.Point(330, 0);
-            this.guna2Panel4.Name = "guna2Panel4";
-            this.guna2Panel4.Size = new System.Drawing.Size(20, 30);
-            this.guna2Panel4.TabIndex = 6;
-            this.guna2Panel4.Paint += new System.Windows.Forms.PaintEventHandler(this.guna2Panel4_Paint);
-            // 
-            // btnThem
-            // 
-            this.btnThem.BorderRadius = 10;
-            this.btnThem.BorderThickness = 1;
-            this.btnThem.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnThem.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
-            this.btnThem.Font = new System.Drawing.Font("Segoe UI Semibold", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnThem.ForeColor = System.Drawing.Color.White;
-            this.btnThem.Image = global::Bài_Tập_Lớn.Properties.Resources.plus1;
-            this.btnThem.Location = new System.Drawing.Point(1044, 0);
-            this.btnThem.Name = "btnThem";
-            this.btnThem.Size = new System.Drawing.Size(200, 30);
-            this.btnThem.TabIndex = 6;
-            this.btnThem.Text = "Thêm Khách Hàng";
-            this.btnThem.Click += new System.EventHandler(this.btnThem_Click);
-            // 
-            // guna2Panel2
-            // 
-            this.guna2Panel2.BackColor = System.Drawing.Color.Transparent;
-            this.guna2Panel2.Controls.Add(this.btnTimKiem);
-            this.guna2Panel2.Controls.Add(this.guna2Panel1);
-            this.guna2Panel2.Controls.Add(this.btnReload);
-            this.guna2Panel2.Controls.Add(this.btnThem);
-            this.guna2Panel2.Controls.Add(this.guna2Panel4);
-            this.guna2Panel2.Controls.Add(this.txtTimKiem);
-            this.guna2Panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.guna2Panel2.Location = new System.Drawing.Point(13, 102);
-            this.guna2Panel2.Name = "guna2Panel2";
-            this.guna2Panel2.Padding = new System.Windows.Forms.Padding(10, 0, 10, 0);
-            this.guna2Panel2.Size = new System.Drawing.Size(1254, 30);
-            this.guna2Panel2.TabIndex = 0;
-            this.guna2Panel2.Paint += new System.Windows.Forms.PaintEventHandler(this.guna2Panel2_Paint);
             // 
             // guna2CustomGradientPanel2
             // 
@@ -359,6 +265,40 @@
             this.guna2Button2.TabIndex = 0;
             this.guna2Button2.Text = "Quản Lý Khách Hàng";
             // 
+            // guna2Panel2
+            // 
+            this.guna2Panel2.BackColor = System.Drawing.Color.Transparent;
+            this.guna2Panel2.Controls.Add(this.btnTimKiem);
+            this.guna2Panel2.Controls.Add(this.guna2Panel1);
+            this.guna2Panel2.Controls.Add(this.btnReload);
+            this.guna2Panel2.Controls.Add(this.btnThem);
+            this.guna2Panel2.Controls.Add(this.guna2Panel4);
+            this.guna2Panel2.Controls.Add(this.txtTimKiem);
+            this.guna2Panel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.guna2Panel2.Location = new System.Drawing.Point(13, 102);
+            this.guna2Panel2.Name = "guna2Panel2";
+            this.guna2Panel2.Padding = new System.Windows.Forms.Padding(10, 0, 10, 0);
+            this.guna2Panel2.Size = new System.Drawing.Size(1254, 30);
+            this.guna2Panel2.TabIndex = 0;
+            this.guna2Panel2.Paint += new System.Windows.Forms.PaintEventHandler(this.guna2Panel2_Paint);
+            // 
+            // btnTimKiem
+            // 
+            this.btnTimKiem.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
+            this.btnTimKiem.BorderRadius = 10;
+            this.btnTimKiem.BorderThickness = 1;
+            this.btnTimKiem.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnTimKiem.FillColor = System.Drawing.Color.Transparent;
+            this.btnTimKiem.Font = new System.Drawing.Font("Segoe UI Semibold", 9.5F, System.Drawing.FontStyle.Bold);
+            this.btnTimKiem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
+            this.btnTimKiem.Image = global::Bài_Tập_Lớn.Properties.Resources.search;
+            this.btnTimKiem.Location = new System.Drawing.Point(509, 0);
+            this.btnTimKiem.Name = "btnTimKiem";
+            this.btnTimKiem.Size = new System.Drawing.Size(127, 30);
+            this.btnTimKiem.TabIndex = 2;
+            this.btnTimKiem.Text = " Tìm Kiếm";
+            this.btnTimKiem.Click += new System.EventHandler(this.btnTimKiem_Click);
+            // 
             // guna2Panel1
             // 
             this.guna2Panel1.BackColor = System.Drawing.Color.Transparent;
@@ -367,6 +307,67 @@
             this.guna2Panel1.Name = "guna2Panel1";
             this.guna2Panel1.Size = new System.Drawing.Size(20, 30);
             this.guna2Panel1.TabIndex = 7;
+            // 
+            // btnReload
+            // 
+            this.btnReload.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
+            this.btnReload.BorderRadius = 10;
+            this.btnReload.BorderThickness = 1;
+            this.btnReload.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnReload.FillColor = System.Drawing.Color.Transparent;
+            this.btnReload.Font = new System.Drawing.Font("Segoe UI Semibold", 9.5F, System.Drawing.FontStyle.Bold);
+            this.btnReload.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
+            this.btnReload.Image = global::Bài_Tập_Lớn.Properties.Resources.reload;
+            this.btnReload.Location = new System.Drawing.Point(350, 0);
+            this.btnReload.Name = "btnReload";
+            this.btnReload.Size = new System.Drawing.Size(139, 30);
+            this.btnReload.TabIndex = 4;
+            this.btnReload.Text = "Tải Lại";
+            this.btnReload.Click += new System.EventHandler(this.btnReload_Click);
+            // 
+            // btnThem
+            // 
+            this.btnThem.BorderRadius = 10;
+            this.btnThem.BorderThickness = 1;
+            this.btnThem.Dock = System.Windows.Forms.DockStyle.Right;
+            this.btnThem.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
+            this.btnThem.Font = new System.Drawing.Font("Segoe UI Semibold", 9.5F, System.Drawing.FontStyle.Bold);
+            this.btnThem.ForeColor = System.Drawing.Color.White;
+            this.btnThem.Image = global::Bài_Tập_Lớn.Properties.Resources.plus1;
+            this.btnThem.Location = new System.Drawing.Point(1044, 0);
+            this.btnThem.Name = "btnThem";
+            this.btnThem.Size = new System.Drawing.Size(200, 30);
+            this.btnThem.TabIndex = 6;
+            this.btnThem.Text = "Thêm Khách Hàng";
+            this.btnThem.Click += new System.EventHandler(this.btnThem_Click);
+            // 
+            // guna2Panel4
+            // 
+            this.guna2Panel4.BackColor = System.Drawing.Color.Transparent;
+            this.guna2Panel4.Dock = System.Windows.Forms.DockStyle.Left;
+            this.guna2Panel4.Location = new System.Drawing.Point(330, 0);
+            this.guna2Panel4.Name = "guna2Panel4";
+            this.guna2Panel4.Size = new System.Drawing.Size(20, 30);
+            this.guna2Panel4.TabIndex = 6;
+            this.guna2Panel4.Paint += new System.Windows.Forms.PaintEventHandler(this.guna2Panel4_Paint);
+            // 
+            // txtTimKiem
+            // 
+            this.txtTimKiem.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
+            this.txtTimKiem.BorderRadius = 10;
+            this.txtTimKiem.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.txtTimKiem.DefaultText = "";
+            this.txtTimKiem.Dock = System.Windows.Forms.DockStyle.Left;
+            this.txtTimKiem.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.txtTimKiem.Location = new System.Drawing.Point(10, 0);
+            this.txtTimKiem.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.txtTimKiem.Name = "txtTimKiem";
+            this.txtTimKiem.PlaceholderText = "Tìm mã / họ tên / SĐT...";
+            this.txtTimKiem.SelectedText = "";
+            this.txtTimKiem.Size = new System.Drawing.Size(320, 30);
+            this.txtTimKiem.TabIndex = 0;
+            this.txtTimKiem.TextChanged += new System.EventHandler(this.txtTimKiem_TextChanged);
+            this.txtTimKiem.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtTimKiem_KeyDown);
             // 
             // KhachHangPanel
             // 
@@ -381,8 +382,8 @@
             this.guna2CustomGradientPanel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.guna2DataGridView1)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
-            this.guna2Panel2.ResumeLayout(false);
             this.guna2CustomGradientPanel2.ResumeLayout(false);
+            this.guna2Panel2.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }

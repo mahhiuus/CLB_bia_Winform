@@ -43,6 +43,12 @@ namespace Bài_Tập_Lớn.GUI
         public bool IsPaid { get; private set; } = false;
         public HoaDonBanDTO HoaDonDaTao { get; private set; } = null;
 
+        /// <summary>Mã hóa đơn vừa được tạo sau khi thanh toán thành công.</summary>
+        public string MaHoaDon => HoaDonDaTao?.MaHDB;
+
+        /// <summary>Tổng tiền thực tế đã thanh toán (sau chiết khấu).</summary>
+        public double TongTien => HoaDonDaTao?.TongTien ?? 0;
+
         // ── Data ───────────────────────────────────────────────────
         private readonly BanBidaDTO _ban;
         private readonly PhienChoiDTO _phien;
@@ -60,6 +66,7 @@ namespace Bài_Tập_Lớn.GUI
         private readonly BanBidaBLL _banBLL = new BanBidaBLL();
         private readonly HoaDonBanBLL _hoaDonBLL = new HoaDonBanBLL();
         private readonly KhachHangBLL _khachHangBLL = new KhachHangBLL();
+        private readonly SanPhamBLL _sanPhamBLL = new SanPhamBLL();
 
         // ── Live timer ─────────────────────────────────────────────
         private System.Windows.Forms.Timer _clock;
@@ -425,7 +432,34 @@ namespace Bài_Tập_Lớn.GUI
                 HoaDonDaTao = hdb;
                 IsPaid = true;
 
-                // 4. Cộng 1 lần tích lũy nếu KH thân thiết đủ điểm
+                // 4. Trừ tồn kho DB cho từng sản phẩm đã order
+                //    GiamTonKho trong DAL đã có kiểm tra đủ hàng — nếu thiếu sẽ throw Exception
+                if (_dsChiTiet != null && _dsChiTiet.Count > 0)
+                {
+                    var loiTonKho = new System.Text.StringBuilder();
+                    foreach (var ctSP in _dsChiTiet)
+                    {
+                        if (string.IsNullOrWhiteSpace(ctSP.MaSP) || ctSP.SoLuong <= 0) continue;
+                        try
+                        {
+                            _sanPhamBLL.GiamTonKho(ctSP.MaSP, ctSP.SoLuong);
+                        }
+                        catch (Exception exGiam)
+                        {
+                            // Ghi nhận lỗi nhưng không dừng — các SP khác vẫn tiếp tục trừ
+                            loiTonKho.AppendLine($"• {ctSP.MaSP}: {exGiam.Message}");
+                        }
+                    }
+
+                    // Nếu có SP nào lỗi → thông báo nhưng KHÔNG rollback hóa đơn
+                    // (hóa đơn đã lưu, chỉ cảnh báo nhân viên kiểm tra lại tồn kho)
+                    if (loiTonKho.Length > 0)
+                        MessageBox.Show(
+                            "Thanh toán thành công nhưng một số sản phẩm trừ tồn kho thất bại:\n" + loiTonKho,
+                            "Cảnh báo tồn kho", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+
+                // 5. Cộng 1 lần tích lũy nếu KH thân thiết đủ điểm
                 if (_khachHangDuocChon != null && _khachHangDuocChon.DiemTichLuy >= DIEM_TICH_LUY_TOI_THIEU)
                 {
                     try
@@ -438,7 +472,7 @@ namespace Bài_Tập_Lớn.GUI
                     }
                 }
 
-                // 5. Hỏi xuất PDF
+                // 6. Hỏi xuất PDF
                 if (MessageBox.Show(
                         "Bạn có muốn lưu hóa đơn ra file PDF không?",
                         "Xuất hóa đơn",
@@ -695,6 +729,16 @@ namespace Bài_Tập_Lớn.GUI
             // [MỚI] Đóng overlay khi form đóng
             _overlay?.Close();
             _overlay = null;
+        }
+
+        private void lblLGiamSuKien_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lblGiamGia_Click(object sender, EventArgs e)
+        {
+
         }
     }
 

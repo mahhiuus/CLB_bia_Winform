@@ -98,5 +98,48 @@ namespace Bài_Tập_Lớn.BLL
 
             return chiTietPhienDAL.XoaChiTietPhien(maChiTiet);
         }
+
+        /// <summary>
+        /// Thêm mới nếu MaCTP chưa tồn tại, cập nhật nếu đã tồn tại.
+        /// </summary>
+        public bool ThemHoacCapNhat(ChiTietPhienDTO ct)
+        {
+            if (ct == null)
+                throw new Exception("Dữ liệu chi tiết phiên không hợp lệ!");
+
+            if (string.IsNullOrWhiteSpace(ct.MaCTP))
+                throw new Exception("Mã chi tiết không được để trống!");
+
+            if (string.IsNullOrWhiteSpace(ct.MaPhien))
+                throw new Exception("Mã phiên không được để trống!");
+
+            if (string.IsNullOrWhiteSpace(ct.MaSP))
+                throw new Exception("Mã sản phẩm không được để trống!");
+
+            if (ct.SoLuong <= 0)
+                throw new Exception("Số lượng phải lớn hơn 0!");
+
+            if (ct.DonGia < 0)
+                throw new Exception("Đơn giá không hợp lệ!");
+
+            // Kiểm tra đã tồn tại chưa bằng cách thử lấy theo phiên
+            var dsCu = chiTietPhienDAL.TimTheoMaPhien(ct.MaPhien);
+            bool daCoMaCTP = dsCu != null && dsCu.Exists(x => x.MaCTP == ct.MaCTP);
+
+            return daCoMaCTP
+                ? chiTietPhienDAL.CapNhatChiTietPhien(ct)
+                : chiTietPhienDAL.ThemChiTietPhien(ct);
+        }
+
+        /// <summary>
+        /// Lấy danh sách chi tiết theo mã phiên (alias của TimTheoMaPhien).
+        /// </summary>
+        public List<ChiTietPhienDTO> LayTheoPhien(string maPhien)
+        {
+            if (string.IsNullOrWhiteSpace(maPhien))
+                throw new Exception("Mã phiên không được để trống!");
+
+            return chiTietPhienDAL.TimTheoMaPhien(maPhien);
+        }
     }
 }

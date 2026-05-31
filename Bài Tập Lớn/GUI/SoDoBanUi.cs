@@ -456,6 +456,9 @@ namespace Bài_Tập_Lớn.GUI
                     // ── Mở ThanhToanDialog đầy đủ tham số ───────────────
                     using (var dialog = new ThanhToanDialog(ban, phien, dsChiTiet, cacheTenSP))
                     {
+                        // THÊM: Hiện Overlay làm tối nền trước khi mở dialog
+                        dialog.ShowOverlay(this);
+
                         dialog.ShowDialog(this);
                         if (dialog.IsPaid)
                         {
@@ -487,6 +490,8 @@ namespace Bài_Tập_Lớn.GUI
         {
             using (var preview = new ThanhToanDialog(ban, phien, dsChiTiet, cacheTenSP, hoaDon))
             {
+                // THÊM: Hiện Overlay cho màn hình preview hóa đơn
+                preview.ShowOverlay(this);
                 preview.ShowDialog(this);
             }
         }

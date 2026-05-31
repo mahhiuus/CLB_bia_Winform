@@ -206,6 +206,7 @@
     <Compile Include="BLL\KhachHangBLL.cs" />
     <Compile Include="BLL\NhaCungCapBLL.cs" />
     <Compile Include="BLL\NhanVienBLL.cs" />
+    <Compile Include="BLL\NhapHangBLL.cs" />
     <Compile Include="BLL\SanPhamBLL.cs" />
     <Compile Include="BLL\ThongKeBLL.cs" />
     <Compile Include="DAL\BanBidaDAL.cs" />
@@ -285,7 +286,7 @@
       <DependentUpon>LoginForm.cs</DependentUpon>
     </Compile>
     <Compile Include="GUI\Maindashboard.cs">
-      <SubType>Component</SubType>
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="GUI\Maindashboard.Designer.cs">
       <DependentUpon>Maindashboard.cs</DependentUpon>
@@ -325,6 +326,18 @@
     </Compile>
     <Compile Include="GUI\NhanVienUI.Designer.cs">
       <DependentUpon>NhanVienUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\NhapHangPanel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\NhapHangPanel.Designer.cs">
+      <DependentUpon>NhapHangPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\NhapHangPopup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\NhapHangPopup.Designer.cs">
+      <DependentUpon>NhapHangPopup.cs</DependentUpon>
     </Compile>
     <Compile Include="GUI\Register.cs">
       <SubType>Form</SubType>
@@ -419,6 +432,12 @@
     <EmbeddedResource Include="GUI\NhanVienUI.resx">
       <DependentUpon>NhanVienUI.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="GUI\NhapHangPanel.resx">
+      <DependentUpon>NhapHangPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\NhapHangPopup.resx">
+      <DependentUpon>NhapHangPopup.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="GUI\Register.resx">
       <DependentUpon>Register.cs</DependentUpon>
     </EmbeddedResource>
@@ -454,6 +473,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.manifest" />
+    <Compile Include="DAL\NhapHangDAL.cs" />
     <None Include="db.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -565,6 +585,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\ehidden.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\import %282%29.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
