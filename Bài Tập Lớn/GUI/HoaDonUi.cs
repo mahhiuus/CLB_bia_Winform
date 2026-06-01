@@ -7,10 +7,18 @@ using System.Linq;
 using System.Diagnostics;
 using System.Windows.Forms;
 using Guna.UI2.WinForms;
-using iTextSharp.text;
 using iTextSharp.text.pdf;
 
-// Using các namespace BLL và DTO của bạn
+// Alias để tránh xung đột với System.Drawing.Font — giống hệt ThanhToanDialog
+using PdfDocument = iTextSharp.text.Document;
+using PdfFont = iTextSharp.text.Font;
+using PdfParagraph = iTextSharp.text.Paragraph;
+using PdfChunk = iTextSharp.text.Chunk;
+using PdfPhrase = iTextSharp.text.Phrase;
+using PdfElement = iTextSharp.text.Element;
+using PdfBaseColor = iTextSharp.text.BaseColor;
+using PdfBaseFont = iTextSharp.text.pdf.BaseFont;
+
 using Bài_Tập_Lớn.BLL;
 using Bài_Tập_Lớn.DTO;
 
@@ -20,6 +28,8 @@ namespace Bài_Tập_Lớn.GUI
     {
         // ── BLL ──
         private readonly HoaDonBanBLL _hoaDonBLL = new HoaDonBanBLL();
+        private readonly ChiTietPhienBLL _chiTietPhienBLL = new ChiTietPhienBLL();
+        private readonly SanPhamBLL _sanPhamBLL = new SanPhamBLL();
 
         // ── Colors ──
         static readonly Color GREEN_DARK = ColorTranslator.FromHtml("#2b4e23");
@@ -30,7 +40,7 @@ namespace Bài_Tập_Lớn.GUI
         // ── Controls ──
         private TableLayoutPanel rootTable;
         private Guna2DataGridView gridHoaDon;
-        private Guna2Button btnExportPdf, btnPrint, btnLoc, btnCancelLoc; // [MỚI] Thêm btnCancelLoc
+        private Guna2Button btnExportPdf, btnPrint, btnLoc, btnCancelLoc;
         private Guna2DateTimePicker dtpTuNgay, dtpDenNgay;
         private Label lblPageInfo;
         private Guna2Button btnPrev, btnNext;
@@ -42,6 +52,9 @@ namespace Bài_Tập_Lớn.GUI
         private int _totalPages = 1;
         private HoaDonBanDTO _selectedHoaDon = null;
         private int _rowToDeselect = -1;
+
+        // ── Cache tên SP (MaSP → TenSP) ──
+        private Dictionary<string, string> _cacheTenSP = new Dictionary<string, string>();
 
         public HoaDonUi()
         {
@@ -56,11 +69,25 @@ namespace Bài_Tập_Lớn.GUI
 
         private void HoaDonUi_Load(object sender, EventArgs e)
         {
+            BuildCacheTenSP();
             ResetDatePickers();
             LoadData();
         }
 
-        // Hàm đặt lại ngày mặc định (Đầu tháng đến hiện tại)
+        // Nạp toàn bộ tên SP vào cache một lần khi form load
+        private void BuildCacheTenSP()
+        {
+            try
+            {
+                var dsSP = _sanPhamBLL.LayTatCa();
+                if (dsSP != null)
+                    foreach (var sp in dsSP)
+                        if (!string.IsNullOrWhiteSpace(sp.MaSP))
+                            _cacheTenSP[sp.MaSP] = sp.TenSP ?? sp.MaSP;
+            }
+            catch { /* Nếu lỗi thì PDF sẽ in MaSP thay vì tên */ }
+        }
+
         private void ResetDatePickers()
         {
             dtpTuNgay.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
@@ -86,35 +113,39 @@ namespace Bài_Tập_Lớn.GUI
             rootTable.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
             rootTable.RowStyles.Add(new RowStyle(SizeType.Absolute, 50f));
 
-            // 1. TOOLBAR PANEL CẬP NHẬT 8 CỘT
+            // 1. TOOLBAR PANEL 8 CỘT
             TableLayoutPanel tlpToolbar = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
                 RowCount = 1,
-                ColumnCount = 8, // [CẬP NHẬT] Tăng lên 8 cột để chứa nút Cancel
+                ColumnCount = 8,
                 Margin = new Padding(0)
             };
+            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));       // 0: dtpTuNgay
+            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));       // 1: lblDivider
+            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));       // 2: dtpDenNgay
+            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));       // 3: btnLoc
+            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));       // 4: btnCancelLoc
+            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f)); // 5: spacer
+            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));       // 6: btnExportPdf
+            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));       // 7: btnPrint
 
-            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize)); // dtpTuNgay
-            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize)); // lblDivider
-            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize)); // dtpDenNgay
-            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize)); // btnLoc
-            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize)); // btnCancelLoc [MỚI]
-            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f)); // Khoảng trống đẩy sang phải
-            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize)); // btnExportPdf
-            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize)); // btnPrint
-
-            // --- BÊN TRÁI: BỘ LỌC TÌM KIẾM ---
             dtpTuNgay = CreateDatePicker();
-            Label lblDivider = new Label { Text = "-", AutoSize = true, Font = new System.Drawing.Font("Segoe UI", 12, FontStyle.Bold), ForeColor = GREEN_DARK, Anchor = AnchorStyles.None };
+            Label lblDivider = new Label
+            {
+                Text = "-",
+                AutoSize = true,
+                Font = new System.Drawing.Font("Segoe UI", 12, FontStyle.Bold),
+                ForeColor = GREEN_DARK,
+                Anchor = AnchorStyles.None
+            };
             dtpDenNgay = CreateDatePicker();
 
             btnLoc = CreateToolbarButton("Lọc", 80);
             btnLoc.Click += BtnLoc_Click;
 
-            // [MỚI] Khởi tạo nút Cancel cho bộ chọn ngày
             btnCancelLoc = CreateToolbarButton("Hủy", 80);
-            btnCancelLoc.BorderColor = Color.FromArgb(220, 80, 80); // Viền đỏ nhẹ cho nút Cancel phân biệt
+            btnCancelLoc.BorderColor = Color.FromArgb(220, 80, 80);
             btnCancelLoc.ForeColor = Color.FromArgb(180, 40, 40);
             btnCancelLoc.HoverState.FillColor = Color.FromArgb(255, 240, 240);
             btnCancelLoc.HoverState.BorderColor = Color.FromArgb(180, 40, 40);
@@ -125,9 +156,8 @@ namespace Bài_Tập_Lớn.GUI
             tlpToolbar.Controls.Add(lblDivider, 1, 0);
             tlpToolbar.Controls.Add(dtpDenNgay, 2, 0);
             tlpToolbar.Controls.Add(btnLoc, 3, 0);
-            tlpToolbar.Controls.Add(btnCancelLoc, 4, 0); // Đưa nút cancel vào cột số 4
+            tlpToolbar.Controls.Add(btnCancelLoc, 4, 0);
 
-            // --- BÊN PHẢI: NÚT THAO TÁC ---
             btnExportPdf = CreateToolbarButton("Xuất PDF", 130);
             btnExportPdf.Click += BtnExportPdf_Click;
 
@@ -135,12 +165,12 @@ namespace Bài_Tập_Lớn.GUI
             btnPrint.Click += BtnPrint_Click;
             btnPrint.Margin = new Padding(15, 0, 0, 0);
 
-            tlpToolbar.Controls.Add(btnExportPdf, 6, 0); // Đẩy sang cột 6
-            tlpToolbar.Controls.Add(btnPrint, 7, 0);    // Đẩy sang cột 7
+            tlpToolbar.Controls.Add(btnExportPdf, 6, 0);
+            tlpToolbar.Controls.Add(btnPrint, 7, 0);
 
             rootTable.Controls.Add(tlpToolbar, 0, 0);
 
-            // 2. Guna2DataGridView - Bảng Dữ Liệu Bo Tròn
+            // 2. Guna2DataGridView
             gridHoaDon = new Guna2DataGridView
             {
                 Dock = DockStyle.Fill,
@@ -167,8 +197,6 @@ namespace Bài_Tập_Lớn.GUI
             gridHoaDon.ThemeStyle.AlternatingRowsStyle.BackColor = CREAM;
             gridHoaDon.ThemeStyle.RowsStyle.Font = new System.Drawing.Font("Segoe UI", 10.5f);
             gridHoaDon.ThemeStyle.RowsStyle.Height = 40;
-
-            // [CẬP NHẬT] Màu khi click chọn: Đổi thành màu dịu nhẹ y hệt như khi Hover
             gridHoaDon.ThemeStyle.RowsStyle.SelectionBackColor = GREEN_HOVER;
             gridHoaDon.ThemeStyle.RowsStyle.SelectionForeColor = GREEN_DARK;
 
@@ -186,7 +214,6 @@ namespace Bài_Tập_Lớn.GUI
 
             rootTable.Controls.Add(gridHoaDon, 0, 1);
 
-            // Bo tròn bảng dữ liệu
             Guna2Elipse gridElipse = new Guna2Elipse
             {
                 TargetControl = gridHoaDon,
@@ -222,7 +249,6 @@ namespace Bài_Tập_Lớn.GUI
             SetActionButtonsState(false);
         }
 
-        // [CẬP NHẬT] Thiết lập ô chọn ngày Đẹp - Hiện đại: Nền Trắng, Viền Xanh
         private Guna2DateTimePicker CreateDatePicker()
         {
             return new Guna2DateTimePicker
@@ -231,16 +257,15 @@ namespace Bài_Tập_Lớn.GUI
                 BorderRadius = 6,
                 BorderThickness = 1,
                 BorderColor = GREEN_LIGHT,
-                FillColor = Color.White, // Ép nền trắng ban đầu
+                FillColor = Color.White,
                 ForeColor = GREEN_DARK,
                 Format = DateTimePickerFormat.Short,
                 Cursor = Cursors.Hand,
                 HoverState = { BorderColor = GREEN_DARK },
-                // Ép trạng thái Checked/Selected vẫn luôn giữ Nền Trắng - Viền Xanh Đậm
                 CheckedState = {
-                    FillColor = Color.White,
+                    FillColor   = Color.White,
                     BorderColor = GREEN_DARK,
-                    ForeColor = GREEN_DARK
+                    ForeColor   = GREEN_DARK
                 }
             };
         }
@@ -259,9 +284,9 @@ namespace Bài_Tập_Lớn.GUI
                 Font = new System.Drawing.Font("Segoe UI", 10.5f, FontStyle.Bold),
                 Cursor = Cursors.Hand,
                 HoverState = {
-                    FillColor = GREEN_HOVER,
+                    FillColor   = GREEN_HOVER,
                     BorderColor = GREEN_DARK,
-                    ForeColor = GREEN_DARK
+                    ForeColor   = GREEN_DARK
                 }
             };
         }
@@ -291,7 +316,8 @@ namespace Bài_Tập_Lớn.GUI
 
             if (tuNgay > denNgay)
             {
-                MessageBox.Show("Từ ngày không được lớn hơn Đến ngày!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Từ ngày không được lớn hơn Đến ngày!",
+                    "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -300,38 +326,28 @@ namespace Bài_Tập_Lớn.GUI
                 _allInvoices = _hoaDonBLL.LayTheoNgay(tuNgay, denNgay) ?? new List<HoaDonBanDTO>();
                 _totalPages = (int)Math.Ceiling((double)_allInvoices.Count / _pageSize);
                 if (_totalPages == 0) _totalPages = 1;
-
                 ChangePage(1);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi lấy dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi lấy dữ liệu: " + ex.Message,
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        // [MỚI] Sự kiện click nút Cancel -> Khôi phục dữ liệu gốc toàn bộ hóa đơn
         private void BtnCancelLoc_Click(object sender, EventArgs e)
         {
-            ResetDatePickers(); // Đặt lại ngày mặc định trên UI
-            LoadData();         // Tải lại toàn bộ dữ liệu gốc từ database
+            ResetDatePickers();
+            LoadData();
         }
 
         // ════════════════════════════════════════════════════════
-        //  CƠ CHẾ "BẤM LẦN NỮA ĐỂ HỦY CHỌN" (TOGGLE SELECTION)
+        //  TOGGLE SELECTION
         // ════════════════════════════════════════════════════════
         private void GridHoaDon_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (e.RowIndex >= 0 && e.Button == MouseButtons.Left)
-            {
-                if (gridHoaDon.Rows[e.RowIndex].Selected)
-                {
-                    _rowToDeselect = e.RowIndex;
-                }
-                else
-                {
-                    _rowToDeselect = -1;
-                }
-            }
+                _rowToDeselect = gridHoaDon.Rows[e.RowIndex].Selected ? e.RowIndex : -1;
         }
 
         private void GridHoaDon_CellMouseUp(object sender, DataGridViewCellMouseEventArgs e)
@@ -344,33 +360,29 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ════════════════════════════════════════════════════════
-        //  HIỆU ỨNG HOVER TRÊN BẢNG 
+        //  HOVER
         // ════════════════════════════════════════════════════════
         private void GridHoaDon_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0 && !gridHoaDon.Rows[e.RowIndex].Selected)
-            {
                 gridHoaDon.Rows[e.RowIndex].DefaultCellStyle.BackColor = GREEN_HOVER;
-            }
         }
 
         private void GridHoaDon_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0 && !gridHoaDon.Rows[e.RowIndex].Selected)
-            {
-                gridHoaDon.Rows[e.RowIndex].DefaultCellStyle.BackColor = (e.RowIndex % 2 == 0) ? Color.White : CREAM;
-            }
+                gridHoaDon.Rows[e.RowIndex].DefaultCellStyle.BackColor =
+                    (e.RowIndex % 2 == 0) ? Color.White : CREAM;
         }
 
         // ════════════════════════════════════════════════════════
-        //  LOGIC XỬ LÝ (PAGINATION & DATA)
+        //  DATA & PAGINATION
         // ════════════════════════════════════════════════════════
         private void LoadData()
         {
             _allInvoices = _hoaDonBLL.LayTatCa() ?? new List<HoaDonBanDTO>();
             _totalPages = (int)Math.Ceiling((double)_allInvoices.Count / _pageSize);
             if (_totalPages == 0) _totalPages = 1;
-
             ChangePage(1);
         }
 
@@ -399,7 +411,6 @@ namespace Bài_Tập_Lớn.GUI
 
             lblPageInfo.Text = $"Trang {_currentPage} / {_totalPages}";
             btnNext.Location = new Point(lblPageInfo.Right + 10, 10);
-
             btnPrev.Enabled = _currentPage > 1;
             btnNext.Enabled = _currentPage < _totalPages;
 
@@ -430,72 +441,225 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ════════════════════════════════════════════════════════
-        //  XUẤT PDF & TỰ ĐỘNG BẬT PREVIEW
+        //  XUẤT PDF & MỞ PREVIEW
         // ════════════════════════════════════════════════════════
         private void BtnExportPdf_Click(object sender, EventArgs e)
         {
             if (_selectedHoaDon == null) return;
 
-            using (SaveFileDialog sfd = new SaveFileDialog() { Filter = "PDF Documents (*.pdf)|*.pdf", FileName = $"HoaDon_{_selectedHoaDon.MaHDB}.pdf" })
+            using (var sfd = new SaveFileDialog
             {
-                if (sfd.ShowDialog() == DialogResult.OK)
+                Title = "Lưu hóa đơn PDF",
+                Filter = "PDF Documents (*.pdf)|*.pdf",
+                FileName = $"HoaDon_{_selectedHoaDon.MaHDB}_{_selectedHoaDon.NgayBan:yyyyMMdd_HHmm}.pdf"
+            })
+            {
+                if (sfd.ShowDialog() != DialogResult.OK) return;
+
+                try
                 {
+                    // Load chi tiết SP theo MaPhien của hóa đơn
+                    List<ChiTietPhienDTO> dsChiTiet = new List<ChiTietPhienDTO>();
                     try
                     {
-                        ExportToPdf(sfd.FileName, _selectedHoaDon);
-                        Process.Start(new ProcessStartInfo(sfd.FileName) { UseShellExecute = true });
+                        dsChiTiet = _chiTietPhienBLL.LayTheoPhien(_selectedHoaDon.MaPhien)
+                                    ?? new List<ChiTietPhienDTO>();
                     }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Lỗi khi xuất PDF. File có thể đang được mở.\n" + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    catch { /* Nếu lỗi load SP thì vẫn xuất PDF, chỉ thiếu bảng SP */ }
+
+                    ExportToPdf(sfd.FileName, _selectedHoaDon, dsChiTiet);
+                    Process.Start(new ProcessStartInfo(sfd.FileName) { UseShellExecute = true });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi khi xuất PDF. File có thể đang được mở.\n" + ex.Message,
+                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
         private void BtnPrint_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Chức năng in đang kết nối tới máy in...", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Chức năng in đang kết nối tới máy in...",
+                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void ExportToPdf(string filePath, HoaDonBanDTO hd)
+        // ════════════════════════════════════════════════════════
+        //  XUẤT PDF — khổ receipt nhiệt 80mm
+        //  Y HỆT ThanhToanDialog.ExportToPdf
+        // ════════════════════════════════════════════════════════
+        private void ExportToPdf(string filePath, HoaDonBanDTO hd,
+                                  List<ChiTietPhienDTO> dsChiTiet)
         {
-            Document document = new Document(PageSize.A5, 25, 25, 30, 30);
-            PdfWriter writer = PdfWriter.GetInstance(document, new FileStream(filePath, FileMode.Create));
-            document.Open();
+            int soMon = dsChiTiet.Count;
+            float rowH = 16f;
+            float headerH = 120f;
+            float infoH = 130f;
+            float tableHeaderH = 22f;
+            float tableBodyH = soMon * rowH + 8f;
 
-            string fontPath = Environment.GetFolderPath(Environment.SpecialFolder.Fonts) + "\\arial.ttf";
-            BaseFont bf = BaseFont.CreateFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            bool coGiam = hd.TongTien < (hd.TienBida + hd.TienSanPham);
+            float totalH = coGiam ? 96f : 80f;
+            float footerH = 50f;
 
-            iTextSharp.text.Font fontTitle = new iTextSharp.text.Font(bf, 18, iTextSharp.text.Font.BOLD, BaseColor.BLACK);
-            iTextSharp.text.Font fontNormal = new iTextSharp.text.Font(bf, 12, iTextSharp.text.Font.NORMAL, BaseColor.BLACK);
-            iTextSharp.text.Font fontTotal = new iTextSharp.text.Font(bf, 15, iTextSharp.text.Font.BOLD, BaseColor.RED);
+            float pageHeight = headerH + infoH + tableHeaderH + tableBodyH + totalH + footerH;
+            float pageWidth = 226.77f;
+            float marginLR = 10f;
+            float marginTB = 12f;
 
-            Paragraph title = new Paragraph("DOUBLE2N BILLIARDS\nHÓA ĐƠN THANH TOÁN\n\n", fontTitle) { Alignment = Element.ALIGN_CENTER };
-            document.Add(title);
+            var pageSize = new iTextSharp.text.Rectangle(pageWidth, pageHeight);
+            var doc = new PdfDocument(pageSize, marginLR, marginLR, marginTB, marginTB);
+            PdfWriter.GetInstance(doc, new FileStream(filePath, FileMode.Create));
+            doc.Open();
 
-            document.Add(new Paragraph($"Mã Hóa Đơn: {hd.MaHDB}", fontNormal));
-            document.Add(new Paragraph($"Ngày Tạo: {hd.NgayBan:dd/MM/yyyy HH:mm}", fontNormal));
-            document.Add(new Paragraph($"Nhân Viên: {hd.MaNV}", fontNormal));
-            document.Add(new Paragraph($"Mã Phiên: {hd.MaPhien}", fontNormal));
+            // ── Fonts ────────────────────────────────────────────────
+            string fontPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "arial.ttf");
+            PdfBaseFont bf = PdfBaseFont.CreateFont(fontPath,
+                PdfBaseFont.IDENTITY_H, PdfBaseFont.EMBEDDED);
 
-            iTextSharp.text.pdf.draw.LineSeparator separator = new iTextSharp.text.pdf.draw.LineSeparator(1f, 100f, BaseColor.GRAY, Element.ALIGN_CENTER, 1);
-            document.Add(new Chunk(separator));
-            document.Add(new Paragraph("\n"));
+            var fShopName = new PdfFont(bf, 11f, PdfFont.BOLD, PdfBaseColor.BLACK);
+            var fTitle = new PdfFont(bf, 9f, PdfFont.BOLD, new PdfBaseColor(43, 78, 35));
+            var fSub = new PdfFont(bf, 7f, PdfFont.NORMAL, new PdfBaseColor(120, 120, 120));
+            var fLabel = new PdfFont(bf, 7.5f, PdfFont.NORMAL, PdfBaseColor.BLACK);
+            var fValue = new PdfFont(bf, 7.5f, PdfFont.BOLD, PdfBaseColor.BLACK);
+            var fColHead = new PdfFont(bf, 7f, PdfFont.BOLD, PdfBaseColor.WHITE);
+            var fCell = new PdfFont(bf, 7f, PdfFont.NORMAL, PdfBaseColor.BLACK);
+            var fTotal = new PdfFont(bf, 10f, PdfFont.BOLD, new PdfBaseColor(200, 55, 55));
+            var fDiscount = new PdfFont(bf, 8f, PdfFont.BOLD, new PdfBaseColor(43, 120, 43));
+            var fFooter = new PdfFont(bf, 7f, PdfFont.ITALIC, new PdfBaseColor(140, 140, 140));
 
-            document.Add(new Paragraph($"Tiền Giờ Bida: {hd.TienBida:N0} đ", fontNormal));
-            document.Add(new Paragraph($"Tiền Dịch Vụ: {hd.TienSanPham:N0} đ", fontNormal));
+            var sepGray = new iTextSharp.text.pdf.draw.LineSeparator(
+                0.4f, 100f, PdfBaseColor.LIGHT_GRAY, PdfElement.ALIGN_CENTER, 1);
+            var sepGreen = new iTextSharp.text.pdf.draw.LineSeparator(
+                0.6f, 100f, new PdfBaseColor(43, 78, 35), PdfElement.ALIGN_CENTER, 1);
 
-            document.Add(new Chunk(separator));
-            document.Add(new Paragraph("\n"));
+            // ── Header ───────────────────────────────────────────────
+            doc.Add(new PdfParagraph("DOUBLE2N BILLIARDS", fShopName)
+            { Alignment = PdfElement.ALIGN_CENTER, SpacingAfter = 2f });
+            doc.Add(new PdfParagraph("HÓA ĐƠN THANH TOÁN", fTitle)
+            { Alignment = PdfElement.ALIGN_CENTER, SpacingAfter = 2f });
+            doc.Add(new PdfParagraph(hd.NgayBan.ToString("HH:mm  dd/MM/yyyy"), fSub)
+            { Alignment = PdfElement.ALIGN_CENTER, SpacingAfter = 4f });
+            doc.Add(new PdfChunk(sepGray));
+            doc.Add(new PdfParagraph(" "));
 
-            Paragraph total = new Paragraph($"TỔNG TIỀN: {hd.TongTien:N0} đ", fontTotal) { Alignment = Element.ALIGN_RIGHT };
-            document.Add(total);
+            // ── Thông tin phiên ──────────────────────────────────────
+            AddReceiptRow(doc, "Mã HĐ", hd.MaHDB, fLabel, fValue);
+            AddReceiptRow(doc, "Nhân viên", hd.MaNV, fLabel, fValue);
+            AddReceiptRow(doc, "Mã phiên", hd.MaPhien, fLabel, fValue);
 
-            Paragraph footer = new Paragraph("\nCảm ơn quý khách và hẹn gặp lại!", fontNormal) { Alignment = Element.ALIGN_CENTER };
-            document.Add(footer);
+            doc.Add(new PdfChunk(sepGray));
+            doc.Add(new PdfParagraph(" "));
 
-            document.Close();
+            // ── Bảng sản phẩm ────────────────────────────────────────
+            if (dsChiTiet.Count > 0)
+            {
+                var tbl = new PdfPTable(4) { WidthPercentage = 100, SpacingAfter = 2f };
+                tbl.SetWidths(new float[] { 38f, 10f, 22f, 22f });
+
+                // Header bảng
+                foreach ((string txt, bool right) in new[]
+                {
+                    ("Sản phẩm", false),
+                    ("SL",       true),
+                    ("Đơn giá",  true),
+                    ("T.tiền",   true)
+                })
+                {
+                    tbl.AddCell(new PdfPCell(new PdfPhrase(txt, fColHead))
+                    {
+                        BackgroundColor = new PdfBaseColor(43, 78, 35),
+                        Padding = 4f,
+                        HorizontalAlignment = right ? PdfElement.ALIGN_RIGHT : PdfElement.ALIGN_LEFT,
+                        BorderColor = PdfBaseColor.WHITE
+                    });
+                }
+
+                // Rows sản phẩm
+                bool alt = false;
+                foreach (var ct in dsChiTiet)
+                {
+                    var bg = alt ? new PdfBaseColor(245, 250, 245) : PdfBaseColor.WHITE;
+                    string ten = LayTenSP(ct.MaSP);
+                    tbl.AddCell(ReceiptCell(ten, fCell, bg, false));
+                    tbl.AddCell(ReceiptCell(ct.SoLuong.ToString(), fCell, bg, true));
+                    tbl.AddCell(ReceiptCell(ct.DonGia.ToString("N0") + "đ", fCell, bg, true));
+                    tbl.AddCell(ReceiptCell((ct.SoLuong * ct.DonGia).ToString("N0") + "đ", fCell, bg, true));
+                    alt = !alt;
+                }
+                doc.Add(tbl);
+            }
+
+            doc.Add(new PdfChunk(sepGray));
+            doc.Add(new PdfParagraph(" "));
+
+            // ── Tổng kết ─────────────────────────────────────────────
+            AddReceiptRow(doc, "Tiền giờ chơi", hd.TienBida.ToString("N0") + " đ", fLabel, fValue);
+            AddReceiptRow(doc, "Tiền sản phẩm", hd.TienSanPham.ToString("N0") + " đ", fLabel, fValue);
+
+            if (coGiam)
+            {
+                double soTienGiam = (hd.TienBida + hd.TienSanPham) - hd.TongTien;
+                string ghiChuGiam = string.IsNullOrWhiteSpace(hd.GhiChu) ? "Chiết khấu" : hd.GhiChu;
+                AddReceiptRow(doc, ghiChuGiam, "-" + soTienGiam.ToString("N0") + " đ", fLabel, fDiscount);
+            }
+
+            doc.Add(new PdfParagraph(" ") { SpacingAfter = 2f });
+            doc.Add(new PdfChunk(sepGreen));
+            doc.Add(new PdfParagraph(" "));
+
+            doc.Add(new PdfParagraph($"TỔNG TIỀN:  {hd.TongTien:N0} đ", fTotal)
+            { Alignment = PdfElement.ALIGN_RIGHT, SpacingAfter = 4f });
+
+            doc.Add(new PdfChunk(sepGray));
+            doc.Add(new PdfParagraph(" "));
+
+            // ── Footer ───────────────────────────────────────────────
+            doc.Add(new PdfParagraph("Cảm ơn quý khách và hẹn gặp lại!", fFooter)
+            { Alignment = PdfElement.ALIGN_CENTER });
+
+            doc.Close();
+        }
+
+        // ── Helper: tra tên SP từ cache ──────────────────────────
+        private string LayTenSP(string maSP)
+        {
+            if (_cacheTenSP != null &&
+                _cacheTenSP.TryGetValue(maSP, out string ten) &&
+                !string.IsNullOrWhiteSpace(ten))
+                return ten;
+            return maSP;
+        }
+
+        // ── Receipt helper: 1 dòng label – value ─────────────────
+        private static void AddReceiptRow(PdfDocument doc, string label, string value,
+                                          PdfFont fLabel, PdfFont fValue)
+        {
+            var tbl = new PdfPTable(2) { WidthPercentage = 100, SpacingAfter = 1f };
+            tbl.SetWidths(new float[] { 45f, 55f });
+            tbl.AddCell(new PdfPCell(new PdfPhrase(label, fLabel))
+            { Border = PdfPCell.NO_BORDER, Padding = 2f });
+            tbl.AddCell(new PdfPCell(new PdfPhrase(value, fValue))
+            {
+                Border = PdfPCell.NO_BORDER,
+                Padding = 2f,
+                HorizontalAlignment = PdfElement.ALIGN_RIGHT
+            });
+            doc.Add(tbl);
+        }
+
+        // ── Receipt helper: 1 cell bảng SP ───────────────────────
+        private static PdfPCell ReceiptCell(string text, PdfFont font,
+                                             PdfBaseColor bg, bool right)
+        {
+            return new PdfPCell(new PdfPhrase(text, font))
+            {
+                BackgroundColor = bg,
+                Padding = 3f,
+                HorizontalAlignment = right ? PdfElement.ALIGN_RIGHT : PdfElement.ALIGN_LEFT,
+                BorderColor = new PdfBaseColor(230, 230, 230)
+            };
         }
     }
 }

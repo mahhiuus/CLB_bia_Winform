@@ -39,6 +39,24 @@ namespace Bài_Tập_Lớn.GUI
             if (disposing) _fadeTimer?.Dispose();
             base.Dispose(disposing);
         }
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // OverlayForm
+            // 
+            this.ClientSize = new System.Drawing.Size(282, 253);
+            this.Name = "OverlayForm";
+            this.Load += new System.EventHandler(this.OverlayForm_Load);
+            this.ResumeLayout(false);
+
+        }
+
+        private void OverlayForm_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════

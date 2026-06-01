@@ -225,5 +225,29 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception("Lỗi khi lấy tồn kho: " + ex.Message);
             }
         }
+
+
+        public List<SanPhamDTO> LayTatCa()
+        {
+            string sql = @"SELECT ma_sp        AS MaSP,
+                          ten_sp       AS TenSP,
+                          loai,
+                          gia_ban      AS GiaBan,
+                          so_luong_ton AS SoLuongTon,
+                          ma_ncc       AS MaNCC,
+                          hinh_anh     AS HinhAnh
+                   FROM san_pham
+                   ORDER BY ma_sp";
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                    return conn.Query<SanPhamDTO>(sql).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi lấy danh sách sản phẩm: " + ex.Message);
+            }
+        }
     }
+
 }

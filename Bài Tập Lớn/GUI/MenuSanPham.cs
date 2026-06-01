@@ -78,6 +78,24 @@ namespace Bài_Tập_Lớn.GUI
         private const string TAG_LBL_SL = "lbl_sl";      // "2 × 15,000 ₫"
         private const string TAG_LBL_THANH = "lbl_thanh";   // "30,000 ₫"
 
+        // ══════════════════════════════════════════════════════════
+        //  [THÊM MỚI] POLLING TIMER — real-time sync qua mạng LAN
+        //  Cơ chế: mỗi 5 giây fetch DB 1 lần, so sánh với snapshot
+        //  cũ. Nếu số lượng SP hoặc thông tin SP thay đổi (thêm/
+        //  sửa/xóa từ máy khác) → tự động reload danh sách card.
+        //  Không rebuild right bar vì right bar phụ thuộc phiên chơi
+        //  (không bị ảnh hưởng bởi thay đổi danh mục sản phẩm).
+        // ══════════════════════════════════════════════════════════
+        private System.Windows.Forms.Timer _timerPolling;
+        private const int POLLING_INTERVAL_MS = 5000; // 5 giây
+
+        /// <summary>
+        /// Snapshot hash để phát hiện thay đổi mà không cần so sánh
+        /// từng field. Hash = ghép MaSP|TenSP|GiaBan|SoLuongTon|Loai
+        /// của toàn bộ danh sách, sort theo MaSP cho ổn định.
+        /// </summary>
+        private string _snapshotHash = "";
+
         // ═════════════════════════════════════════════════════════
         //  Khởi tạo
         // ═════════════════════════════════════════════════════════
@@ -87,14 +105,110 @@ namespace Bài_Tập_Lớn.GUI
             InitializeComponent();
             TaoTabLoc();
             TaoPhanTrang();
+
+            // [THÊM MỚI] Khởi tạo polling timer
+            KhoiTaoPollingTimer();
+
             this.Load += (s, e) =>
             {
                 NapDanhSachBan();
                 TaiDanhSach();
                 CapNhatTabUI(0);
                 RefreshMap();
+
+                // [THÊM MỚI] Bắt đầu polling sau khi form load xong
+                _timerPolling.Start();
             };
+
+            // [THÊM MỚI] Dừng timer khi form đóng, tránh memory leak
+            this.FormClosed += (s, e) => _timerPolling?.Stop();
         }
+
+        // ══════════════════════════════════════════════════════════
+        //  [THÊM MỚI] KHỞI TẠO POLLING TIMER
+        // ══════════════════════════════════════════════════════════
+        private void KhoiTaoPollingTimer()
+        {
+            _timerPolling = new System.Windows.Forms.Timer
+            {
+                Interval = POLLING_INTERVAL_MS,
+                Enabled = false,
+            };
+            _timerPolling.Tick += PollingTimer_Tick;
+        }
+
+        /// <summary>
+        /// Tick mỗi 5 giây: fetch DB → tính hash → nếu khác snapshot
+        /// cũ thì cập nhật _dsDayDu và reload card (giữ trang hiện tại
+        /// nếu có thể, giữ nguyên _tonKhoTam).
+        /// </summary>
+        private void PollingTimer_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                var dsMoi = _bll.TimKiem("") ?? new List<SanPhamDTO>();
+                string hashMoi = TinhSnapshotHash(dsMoi);
+
+                if (hashMoi == _snapshotHash)
+                    return; // Không có gì thay đổi → bỏ qua
+
+                // Có thay đổi → cập nhật cache tên SP
+                foreach (var sp in dsMoi)
+                    if (!string.IsNullOrEmpty(sp.MaSP))
+                        _cacheTenSP[sp.MaSP] = sp.TenSP ?? sp.MaSP;
+
+                // Cập nhật _dsDayDu (giữ _tonKhoTam nguyên vẹn)
+                _dsDayDu = dsMoi;
+                _snapshotHash = hashMoi;
+
+                // Reload card — giữ trang hiện tại nếu còn hợp lệ
+                LocVaHienThi_GiuTrang();
+            }
+            catch
+            {
+                // Bỏ qua lỗi network tạm thời, tick sau sẽ thử lại
+            }
+        }
+
+        /// <summary>
+        /// Tính hash đơn giản từ danh sách SP để phát hiện thay đổi.
+        /// Sort theo MaSP để hash ổn định dù DB trả về thứ tự khác.
+        /// </summary>
+        private static string TinhSnapshotHash(List<SanPhamDTO> ds)
+        {
+            var parts = ds
+                .OrderBy(sp => sp.MaSP)
+                .Select(sp =>
+                    $"{sp.MaSP}|{sp.TenSP}|{sp.GiaBan}|{sp.SoLuongTon}|{sp.Loai}|{sp.HinhAnh}");
+            return string.Join(";", parts);
+        }
+
+        /// <summary>
+        /// Giống LocVaHienThi() nhưng cố giữ trang hiện tại nếu còn
+        /// hợp lệ sau khi filter. Tránh nhảy về trang 1 mỗi lần poll.
+        /// </summary>
+        private void LocVaHienThi_GiuTrang()
+        {
+            string loaiFilter = DS_LOAI_VALUE[_tabChon];
+            string keyword = (txtTimKiem?.Text ?? "").Trim().ToLower();
+
+            _dsHienThi = _dsDayDu.Where(sp =>
+                (string.IsNullOrEmpty(loaiFilter) ||
+                 string.Equals(sp.Loai, loaiFilter, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrEmpty(keyword) ||
+                 (sp.TenSP ?? "").ToLower().Contains(keyword))
+            ).ToList();
+
+            // Giữ trang cũ nếu còn hợp lệ, nếu vượt quá thì về trang cuối
+            if (_trangHienTai > TongSoTrang)
+                _trangHienTai = Math.Max(1, TongSoTrang);
+
+            HienThiTrangHienTai();
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  (giữ nguyên toàn bộ code cũ bên dưới)
+        // ══════════════════════════════════════════════════════════
 
         private void RefreshMap()
         {
@@ -601,6 +715,9 @@ namespace Bài_Tập_Lớn.GUI
                     if (!string.IsNullOrEmpty(sp.MaSP))
                         _cacheTenSP[sp.MaSP] = sp.TenSP ?? sp.MaSP;
 
+                // Cập nhật snapshot hash để polling không reload lại ngay
+                _snapshotHash = TinhSnapshotHash(_dsDayDu);
+
                 // Duyệt từng card đang hiển thị và cập nhật tồn kho thật
                 // (_tonKhoTam đã được Clear() trước khi gọi hàm này)
                 foreach (Control c in flowCards.Controls)
@@ -648,6 +765,10 @@ namespace Bài_Tập_Lớn.GUI
                 foreach (var sp in _dsDayDu)
                     if (!string.IsNullOrEmpty(sp.MaSP))
                         _cacheTenSP[sp.MaSP] = sp.TenSP ?? sp.MaSP;
+
+                // [THÊM MỚI] Cập nhật snapshot sau mỗi lần tải thủ công
+                _snapshotHash = TinhSnapshotHash(_dsDayDu);
+
                 LocVaHienThi();
             }
             catch (Exception ex)

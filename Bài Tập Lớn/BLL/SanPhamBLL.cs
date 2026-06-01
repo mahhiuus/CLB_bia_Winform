@@ -10,7 +10,10 @@ namespace Bài_Tập_Lớn.BLL
         private readonly SanPhamDAL sanPhamDAL = new SanPhamDAL();
 
         public string SinhMaMoi() => sanPhamDAL.SinhMaMoi();
-
+            public List<SanPhamDTO> LayTatCa()
+            {
+                return sanPhamDAL.LayTatCa();
+            }
         public bool ThemSanPham(SanPhamDTO sp)
         {
             if (sp == null) throw new Exception("Dữ liệu sản phẩm không hợp lệ!");

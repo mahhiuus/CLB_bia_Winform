@@ -9,9 +9,7 @@ namespace Bài_Tập_Lớn.DAL
     internal class ThongKeDAL
     {
         // ══════════════════════════════════════════════════════════
-        //  HELPER: Tháng/Năm của ngày gần nhất có hóa đơn
-        //  → Dùng chung cho tất cả query "tháng hiện tại"
-        //  → Nếu DB trống thì fallback về tháng hệ thống
+        //  HELPER: tháng/năm của hóa đơn gần nhất
         // ══════════════════════════════════════════════════════════
         private (int Thang, int Nam) LayThangNamGanNhat()
         {
@@ -25,11 +23,7 @@ namespace Bài_Tập_Lớn.DAL
                 {
                     var row = conn.QueryFirstOrDefault<dynamic>(sql);
                     if (row != null)
-                    {
-                        int thang = Convert.ToInt32(row.Thang);
-                        int nam = Convert.ToInt32(row.Nam);
-                        return (thang, nam);
-                    }
+                        return (Convert.ToInt32(row.Thang), Convert.ToInt32(row.Nam));
                 }
             }
             catch { }
@@ -37,8 +31,7 @@ namespace Bài_Tập_Lớn.DAL
         }
 
         // ══════════════════════════════════════════════════════════
-        //  1. Doanh thu – tháng gần nhất có dữ liệu
-        //     Doanh Thu = SUM(tong_tien) của tất cả hóa đơn
+        //  1. Doanh thu tháng gần nhất
         // ══════════════════════════════════════════════════════════
         public double GetDoanhThuThangHienTai()
         {
@@ -46,21 +39,17 @@ namespace Bài_Tập_Lớn.DAL
             string sql = @"
                 SELECT ISNULL(SUM(tong_tien), 0)
                 FROM hoa_don_ban
-                WHERE MONTH(ngay_ban) = @Thang
-                  AND YEAR(ngay_ban)  = @Nam";
+                WHERE MONTH(ngay_ban) = @Thang AND YEAR(ngay_ban) = @Nam";
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                     return conn.ExecuteScalar<double>(sql, new { Thang = thang, Nam = nam });
             }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi khi lấy doanh thu tháng hiện tại: " + ex.Message);
-            }
+            catch (Exception ex) { throw new Exception("Lỗi doanh thu tháng: " + ex.Message); }
         }
 
         // ══════════════════════════════════════════════════════════
-        //  2. Số hóa đơn – tháng gần nhất có dữ liệu
+        //  2. Số hóa đơn tháng gần nhất
         // ══════════════════════════════════════════════════════════
         public int GetSoHoaDonThangHienTai()
         {
@@ -68,27 +57,22 @@ namespace Bài_Tập_Lớn.DAL
             string sql = @"
                 SELECT COUNT(*)
                 FROM hoa_don_ban
-                WHERE MONTH(ngay_ban) = @Thang
-                  AND YEAR(ngay_ban)  = @Nam";
+                WHERE MONTH(ngay_ban) = @Thang AND YEAR(ngay_ban) = @Nam";
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                     return conn.ExecuteScalar<int>(sql, new { Thang = thang, Nam = nam });
             }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi khi lấy số hóa đơn tháng hiện tại: " + ex.Message);
-            }
+            catch (Exception ex) { throw new Exception("Lỗi số hóa đơn: " + ex.Message); }
         }
 
         // ══════════════════════════════════════════════════════════
-        //  3. Số khách hàng mới THÁNG HIỆN TẠI (giữ nguyên GETDATE)
+        //  3. Khách hàng mới tháng hiện tại
         // ══════════════════════════════════════════════════════════
         public int GetKhachHangMoiThangHienTai()
         {
             string sql = @"
-                SELECT COUNT(*)
-                FROM khach_hang
+                SELECT COUNT(*) FROM khach_hang
                 WHERE MONTH(ngay_dang_ky) = MONTH(GETDATE())
                   AND YEAR(ngay_dang_ky)  = YEAR(GETDATE())";
             try
@@ -96,10 +80,7 @@ namespace Bài_Tập_Lớn.DAL
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                     return conn.ExecuteScalar<int>(sql);
             }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi khi lấy số khách hàng mới: " + ex.Message);
-            }
+            catch (Exception ex) { throw new Exception("Lỗi khách hàng mới: " + ex.Message); }
         }
 
         // ══════════════════════════════════════════════════════════
@@ -113,14 +94,11 @@ namespace Bài_Tập_Lớn.DAL
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                     return conn.ExecuteScalar<int>(sql);
             }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi khi lấy số bàn đang hoạt động: " + ex.Message);
-            }
+            catch (Exception ex) { throw new Exception("Lỗi số bàn hoạt động: " + ex.Message); }
         }
 
         // ══════════════════════════════════════════════════════════
-        //  5. Giá vốn – tháng gần nhất có dữ liệu
+        //  5. Giá vốn tháng gần nhất
         // ══════════════════════════════════════════════════════════
         public double GetGiaVonThangHienTai()
         {
@@ -129,28 +107,23 @@ namespace Bài_Tập_Lớn.DAL
                 WITH gia_von_tb AS (
                     SELECT ma_sp,
                            SUM(so_luong * don_gia_nhap) / NULLIF(SUM(so_luong), 0) AS don_gia_von
-                    FROM chi_tiet_hoa_don_nhap
-                    GROUP BY ma_sp
+                    FROM chi_tiet_hoa_don_nhap GROUP BY ma_sp
                 )
                 SELECT ISNULL(SUM(c.so_luong * ISNULL(g.don_gia_von, 0)), 0)
                 FROM chi_tiet_hoa_don_ban c
                 JOIN hoa_don_ban h ON c.ma_hdb = h.ma_hdb
                 LEFT JOIN gia_von_tb g ON g.ma_sp = c.ma_sp
-                WHERE MONTH(h.ngay_ban) = @Thang
-                  AND YEAR(h.ngay_ban)  = @Nam";
+                WHERE MONTH(h.ngay_ban) = @Thang AND YEAR(h.ngay_ban) = @Nam";
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                     return conn.ExecuteScalar<double>(sql, new { Thang = thang, Nam = nam });
             }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi khi tính giá vốn tháng hiện tại: " + ex.Message);
-            }
+            catch (Exception ex) { throw new Exception("Lỗi giá vốn tháng: " + ex.Message); }
         }
 
         // ══════════════════════════════════════════════════════════
-        //  6. Giá vốn THEO NGÀY
+        //  6. Giá vốn theo ngày (giữ nguyên)
         // ══════════════════════════════════════════════════════════
         public double GetGiaVonTheoNgay(DateTime ngay)
         {
@@ -158,8 +131,7 @@ namespace Bài_Tập_Lớn.DAL
                 WITH gia_von_tb AS (
                     SELECT ma_sp,
                            SUM(so_luong * don_gia_nhap) / NULLIF(SUM(so_luong), 0) AS don_gia_von
-                    FROM chi_tiet_hoa_don_nhap
-                    GROUP BY ma_sp
+                    FROM chi_tiet_hoa_don_nhap GROUP BY ma_sp
                 )
                 SELECT ISNULL(SUM(c.so_luong * ISNULL(g.don_gia_von, 0)), 0)
                 FROM chi_tiet_hoa_don_ban c
@@ -175,7 +147,7 @@ namespace Bài_Tập_Lớn.DAL
         }
 
         // ══════════════════════════════════════════════════════════
-        //  7. Giá vốn THEO THÁNG
+        //  7. Giá vốn theo tháng (giữ nguyên)
         // ══════════════════════════════════════════════════════════
         public double GetGiaVonTheoThang(int thang, int nam)
         {
@@ -183,15 +155,13 @@ namespace Bài_Tập_Lớn.DAL
                 WITH gia_von_tb AS (
                     SELECT ma_sp,
                            SUM(so_luong * don_gia_nhap) / NULLIF(SUM(so_luong), 0) AS don_gia_von
-                    FROM chi_tiet_hoa_don_nhap
-                    GROUP BY ma_sp
+                    FROM chi_tiet_hoa_don_nhap GROUP BY ma_sp
                 )
                 SELECT ISNULL(SUM(c.so_luong * ISNULL(g.don_gia_von, 0)), 0)
                 FROM chi_tiet_hoa_don_ban c
                 JOIN hoa_don_ban h ON c.ma_hdb = h.ma_hdb
                 LEFT JOIN gia_von_tb g ON g.ma_sp = c.ma_sp
-                WHERE MONTH(h.ngay_ban) = @Thang
-                  AND YEAR(h.ngay_ban)  = @Nam";
+                WHERE MONTH(h.ngay_ban) = @Thang AND YEAR(h.ngay_ban) = @Nam";
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
@@ -202,14 +172,16 @@ namespace Bài_Tập_Lớn.DAL
 
         // ══════════════════════════════════════════════════════════
         //  8. Biểu đồ THEO NGÀY
-        //  FIX: GROUP BY CAST(ngay_ban AS DATE)
+        //  [SỬA] Thêm SUM(tien_bida), SUM(tien_san_pham)
         // ══════════════════════════════════════════════════════════
         public List<dynamic> GetDuLieuBieuDoTheoNgay(DateTime tuNgay, DateTime denNgay)
         {
             string sql = @"
                 SELECT
-                    CAST(ngay_ban AS DATE) AS NgayBan,
-                    SUM(tong_tien)         AS DoanhThu
+                    CAST(ngay_ban AS DATE)         AS NgayBan,
+                    ISNULL(SUM(tong_tien),      0) AS DoanhThu,
+                    ISNULL(SUM(tien_bida),      0) AS TienBida,
+                    ISNULL(SUM(tien_san_pham),  0) AS TienSanPham
                 FROM hoa_don_ban
                 WHERE CAST(ngay_ban AS DATE)
                       BETWEEN CAST(@TuNgay AS DATE) AND CAST(@DenNgay AS DATE)
@@ -220,21 +192,21 @@ namespace Bài_Tập_Lớn.DAL
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                     return conn.Query<dynamic>(sql, new { TuNgay = tuNgay, DenNgay = denNgay }).ToList();
             }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi khi lấy dữ liệu biểu đồ theo ngày: " + ex.Message);
-            }
+            catch (Exception ex) { throw new Exception("Lỗi biểu đồ ngày: " + ex.Message); }
         }
 
         // ══════════════════════════════════════════════════════════
         //  9. Biểu đồ THEO THÁNG
+        //  [SỬA] Thêm SUM(tien_bida), SUM(tien_san_pham)
         // ══════════════════════════════════════════════════════════
         public List<dynamic> GetDuLieuBieuDoTheoThang(int nam)
         {
             string sql = @"
                 SELECT
-                    MONTH(ngay_ban) AS Thang,
-                    SUM(tong_tien)  AS DoanhThu
+                    MONTH(ngay_ban)                AS Thang,
+                    ISNULL(SUM(tong_tien),      0) AS DoanhThu,
+                    ISNULL(SUM(tien_bida),      0) AS TienBida,
+                    ISNULL(SUM(tien_san_pham),  0) AS TienSanPham
                 FROM hoa_don_ban
                 WHERE YEAR(ngay_ban) = @Nam
                 GROUP BY MONTH(ngay_ban)
@@ -244,28 +216,21 @@ namespace Bài_Tập_Lớn.DAL
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                     return conn.Query<dynamic>(sql, new { Nam = nam }).ToList();
             }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi khi lấy dữ liệu biểu đồ theo tháng: " + ex.Message);
-            }
+            catch (Exception ex) { throw new Exception("Lỗi biểu đồ tháng: " + ex.Message); }
         }
 
         // ══════════════════════════════════════════════════════════
-        //  10. [MỚI] Tổng TienBida và TienSanPham tháng gần nhất
-        //      → Dùng cho Pie Chart (tỉ lệ thực từ DB)
-        //      → Lợi nhuận = SUM(tien_bida) + SUM(tien_san_pham)
-        //        (toàn bộ doanh thu không trừ giá vốn theo yêu cầu)
+        //  10. TienBida + TienSanPham tháng gần nhất (Pie Chart)
         // ══════════════════════════════════════════════════════════
         public (double TienBida, double TienSanPham) GetTienBidaVaTienSanPhamThangHienTai()
         {
             var (thang, nam) = LayThangNamGanNhat();
             string sql = @"
                 SELECT
-                    ISNULL(SUM(tien_bida),      0) AS TienBida,
-                    ISNULL(SUM(tien_san_pham),  0) AS TienSanPham
+                    ISNULL(SUM(tien_bida),     0) AS TienBida,
+                    ISNULL(SUM(tien_san_pham), 0) AS TienSanPham
                 FROM hoa_don_ban
-                WHERE MONTH(ngay_ban) = @Thang
-                  AND YEAR(ngay_ban)  = @Nam";
+                WHERE MONTH(ngay_ban) = @Thang AND YEAR(ngay_ban) = @Nam";
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
@@ -275,17 +240,11 @@ namespace Bài_Tập_Lớn.DAL
                     return (Convert.ToDouble(row.TienBida), Convert.ToDouble(row.TienSanPham));
                 }
             }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi khi lấy tien_bida / tien_san_pham: " + ex.Message);
-            }
+            catch (Exception ex) { throw new Exception("Lỗi tien_bida/tien_san_pham: " + ex.Message); }
         }
 
         // ══════════════════════════════════════════════════════════
-        //  11. [MỚI] Snapshot phát hiện thay đổi dữ liệu
-        //      Trả về: số hóa đơn trong tháng + thời điểm hóa đơn
-        //      mới nhất. UI so sánh 2 lần liên tiếp để quyết định
-        //      có cần reload hay không → KHÔNG reload thừa.
+        //  11. Snapshot phát hiện thay đổi
         // ══════════════════════════════════════════════════════════
         public (int SoHoaDon, DateTime NgayMoiNhat, int SoBanHoatDong) GetSnapshotThayDoi()
         {
@@ -294,8 +253,7 @@ namespace Bài_Tập_Lớn.DAL
                 SELECT COUNT(*) AS SoHD,
                        ISNULL(MAX(ngay_ban), '1900-01-01') AS NgayMoiNhat
                 FROM hoa_don_ban
-                WHERE MONTH(ngay_ban) = @Thang
-                  AND YEAR(ngay_ban)  = @Nam";
+                WHERE MONTH(ngay_ban) = @Thang AND YEAR(ngay_ban) = @Nam";
             string sqlBan = "SELECT COUNT(*) FROM phien_choi WHERE trang_thai != 'DA_KET_THUC'";
             try
             {
@@ -309,6 +267,61 @@ namespace Bài_Tập_Lớn.DAL
                 }
             }
             catch { return (0, DateTime.MinValue, 0); }
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  12. [MỚI] Biểu đồ THEO NĂM
+        //      Lấy tất cả năm có hóa đơn trong DB
+        // ══════════════════════════════════════════════════════════
+        public List<dynamic> GetDuLieuBieuDoTheoNam()
+        {
+            string sql = @"
+                SELECT
+                    YEAR(ngay_ban)                 AS Nam,
+                    ISNULL(SUM(tong_tien),      0) AS DoanhThu,
+                    ISNULL(SUM(tien_bida),      0) AS TienBida,
+                    ISNULL(SUM(tien_san_pham),  0) AS TienSanPham
+                FROM hoa_don_ban
+                GROUP BY YEAR(ngay_ban)
+                ORDER BY Nam ASC";
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                    return conn.Query<dynamic>(sql).ToList();
+            }
+            catch (Exception ex) { throw new Exception("Lỗi biểu đồ năm: " + ex.Message); }
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  13. [MỚI] Top máy doanh thu cao nhất tháng gần nhất
+        //      Giả sử bảng: phien_choi (ma_may, tien_bida, ngay_bat_dau)
+        //      JOIN may_bida (ma_may, ten_may)
+        //      ⚠️ Đổi tên bảng/cột cho khớp DB thực tế của bạn
+        // ══════════════════════════════════════════════════════════
+        public List<dynamic> GetTopMayDoanhThu(int top = 3)
+        {
+            var (thang, nam) = LayThangNamGanNhat();
+            string sql = @"
+                SELECT TOP (@Top)
+                    mb.ten_may                     AS TenMay,
+                    ISNULL(SUM(pc.tien_bida),   0) AS DoanhThu
+                FROM phien_choi pc
+                JOIN may_bida mb ON pc.ma_may = mb.ma_may
+                WHERE MONTH(pc.ngay_bat_dau) = @Thang
+                  AND YEAR(pc.ngay_bat_dau)  = @Nam
+                  AND pc.trang_thai = 'DA_KET_THUC'
+                GROUP BY mb.ten_may
+                ORDER BY DoanhThu DESC";
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                    return conn.Query<dynamic>(sql, new { Top = top, Thang = thang, Nam = nam }).ToList();
+            }
+            catch
+            {
+                // Trả về list rỗng → UI sẽ không hiển thị card top máy
+                return new List<dynamic>();
+            }
         }
     }
 }

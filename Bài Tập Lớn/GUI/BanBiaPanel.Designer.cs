@@ -277,7 +277,7 @@
             this.btnThem.ShadowDecoration.Enabled = true;
             this.btnThem.Size = new System.Drawing.Size(287, 28);
             this.btnThem.TabIndex = 5;
-            this.btnThem.Text = "  Thêm Nhân Viên";
+            this.btnThem.Text = " Thêm Bàn Billard";
             this.btnThem.Click += new System.EventHandler(this.btnThem_Click);
             // 
             // selectTimKiem
