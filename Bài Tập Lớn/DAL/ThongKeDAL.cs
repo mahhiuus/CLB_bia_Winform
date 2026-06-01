@@ -31,6 +31,18 @@ namespace Bài_Tập_Lớn.DAL
         }
 
         // ══════════════════════════════════════════════════════════
+        //  SQL HELPER: CTE tính đơn giá vốn trung bình theo sản phẩm
+        //  don_gia_von = SUM(so_luong * don_gia_nhap) / SUM(so_luong)
+        // ══════════════════════════════════════════════════════════
+        private const string CTE_GIA_VON = @"
+            WITH gia_von_tb AS (
+                SELECT  ma_sp,
+                        SUM(so_luong * don_gia_nhap) / NULLIF(SUM(so_luong), 0) AS don_gia_von
+                FROM    chi_tiet_hoa_don_nhap
+                GROUP BY ma_sp
+            )";
+
+        // ══════════════════════════════════════════════════════════
         //  1. Doanh thu tháng gần nhất
         // ══════════════════════════════════════════════════════════
         public double GetDoanhThuThangHienTai()
@@ -103,12 +115,7 @@ namespace Bài_Tập_Lớn.DAL
         public double GetGiaVonThangHienTai()
         {
             var (thang, nam) = LayThangNamGanNhat();
-            string sql = @"
-                WITH gia_von_tb AS (
-                    SELECT ma_sp,
-                           SUM(so_luong * don_gia_nhap) / NULLIF(SUM(so_luong), 0) AS don_gia_von
-                    FROM chi_tiet_hoa_don_nhap GROUP BY ma_sp
-                )
+            string sql = CTE_GIA_VON + @"
                 SELECT ISNULL(SUM(c.so_luong * ISNULL(g.don_gia_von, 0)), 0)
                 FROM chi_tiet_hoa_don_ban c
                 JOIN hoa_don_ban h ON c.ma_hdb = h.ma_hdb
@@ -123,16 +130,11 @@ namespace Bài_Tập_Lớn.DAL
         }
 
         // ══════════════════════════════════════════════════════════
-        //  6. Giá vốn theo ngày (giữ nguyên)
+        //  6. Giá vốn theo ngày
         // ══════════════════════════════════════════════════════════
         public double GetGiaVonTheoNgay(DateTime ngay)
         {
-            string sql = @"
-                WITH gia_von_tb AS (
-                    SELECT ma_sp,
-                           SUM(so_luong * don_gia_nhap) / NULLIF(SUM(so_luong), 0) AS don_gia_von
-                    FROM chi_tiet_hoa_don_nhap GROUP BY ma_sp
-                )
+            string sql = CTE_GIA_VON + @"
                 SELECT ISNULL(SUM(c.so_luong * ISNULL(g.don_gia_von, 0)), 0)
                 FROM chi_tiet_hoa_don_ban c
                 JOIN hoa_don_ban h ON c.ma_hdb = h.ma_hdb
@@ -147,16 +149,11 @@ namespace Bài_Tập_Lớn.DAL
         }
 
         // ══════════════════════════════════════════════════════════
-        //  7. Giá vốn theo tháng (giữ nguyên)
+        //  7. Giá vốn theo tháng
         // ══════════════════════════════════════════════════════════
         public double GetGiaVonTheoThang(int thang, int nam)
         {
-            string sql = @"
-                WITH gia_von_tb AS (
-                    SELECT ma_sp,
-                           SUM(so_luong * don_gia_nhap) / NULLIF(SUM(so_luong), 0) AS don_gia_von
-                    FROM chi_tiet_hoa_don_nhap GROUP BY ma_sp
-                )
+            string sql = CTE_GIA_VON + @"
                 SELECT ISNULL(SUM(c.so_luong * ISNULL(g.don_gia_von, 0)), 0)
                 FROM chi_tiet_hoa_don_ban c
                 JOIN hoa_don_ban h ON c.ma_hdb = h.ma_hdb
@@ -171,8 +168,102 @@ namespace Bài_Tập_Lớn.DAL
         }
 
         // ══════════════════════════════════════════════════════════
+        //  [MỚI] Lãi sản phẩm = SUM((don_gia_ban - don_gia_von) * so_luong_ban)
+        //  Dùng chung bởi GetTienBidaVaTienSanPhamThangHienTai,
+        //  GetDuLieuBieuDoTheoNgay, GetDuLieuBieuDoTheoThang, GetDuLieuBieuDoTheoNam
+        // ══════════════════════════════════════════════════════════
+
+        /// <summary>Lãi SP tháng gần nhất</summary>
+        public double GetLaiSanPhamThangHienTai()
+        {
+            var (thang, nam) = LayThangNamGanNhat();
+            string sql = CTE_GIA_VON + @"
+                SELECT ISNULL(
+                    SUM(c.so_luong * (c.don_gia - ISNULL(g.don_gia_von, 0))),
+                0)
+                FROM chi_tiet_hoa_don_ban c
+                JOIN hoa_don_ban h          ON c.ma_hdb = h.ma_hdb
+                LEFT JOIN gia_von_tb g      ON g.ma_sp  = c.ma_sp
+                WHERE c.ma_sp IS NOT NULL
+                  AND MONTH(h.ngay_ban) = @Thang
+                  AND YEAR(h.ngay_ban)  = @Nam";
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                    return conn.ExecuteScalar<double>(sql, new { Thang = thang, Nam = nam });
+            }
+            catch { return 0; }
+        }
+
+        /// <summary>Lãi SP theo khoảng ngày – GROUP BY ngày, trả List dynamic (NgayBan, LaiSanPham)</summary>
+        public List<dynamic> GetLaiSanPhamTheoNgay(DateTime tuNgay, DateTime denNgay)
+        {
+            string sql = CTE_GIA_VON + @"
+                SELECT
+                    CAST(h.ngay_ban AS DATE) AS NgayBan,
+                    ISNULL(SUM(c.so_luong * (c.don_gia - ISNULL(g.don_gia_von, 0))), 0) AS LaiSanPham
+                FROM chi_tiet_hoa_don_ban c
+                JOIN hoa_don_ban h     ON c.ma_hdb = h.ma_hdb
+                LEFT JOIN gia_von_tb g ON g.ma_sp  = c.ma_sp
+                WHERE c.ma_sp IS NOT NULL
+                  AND CAST(h.ngay_ban AS DATE)
+                      BETWEEN CAST(@TuNgay AS DATE) AND CAST(@DenNgay AS DATE)
+                GROUP BY CAST(h.ngay_ban AS DATE)
+                ORDER BY NgayBan ASC";
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                    return conn.Query<dynamic>(sql, new { TuNgay = tuNgay, DenNgay = denNgay }).ToList();
+            }
+            catch { return new List<dynamic>(); }
+        }
+
+        /// <summary>Lãi SP theo tháng – GROUP BY tháng, trả List dynamic (Thang, LaiSanPham)</summary>
+        public List<dynamic> GetLaiSanPhamTheoThang(int nam)
+        {
+            string sql = CTE_GIA_VON + @"
+                SELECT
+                    MONTH(h.ngay_ban) AS Thang,
+                    ISNULL(SUM(c.so_luong * (c.don_gia - ISNULL(g.don_gia_von, 0))), 0) AS LaiSanPham
+                FROM chi_tiet_hoa_don_ban c
+                JOIN hoa_don_ban h     ON c.ma_hdb = h.ma_hdb
+                LEFT JOIN gia_von_tb g ON g.ma_sp  = c.ma_sp
+                WHERE c.ma_sp IS NOT NULL
+                  AND YEAR(h.ngay_ban) = @Nam
+                GROUP BY MONTH(h.ngay_ban)
+                ORDER BY Thang ASC";
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                    return conn.Query<dynamic>(sql, new { Nam = nam }).ToList();
+            }
+            catch { return new List<dynamic>(); }
+        }
+
+        /// <summary>Lãi SP theo năm – GROUP BY năm, trả List dynamic (Nam, LaiSanPham)</summary>
+        public List<dynamic> GetLaiSanPhamTheoNam()
+        {
+            string sql = CTE_GIA_VON + @"
+                SELECT
+                    YEAR(h.ngay_ban) AS Nam,
+                    ISNULL(SUM(c.so_luong * (c.don_gia - ISNULL(g.don_gia_von, 0))), 0) AS LaiSanPham
+                FROM chi_tiet_hoa_don_ban c
+                JOIN hoa_don_ban h     ON c.ma_hdb = h.ma_hdb
+                LEFT JOIN gia_von_tb g ON g.ma_sp  = c.ma_sp
+                WHERE c.ma_sp IS NOT NULL
+                GROUP BY YEAR(h.ngay_ban)
+                ORDER BY Nam ASC";
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                    return conn.Query<dynamic>(sql).ToList();
+            }
+            catch { return new List<dynamic>(); }
+        }
+
+        // ══════════════════════════════════════════════════════════
         //  8. Biểu đồ THEO NGÀY
-        //  [SỬA] Thêm SUM(tien_bida), SUM(tien_san_pham)
+        //  Thêm cột lai_san_pham để BLL tính lợi nhuận đúng
         // ══════════════════════════════════════════════════════════
         public List<dynamic> GetDuLieuBieuDoTheoNgay(DateTime tuNgay, DateTime denNgay)
         {
@@ -197,7 +288,6 @@ namespace Bài_Tập_Lớn.DAL
 
         // ══════════════════════════════════════════════════════════
         //  9. Biểu đồ THEO THÁNG
-        //  [SỬA] Thêm SUM(tien_bida), SUM(tien_san_pham)
         // ══════════════════════════════════════════════════════════
         public List<dynamic> GetDuLieuBieuDoTheoThang(int nam)
         {
@@ -220,7 +310,7 @@ namespace Bài_Tập_Lớn.DAL
         }
 
         // ══════════════════════════════════════════════════════════
-        //  10. TienBida + TienSanPham tháng gần nhất (Pie Chart)
+        //  10. TienBida + TienSanPham tháng gần nhất (Pie Chart + Cards)
         // ══════════════════════════════════════════════════════════
         public (double TienBida, double TienSanPham) GetTienBidaVaTienSanPhamThangHienTai()
         {
@@ -270,8 +360,7 @@ namespace Bài_Tập_Lớn.DAL
         }
 
         // ══════════════════════════════════════════════════════════
-        //  12. [MỚI] Biểu đồ THEO NĂM
-        //      Lấy tất cả năm có hóa đơn trong DB
+        //  12. Biểu đồ THEO NĂM
         // ══════════════════════════════════════════════════════════
         public List<dynamic> GetDuLieuBieuDoTheoNam()
         {
@@ -293,10 +382,7 @@ namespace Bài_Tập_Lớn.DAL
         }
 
         // ══════════════════════════════════════════════════════════
-        //  13. [MỚI] Top máy doanh thu cao nhất tháng gần nhất
-        //      Giả sử bảng: phien_choi (ma_may, tien_bida, ngay_bat_dau)
-        //      JOIN may_bida (ma_may, ten_may)
-        //      ⚠️ Đổi tên bảng/cột cho khớp DB thực tế của bạn
+        //  13. Top máy doanh thu cao nhất tháng gần nhất
         // ══════════════════════════════════════════════════════════
         public List<dynamic> GetTopMayDoanhThu(int top = 3)
         {
@@ -319,7 +405,6 @@ namespace Bài_Tập_Lớn.DAL
             }
             catch
             {
-                // Trả về list rỗng → UI sẽ không hiển thị card top máy
                 return new List<dynamic>();
             }
         }
