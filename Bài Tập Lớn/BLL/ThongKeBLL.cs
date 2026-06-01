@@ -26,9 +26,7 @@ namespace Bài_Tập_Lớn.BLL
         // ══════════════════════════════════════════════════════════
         public double GetLoiNhuanThangHienTai()
         {
-            var (tienBida, _) = thongKeDAL.GetTienBidaVaTienSanPhamThangHienTai();
-            double laiSanPham = thongKeDAL.GetLaiSanPhamThangHienTai();
-            return tienBida + laiSanPham;
+            return thongKeDAL.GetLoiNhuanThangHienTai();
         }
 
         public (int SoHoaDon, DateTime NgayMoiNhat, int SoBanHoatDong) GetSnapshotThayDoi()

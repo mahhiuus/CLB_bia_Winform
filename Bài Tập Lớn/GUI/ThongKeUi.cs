@@ -113,14 +113,11 @@ namespace Bài_Tập_Lớn.GUI
         {
             try
             {
-                // ── Doanh Thu ──
                 double doanhThu = _thongKeBLL.GetDoanhThuThangHienTai();
-                guna2HtmlLabel3.Text = (doanhThu / 1_000_000).ToString("N1");
+                guna2HtmlLabel3.Text = (doanhThu / 1).ToString("N1");
 
-                // ── [SỬA] Lợi Nhuận = TienBida - TienSanPham ──
-                var (tienBida, tienSanPham) = _thongKeBLL.GetTienBidaVaTienSanPhamThangHienTai();
-                double loiNhuan = tienBida - tienSanPham;   // <-- SỬA ở đây
-                guna2HtmlLabel6.Text = (loiNhuan / 1_000_000).ToString("N1");
+                double loiNhuan = _thongKeBLL.GetLoiNhuanThangHienTai();
+                guna2HtmlLabel6.Text = (loiNhuan / 1).ToString("N1");
 
                 // ── Số Hóa Đơn ──
                 int soHoaDon = _thongKeBLL.GetSoHoaDonThangHienTai();

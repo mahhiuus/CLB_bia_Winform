@@ -452,7 +452,7 @@ namespace Bài_Tập_Lớn.GUI
                                 cacheTenSP[sp.MaSP] = sp.TenSP ?? sp.MaSP;
                     }
                     catch { /* fallback: cache rỗng, PDF dùng MaSP */ }
-
+                    var chiTietHoaDonBanBLL = new Bài_Tập_Lớn.BLL.ChiTietHoaDonBanBLL();
                     // ── Mở ThanhToanDialog đầy đủ tham số ───────────────
                     using (var dialog = new ThanhToanDialog(ban, phien, dsChiTiet, cacheTenSP))
                     {
@@ -462,6 +462,22 @@ namespace Bài_Tập_Lớn.GUI
                         dialog.ShowDialog(this);
                         if (dialog.IsPaid)
                         {
+                            if (dialog.HoaDonDaTao != null && dsChiTiet != null)
+                            {
+                                foreach (var item in dsChiTiet)
+                                {
+                                    var cthd = new ChiTietHoaDonBanDTO
+                                    {
+                                        MaHDB = dialog.HoaDonDaTao.MaHDB, // Lấy mã hóa đơn vừa được Dialog tạo thành công
+                                        MaSP = item.MaSP,
+                                        SoLuong = item.SoLuong,
+                                        DonGiaBan = item.DonGia // Đơn giá từ chi tiết phiên chuyển sang đơn giá bán
+                                    };
+
+                                    // Gọi xuống tầng BLL để thực thi lệnh lưu vào SQL Server
+                                    chiTietHoaDonBanBLL.ThemChiTiet(cthd);
+                                }
+                            }
                             RefreshMap();
                             // Hiển thị hóa đơn dạng preview (giống giao diện ThanhToanDialog)
                             if (dialog.HoaDonDaTao != null)

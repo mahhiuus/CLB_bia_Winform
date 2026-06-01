@@ -332,6 +332,42 @@ namespace Bài_Tập_Lớn.DAL
             }
             catch (Exception ex) { throw new Exception("Lỗi tien_bida/tien_san_pham: " + ex.Message); }
         }
+        public double GetLoiNhuanThangHienTai()
+        {
+            var (thang, nam) = LayThangNamGanNhat();
+
+            // Đã sửa 'c.don_gia' thành 'c.don_gia_ban' theo đúng DB của bạn
+            string sql = CTE_GIA_VON + @"
+        SELECT 
+            (SELECT ISNULL(SUM(tien_bida), 0) 
+             FROM dbo.hoa_don_ban 
+             WHERE MONTH(ngay_ban) = @Thang AND YEAR(ngay_ban) = @Nam)
+            +
+            ISNULL(
+                (SELECT SUM(c.so_luong * (c.don_gia_ban - ISNULL(g.don_gia_von, 0))) 
+                 FROM dbo.chi_tiet_hoa_don_ban c 
+                 JOIN dbo.hoa_don_ban h ON c.ma_hdb = h.ma_hdb 
+                 LEFT JOIN gia_von_tb g ON c.ma_sp = g.ma_sp 
+                 WHERE MONTH(h.ngay_ban) = @Thang AND YEAR(h.ngay_ban) = @Nam)
+            , 0) AS TongLoiNhuan";
+
+            try
+            {
+                using (IDbConnection conn = DBConnection.Instance.GetConnection())
+                {
+                    // SỬA CHÍ MẠNG: Đổi <double> thành <decimal> để Dapper không bị lỗi ép kiểu
+                    decimal loiNhuanDecimal = conn.ExecuteScalar<decimal>(sql, new { Thang = thang, Nam = nam });
+
+                    // Sau đó mới convert sang double để trả về cho BLL
+                    return Convert.ToDouble(loiNhuanDecimal);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Bỏ 'catch { return 0; }' ẩn lỗi đi để nếu sai cái gì bạn nhìn thấy ngay ở đây!
+                throw new Exception("Lỗi tính lợi nhuận: " + ex.Message);
+            }
+        }
 
         // ══════════════════════════════════════════════════════════
         //  11. Snapshot phát hiện thay đổi

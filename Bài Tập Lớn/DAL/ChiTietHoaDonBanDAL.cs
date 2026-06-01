@@ -12,9 +12,9 @@ namespace Bài_Tập_Lớn.DAL
         public string SinhMaMoi()
         {
             // Tối ưu bằng SQL: Trích xuất phần số sau chuỗi 'CTB' và lấy giá trị lớn nhất
-            string sql = @"SELECT ISNULL(MAX(CAST(SUBSTRING(ma_chi_tiet, 4, LEN(ma_chi_tiet)) AS INT)), 0) 
+            string sql = @"SELECT ISNULL(MAX(CAST(SUBSTRING(ma_ct_hdb, 4, LEN(ma_ct_hdb)) AS INT)), 0) 
                            FROM chi_tiet_hoa_don_ban 
-                           WHERE ma_chi_tiet LIKE 'CTB%'";
+                           WHERE ma_ct_hdb LIKE 'CTB%'";
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
@@ -31,8 +31,8 @@ namespace Bài_Tập_Lớn.DAL
 
         public bool ThemChiTiet(ChiTietHoaDonBanDTO ct)
         {
-            string sql = @"INSERT INTO chi_tiet_hoa_don_ban (ma_chi_tiet, ma_hdb, ma_sp, so_luong, don_gia_ban) 
-                           VALUES (@MaChiTiet, @MaHDB, @MaSP, @SoLuong, @DonGiaBan)";
+            string sql = @"INSERT INTO chi_tiet_hoa_don_ban (ma_ct_hdb, ma_hdb, ma_sp, so_luong, don_gia_ban) 
+                           VALUES (@MaCTHDB, @MaHDB, @MaSP, @SoLuong, @DonGiaBan)";
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
@@ -54,7 +54,7 @@ namespace Bài_Tập_Lớn.DAL
 
         public bool XoaChiTiet(string maChiTiet)
         {
-            string sql = "DELETE FROM chi_tiet_hoa_don_ban WHERE ma_chi_tiet = @MaChiTiet";
+            string sql = "DELETE FROM chi_tiet_hoa_don_ban WHERE ma_ct_hdb = @MaCTHDB";
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
@@ -104,7 +104,7 @@ namespace Bài_Tập_Lớn.DAL
 
         public ChiTietHoaDonBanDTO LayTheoId(string maChiTiet)
         {
-            string sql = "SELECT * FROM chi_tiet_hoa_don_ban WHERE ma_chi_tiet = @MaChiTiet";
+            string sql = "SELECT * FROM chi_tiet_hoa_don_ban WHERE ma_ct_hdb = @MaCTHDB";
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
