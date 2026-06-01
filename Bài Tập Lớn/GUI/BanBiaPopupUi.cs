@@ -96,7 +96,6 @@ namespace Bài_Tập_Lớn.GUI
             {
                 new { Text = "Bàn Thường",  Value = "THUONG"  },
                 new { Text = "Bàn VIP",     Value = "VIP"     },
-                new { Text = "Bàn Snooker", Value = "SNOOKER" },
             };
             selectBan.DisplayMember = "Text";
             selectBan.ValueMember = "Value";
