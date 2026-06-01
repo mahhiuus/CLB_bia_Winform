@@ -32,18 +32,22 @@
             this.guna2Elipse1 = new Guna.UI2.WinForms.Guna2Elipse(this.components);
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.guna2GradientPanel3 = new Guna.UI2.WinForms.Guna2GradientPanel();
+            this.guna2Panel11 = new Guna.UI2.WinForms.Guna2Panel();
             this.guna2HtmlLabel11 = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.guna2HtmlLabel12 = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.guna2HtmlLabel13 = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.guna2GradientPanel2 = new Guna.UI2.WinForms.Guna2GradientPanel();
+            this.guna2Panel10 = new Guna.UI2.WinForms.Guna2Panel();
             this.guna2HtmlLabel8 = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.guna2HtmlLabel9 = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.guna2HtmlLabel10 = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.guna2GradientPanel5 = new Guna.UI2.WinForms.Guna2GradientPanel();
+            this.guna2Panel9 = new Guna.UI2.WinForms.Guna2Panel();
             this.guna2HtmlLabel5 = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.guna2HtmlLabel7 = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.guna2HtmlLabel6 = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.guna2GradientPanel1 = new Guna.UI2.WinForms.Guna2GradientPanel();
+            this.guna2Panel8 = new Guna.UI2.WinForms.Guna2Panel();
             this.guna2HtmlLabel4 = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.guna2HtmlLabel3 = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.guna2HtmlLabel2 = new Guna.UI2.WinForms.Guna2HtmlLabel();
@@ -56,10 +60,6 @@
             this.guna2Panel7 = new Guna.UI2.WinForms.Guna2Panel();
             this.guna2Panel6 = new Guna.UI2.WinForms.Guna2Panel();
             this.guna2HtmlLabel1 = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.guna2Panel9 = new Guna.UI2.WinForms.Guna2Panel();
-            this.guna2Panel8 = new Guna.UI2.WinForms.Guna2Panel();
-            this.guna2Panel10 = new Guna.UI2.WinForms.Guna2Panel();
-            this.guna2Panel11 = new Guna.UI2.WinForms.Guna2Panel();
             this.tableLayoutPanel1.SuspendLayout();
             this.guna2GradientPanel3.SuspendLayout();
             this.guna2GradientPanel2.SuspendLayout();
@@ -93,7 +93,7 @@
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1248, 187);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1248, 177);
             this.tableLayoutPanel1.TabIndex = 5;
             this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
             // 
@@ -116,8 +116,18 @@
             this.guna2GradientPanel3.ShadowDecoration.Depth = 10;
             this.guna2GradientPanel3.ShadowDecoration.Enabled = true;
             this.guna2GradientPanel3.ShadowDecoration.Shadow = new System.Windows.Forms.Padding(10);
-            this.guna2GradientPanel3.Size = new System.Drawing.Size(282, 132);
+            this.guna2GradientPanel3.Size = new System.Drawing.Size(282, 122);
             this.guna2GradientPanel3.TabIndex = 4;
+            // 
+            // guna2Panel11
+            // 
+            this.guna2Panel11.BackgroundImage = global::Bài_Tập_Lớn.Properties.Resources.investment;
+            this.guna2Panel11.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.guna2Panel11.Enabled = false;
+            this.guna2Panel11.Location = new System.Drawing.Point(119, 19);
+            this.guna2Panel11.Name = "guna2Panel11";
+            this.guna2Panel11.Size = new System.Drawing.Size(40, 40);
+            this.guna2Panel11.TabIndex = 32;
             // 
             // guna2HtmlLabel11
             // 
@@ -172,8 +182,18 @@
             this.guna2GradientPanel2.ShadowDecoration.Depth = 10;
             this.guna2GradientPanel2.ShadowDecoration.Enabled = true;
             this.guna2GradientPanel2.ShadowDecoration.Shadow = new System.Windows.Forms.Padding(10);
-            this.guna2GradientPanel2.Size = new System.Drawing.Size(282, 132);
+            this.guna2GradientPanel2.Size = new System.Drawing.Size(282, 122);
             this.guna2GradientPanel2.TabIndex = 3;
+            // 
+            // guna2Panel10
+            // 
+            this.guna2Panel10.BackgroundImage = global::Bài_Tập_Lớn.Properties.Resources.calculator_bill;
+            this.guna2Panel10.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.guna2Panel10.Enabled = false;
+            this.guna2Panel10.Location = new System.Drawing.Point(151, 19);
+            this.guna2Panel10.Name = "guna2Panel10";
+            this.guna2Panel10.Size = new System.Drawing.Size(40, 40);
+            this.guna2Panel10.TabIndex = 31;
             // 
             // guna2HtmlLabel8
             // 
@@ -227,8 +247,18 @@
             this.guna2GradientPanel5.ShadowDecoration.Depth = 10;
             this.guna2GradientPanel5.ShadowDecoration.Enabled = true;
             this.guna2GradientPanel5.ShadowDecoration.Shadow = new System.Windows.Forms.Padding(10);
-            this.guna2GradientPanel5.Size = new System.Drawing.Size(282, 132);
+            this.guna2GradientPanel5.Size = new System.Drawing.Size(282, 122);
             this.guna2GradientPanel5.TabIndex = 2;
+            // 
+            // guna2Panel9
+            // 
+            this.guna2Panel9.BackgroundImage = global::Bài_Tập_Lớn.Properties.Resources.investment;
+            this.guna2Panel9.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.guna2Panel9.Enabled = false;
+            this.guna2Panel9.Location = new System.Drawing.Point(166, 19);
+            this.guna2Panel9.Name = "guna2Panel9";
+            this.guna2Panel9.Size = new System.Drawing.Size(40, 40);
+            this.guna2Panel9.TabIndex = 30;
             // 
             // guna2HtmlLabel5
             // 
@@ -283,9 +313,19 @@
             this.guna2GradientPanel1.ShadowDecoration.Depth = 10;
             this.guna2GradientPanel1.ShadowDecoration.Enabled = true;
             this.guna2GradientPanel1.ShadowDecoration.Shadow = new System.Windows.Forms.Padding(10);
-            this.guna2GradientPanel1.Size = new System.Drawing.Size(282, 132);
+            this.guna2GradientPanel1.Size = new System.Drawing.Size(282, 122);
             this.guna2GradientPanel1.TabIndex = 1;
             this.guna2GradientPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.guna2GradientPanel1_Paint);
+            // 
+            // guna2Panel8
+            // 
+            this.guna2Panel8.BackgroundImage = global::Bài_Tập_Lớn.Properties.Resources.sack_dollar1;
+            this.guna2Panel8.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.guna2Panel8.Enabled = false;
+            this.guna2Panel8.Location = new System.Drawing.Point(177, 19);
+            this.guna2Panel8.Name = "guna2Panel8";
+            this.guna2Panel8.Size = new System.Drawing.Size(40, 40);
+            this.guna2Panel8.TabIndex = 29;
             // 
             // guna2HtmlLabel4
             // 
@@ -363,8 +403,8 @@
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 4;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 5.795455F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 22.04545F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 67.04546F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20.79545F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 68.18182F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 5.113636F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(1254, 880);
             this.tableLayoutPanel2.TabIndex = 6;
@@ -375,9 +415,9 @@
             this.guna2Panel3.Controls.Add(this.guna2Panel4);
             this.guna2Panel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.guna2Panel3.FillColor = System.Drawing.Color.Red;
-            this.guna2Panel3.Location = new System.Drawing.Point(3, 247);
+            this.guna2Panel3.Location = new System.Drawing.Point(3, 237);
             this.guna2Panel3.Name = "guna2Panel3";
-            this.guna2Panel3.Size = new System.Drawing.Size(1248, 584);
+            this.guna2Panel3.Size = new System.Drawing.Size(1248, 594);
             this.guna2Panel3.TabIndex = 6;
             // 
             // guna2Panel5
@@ -387,7 +427,7 @@
             this.guna2Panel5.Location = new System.Drawing.Point(0, 0);
             this.guna2Panel5.Name = "guna2Panel5";
             this.guna2Panel5.Padding = new System.Windows.Forms.Padding(0, 40, 10, 20);
-            this.guna2Panel5.Size = new System.Drawing.Size(782, 584);
+            this.guna2Panel5.Size = new System.Drawing.Size(782, 594);
             this.guna2Panel5.TabIndex = 1;
             this.guna2Panel5.Paint += new System.Windows.Forms.PaintEventHandler(this.guna2Panel5_Paint_2);
             // 
@@ -399,7 +439,7 @@
             this.guna2Panel4.FillColor = System.Drawing.Color.Blue;
             this.guna2Panel4.Location = new System.Drawing.Point(782, 0);
             this.guna2Panel4.Name = "guna2Panel4";
-            this.guna2Panel4.Size = new System.Drawing.Size(466, 584);
+            this.guna2Panel4.Size = new System.Drawing.Size(466, 594);
             this.guna2Panel4.TabIndex = 0;
             // 
             // guna2Panel7
@@ -408,7 +448,7 @@
             this.guna2Panel7.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(251)))));
             this.guna2Panel7.Location = new System.Drawing.Point(0, 304);
             this.guna2Panel7.Name = "guna2Panel7";
-            this.guna2Panel7.Size = new System.Drawing.Size(466, 280);
+            this.guna2Panel7.Size = new System.Drawing.Size(466, 290);
             this.guna2Panel7.TabIndex = 1;
             this.guna2Panel7.Paint += new System.Windows.Forms.PaintEventHandler(this.guna2Panel7_Paint);
             // 
@@ -433,46 +473,6 @@
             this.guna2HtmlLabel1.Size = new System.Drawing.Size(237, 55);
             this.guna2HtmlLabel1.TabIndex = 25;
             this.guna2HtmlLabel1.Text = "DOUBLE2N";
-            // 
-            // guna2Panel9
-            // 
-            this.guna2Panel9.BackgroundImage = global::Bài_Tập_Lớn.Properties.Resources.investment;
-            this.guna2Panel9.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.guna2Panel9.Enabled = false;
-            this.guna2Panel9.Location = new System.Drawing.Point(166, 19);
-            this.guna2Panel9.Name = "guna2Panel9";
-            this.guna2Panel9.Size = new System.Drawing.Size(40, 40);
-            this.guna2Panel9.TabIndex = 30;
-            // 
-            // guna2Panel8
-            // 
-            this.guna2Panel8.BackgroundImage = global::Bài_Tập_Lớn.Properties.Resources.sack_dollar1;
-            this.guna2Panel8.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.guna2Panel8.Enabled = false;
-            this.guna2Panel8.Location = new System.Drawing.Point(177, 19);
-            this.guna2Panel8.Name = "guna2Panel8";
-            this.guna2Panel8.Size = new System.Drawing.Size(40, 40);
-            this.guna2Panel8.TabIndex = 29;
-            // 
-            // guna2Panel10
-            // 
-            this.guna2Panel10.BackgroundImage = global::Bài_Tập_Lớn.Properties.Resources.calculator_bill;
-            this.guna2Panel10.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.guna2Panel10.Enabled = false;
-            this.guna2Panel10.Location = new System.Drawing.Point(151, 19);
-            this.guna2Panel10.Name = "guna2Panel10";
-            this.guna2Panel10.Size = new System.Drawing.Size(40, 40);
-            this.guna2Panel10.TabIndex = 31;
-            // 
-            // guna2Panel11
-            // 
-            this.guna2Panel11.BackgroundImage = global::Bài_Tập_Lớn.Properties.Resources.investment;
-            this.guna2Panel11.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.guna2Panel11.Enabled = false;
-            this.guna2Panel11.Location = new System.Drawing.Point(119, 19);
-            this.guna2Panel11.Name = "guna2Panel11";
-            this.guna2Panel11.Size = new System.Drawing.Size(40, 40);
-            this.guna2Panel11.TabIndex = 32;
             // 
             // ThongKeUi
             // 

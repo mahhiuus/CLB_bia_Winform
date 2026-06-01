@@ -18,43 +18,123 @@ namespace Bài_Tập_Lớn.GUI
         // ── BLL ──────────────────────────────────────────────────
         private readonly ThongKeBLL _thongKeBLL = new ThongKeBLL();
 
+        // ══════════════════════════════════════════════════════════
+        //  REAL-TIME: SMART DETECTION
+        //  Timer nhẹ (10 giây) chỉ gọi 1 query snapshot nhỏ.
+        //  Chỉ khi snapshot thay đổi (có hóa đơn mới hoặc số bàn
+        //  thay đổi) mới gọi RefreshAll() → không reload thừa.
+        // ══════════════════════════════════════════════════════════
+        private readonly Timer _pollTimer = new Timer();
+        private const int POLL_INTERVAL_MS = 10_000; // kiểm tra mỗi 10 giây
+
+        // Snapshot lần trước – dùng để so sánh
+        private int _lastSoHoaDon = -1;
+        private DateTime _lastNgayMoiNhat = DateTime.MinValue;
+        private int _lastSoBanHoatDong = -1;
+
+        // Cờ tránh vẽ chart nhiều lần trong cùng 1 lần refresh
         private bool pieChartLoaded = false;
+        private bool barChartLoaded = false;
+        private bool dailyBarChartLoaded = false;
 
         public ThongKeUi()
         {
             InitializeComponent();
             this.Load += ThongKeUi_Load;
-        }
-
-        private void ThongKeUi_Load(object sender, EventArgs e)
-        {
-            LoadCards();          // <── MỚI: nối 4 card từ BLL
-            LoadPieChart();       // <── ĐỔI TÊN: gọi BLL thay fake
-            LoadBarChartThang();  // <── ĐỔI TÊN: gọi BLL thay fake
-            LoadDailyBarChart();  // <── ĐỔI TÊN: gọi BLL thay fake
+            this.FormClosing += ThongKeUi_FormClosing;
         }
 
         // ════════════════════════════════════════════════════════
-        //  CARDS – nối dữ liệu thật
+        //  LOAD & TIMER
+        // ════════════════════════════════════════════════════════
+        private void ThongKeUi_Load(object sender, EventArgs e)
+        {
+            // Lần đầu load toàn bộ
+            RefreshAll();
+
+            // Bật timer polling nhẹ
+            _pollTimer.Interval = POLL_INTERVAL_MS;
+            _pollTimer.Tick += PollTimer_Tick;
+            _pollTimer.Start();
+        }
+
+        private void ThongKeUi_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            _pollTimer.Stop();
+            _pollTimer.Dispose();
+        }
+
+        // ════════════════════════════════════════════════════════
+        //  SMART POLL: chỉ reload khi DB thực sự thay đổi
+        // ════════════════════════════════════════════════════════
+        private void PollTimer_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                var (soHD, ngayMoiNhat, soBan) = _thongKeBLL.GetSnapshotThayDoi();
+
+                bool coThayDoi = soHD != _lastSoHoaDon
+                              || ngayMoiNhat != _lastNgayMoiNhat
+                              || soBan != _lastSoBanHoatDong;
+
+                if (coThayDoi)
+                {
+                    // Cập nhật snapshot trước khi refresh để tránh loop
+                    _lastSoHoaDon = soHD;
+                    _lastNgayMoiNhat = ngayMoiNhat;
+                    _lastSoBanHoatDong = soBan;
+
+                    RefreshAll();
+                }
+            }
+            catch
+            {
+                // Lỗi mạng / DB tạm thời → bỏ qua, tick sau thử lại
+            }
+        }
+
+        // ════════════════════════════════════════════════════════
+        //  REFRESH ALL – reset cờ rồi vẽ lại toàn bộ
+        // ════════════════════════════════════════════════════════
+        private void RefreshAll()
+        {
+            // Reset cờ để cho phép vẽ lại
+            pieChartLoaded = false;
+            barChartLoaded = false;
+            dailyBarChartLoaded = false;
+
+            LoadCards();
+            LoadPieChart();
+            LoadBarChartThang();
+            LoadDailyBarChart();
+        }
+
+        // ════════════════════════════════════════════════════════
+        //  CARDS
+        //  - Doanh Thu  = SUM(tong_tien) tháng hiện tại
+        //  - Lợi Nhuận  = SUM(tien_bida) + SUM(tien_san_pham)
+        //                 (= toàn bộ doanh thu bida + sản phẩm)
+        //  - Hóa Đơn    = COUNT hóa đơn tháng hiện tại
+        //  - Bàn HĐ     = số phiên chưa kết thúc
         // ════════════════════════════════════════════════════════
         private void LoadCards()
         {
             try
             {
-                // Card 1 – Doanh Thu (guna2GradientPanel1) → guna2HtmlLabel3
+                // ── Doanh Thu ──
                 double doanhThu = _thongKeBLL.GetDoanhThuThangHienTai();
                 guna2HtmlLabel3.Text = (doanhThu / 1_000_000).ToString("N1"); // triệu VNĐ
 
-                // Card 2 – Lợi Nhuận (guna2GradientPanel5) → guna2HtmlLabel6
-                double giaVon = _thongKeBLL.GetGiaVonThangHienTai();
-                double loiNhuan = doanhThu - giaVon;
+                // ── Lợi Nhuận = TienBida + TienSanPham ──
+                var (tienBida, tienSanPham) = _thongKeBLL.GetTienBidaVaTienSanPhamThangHienTai();
+                double loiNhuan = tienBida + tienSanPham;
                 guna2HtmlLabel6.Text = (loiNhuan / 1_000_000).ToString("N1");
 
-                // Card 3 – Hóa Đơn (guna2GradientPanel2) → guna2HtmlLabel10
+                // ── Số Hóa Đơn ──
                 int soHoaDon = _thongKeBLL.GetSoHoaDonThangHienTai();
                 guna2HtmlLabel10.Text = soHoaDon.ToString("N0");
 
-                // Card 4 – Số Bàn đang hoạt động (guna2GradientPanel3) → guna2HtmlLabel13
+                // ── Số Bàn đang hoạt động ──
                 int soBan = _thongKeBLL.GetSoBanDangHoatDong();
                 guna2HtmlLabel13.Text = soBan.ToString();
             }
@@ -66,8 +146,10 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ════════════════════════════════════════════════════════
-        //  PIE CHART – cơ cấu doanh thu (guna2Panel6)
-        //  Chỉ thay phần data, giữ nguyên 100% code vẽ
+        //  PIE CHART – cơ cấu doanh thu THỰC từ DB
+        //  Bàn Bida  = SUM(tien_bida)     tháng hiện tại
+        //  Sản Phẩm  = SUM(tien_san_pham) tháng hiện tại
+        //  (không còn hardcode 60/40 nữa)
         // ════════════════════════════════════════════════════════
         private void guna2TextBox1_TextChanged(object sender, EventArgs e) { }
         private void guna2GradientPanel3_Paint(object sender, PaintEventArgs e) { }
@@ -87,43 +169,37 @@ namespace Bài_Tập_Lớn.GUI
             guna2Panel6.Controls.Clear();
             guna2Panel6.Padding = new Padding(0);
 
-            // ── LẤY DỮ LIỆU THẬT TỪ BLL ──
+            // ── LẤY DỮ LIỆU THẬT TỪ DB ──
             Dictionary<string, double> data;
             try
             {
-                double doanhThu = _thongKeBLL.GetDoanhThuThangHienTai();
-                double giaVon = _thongKeBLL.GetGiaVonThangHienTai();
-                double loiNhuan = Math.Max(0, doanhThu - giaVon);
-                double tongBida = doanhThu * 0.60;
-                double tongSanPham = doanhThu * 0.40;
-                double total = tongBida + tongSanPham;
-                if (total <= 0) total = 1;
+                var (tienBida, tienSanPham) = _thongKeBLL.GetTienBidaVaTienSanPhamThangHienTai();
+                double total = tienBida + tienSanPham;
+                if (total <= 0) total = 1; // tránh chia 0
+
+                double pctBida = Math.Round(tienBida / total * 100, 1);
+                double pctSanPham = Math.Round(tienSanPham / total * 100, 1);
 
                 data = new Dictionary<string, double>
                 {
-                    { "Bàn Bida",  Math.Round(tongBida    / total * 100, 1) },
-                    { "Sản Phẩm",  Math.Round(tongSanPham / total * 100, 1) },
+                    { "Bàn Bida",  pctBida    },
+                    { "Sản Phẩm",  pctSanPham },
                 };
-
-                double pctLN = Math.Round(loiNhuan / Math.Max(doanhThu, 1) * 100, 1);
-                if (pctLN > 0)
-                    data["Lợi Nhuận"] = pctLN;
             }
             catch
             {
+                // Fallback khi DB lỗi
                 data = new Dictionary<string, double>
                 {
-                    { "Sản Phẩm",  26.3 },
-                    { "Bàn Bida",  57.9 },
-                    { "Lợi Nhuận", 15.8 }
+                    { "Bàn Bida",  60.0 },
+                    { "Sản Phẩm",  40.0 },
                 };
             }
 
             Color[] colors =
             {
-                ColorTranslator.FromHtml("#79ae6f"),
-                ColorTranslator.FromHtml("#f0f0e8"),
-                ColorTranslator.FromHtml("#2b4e23"),
+                ColorTranslator.FromHtml("#2b4e23"), // Bàn Bida  → xanh đậm
+                ColorTranslator.FromHtml("#79ae6f"), // Sản Phẩm  → xanh nhạt
             };
 
             var mainLayout = new TableLayoutPanel();
@@ -203,7 +279,7 @@ namespace Bài_Tập_Lớn.GUI
                 colorBox.Location = new Point(0, 3);
 
                 var lbl = new Label();
-                lbl.Text = $"{label}";
+                lbl.Text = label;
                 lbl.Font = new Font("Segoe UI", 9f);
                 lbl.ForeColor = Color.FromArgb(60, 60, 60);
                 lbl.AutoSize = true;
@@ -216,7 +292,7 @@ namespace Bài_Tập_Lớn.GUI
             }
 
             legendPanel.Padding = new Padding(
-                (guna2Panel6.Width - (data.Count * 140)) / 2, 6, 0, 6
+                Math.Max(0, (guna2Panel6.Width - (data.Count * 140)) / 2), 6, 0, 6
             );
 
             mainLayout.Controls.Add(legendPanel, 0, 1);
@@ -225,10 +301,8 @@ namespace Bài_Tập_Lớn.GUI
 
         // ════════════════════════════════════════════════════════
         //  BAR CHART THÁNG – doanh thu + lợi nhuận (guna2Panel7)
-        //  Chỉ thay phần data, giữ nguyên 100% code vẽ
+        //  Giữ nguyên 100% code vẽ, chỉ đổi nguồn data
         // ════════════════════════════════════════════════════════
-        private bool barChartLoaded = false;
-
         private void guna2Panel7_Paint(object sender, PaintEventArgs e) { }
 
         private void LoadBarChartThang()
@@ -239,7 +313,6 @@ namespace Bài_Tập_Lớn.GUI
             guna2Panel7.Controls.Clear();
             guna2Panel7.Padding = new Padding(0);
 
-            // ── LẤY DỮ LIỆU THẬT TỪ BLL ──
             var doanhThu = new Dictionary<string, double>();
             var loiNhuan = new Dictionary<string, double>();
             try
@@ -344,13 +417,7 @@ namespace Bài_Tập_Lớn.GUI
             legendPanel.WrapContents = false;
             legendPanel.Padding = new Padding(12, 4, 0, 4);
 
-            var legendItems = new[]
-            {
-                ("Doanh Thu", colorDoanhThu),
-                ("Lợi Nhuận", colorLoiNhuan)
-            };
-
-            foreach (var (name, color) in legendItems)
+            foreach (var (name, color) in new[] { ("Doanh Thu", colorDoanhThu), ("Lợi Nhuận", colorLoiNhuan) })
             {
                 var item = new Panel();
                 item.BackColor = Color.Transparent;
@@ -382,13 +449,9 @@ namespace Bài_Tập_Lớn.GUI
 
         // ════════════════════════════════════════════════════════
         //  BAR CHART NGÀY (7 ngày gần nhất) – (guna2Panel5)
-        //  Chỉ thay phần data, giữ nguyên 100% code vẽ
+        //  Giữ nguyên 100% code vẽ, chỉ đổi nguồn data
         // ════════════════════════════════════════════════════════
-        private bool dailyBarChartLoaded = false;
-
-        private void guna2Panel5_Paint_2(object sender, PaintEventArgs e)
-        {
-        }
+        private void guna2Panel5_Paint_2(object sender, PaintEventArgs e) { }
 
         private void LoadDailyBarChart()
         {
@@ -398,7 +461,6 @@ namespace Bài_Tập_Lớn.GUI
             guna2Panel5.Controls.Clear();
             guna2Panel5.Padding = new Padding(0);
 
-            // ── LẤY DỮ LIỆU THẬT TỪ BLL (7 ngày gần nhất) ──
             string[] labels;
             double[] doanhThu;
             double[] loiNhuan;
@@ -499,7 +561,7 @@ namespace Bài_Tập_Lớn.GUI
                 sLN.Points.AddXY(labels[i], loiNhuan[i]);
             chart.Series.Add(sLN);
 
-            // ── PostPaint: vẽ lại toàn bộ bằng index ──
+            // ── PostPaint: vẽ lại toàn bộ bằng index (bo tròn đầu cột) ──
             chart.PostPaint += (s, pe) =>
             {
                 var g = pe.ChartGraphics.Graphics;
