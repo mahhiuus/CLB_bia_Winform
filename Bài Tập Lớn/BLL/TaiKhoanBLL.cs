@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using Bài_Tập_Lớn.DAL;
 using Bài_Tập_Lớn.DTO;
-using BCrypt.Net; // ← THÊM MỚI: cần cài NuGet BCrypt.Net-Next
-
+using BCrypt.Net;
 namespace Bài_Tập_Lớn.BLL
 {
     public class TaiKhoanBLL
@@ -19,8 +18,6 @@ namespace Bài_Tập_Lớn.BLL
         {
             return taiKhoanDAL.TaoAdminMacDinh();
         }
-
-        // ── THAY ĐỔI: verify bằng BCrypt thay vì so sánh plain text ──
         public TaiKhoanDTO DangNhap(string tenDangNhap, string matKhau)
         {
             if (string.IsNullOrWhiteSpace(tenDangNhap))
@@ -28,13 +25,10 @@ namespace Bài_Tập_Lớn.BLL
             if (string.IsNullOrWhiteSpace(matKhau))
                 throw new Exception("Mật khẩu không được để trống!");
 
-            // Lấy tài khoản theo tên đăng nhập (DAL trả về DTO kèm hash)
             TaiKhoanDTO tk = taiKhoanDAL.LayTheoTenDangNhap(tenDangNhap);
 
             if (tk == null)
                 return null;
-
-            // So sánh mật khẩu nhập với hash lưu trong DB
             bool hopLe = BCrypt.Net.BCrypt.Verify(matKhau, tk.MatKhau);
             return hopLe ? tk : null;
         }
@@ -62,8 +56,6 @@ namespace Bài_Tập_Lớn.BLL
         {
             return taiKhoanDAL.KiemTraTenDangNhapTonTai(tenDangNhap);
         }
-
-        // ── THAY ĐỔI: hash mật khẩu trước khi lưu ──
         public bool ThemTaiKhoan(TaiKhoanDTO tk)
         {
             if (tk == null)
@@ -77,7 +69,6 @@ namespace Bài_Tập_Lớn.BLL
             if (KiemTraTenDangNhapTonTai(tk.TenDangNhap))
                 throw new Exception("Tên đăng nhập đã tồn tại!");
 
-            // Hash mật khẩu trước khi lưu
             tk.MatKhau = BCrypt.Net.BCrypt.HashPassword(tk.MatKhau);
 
             return taiKhoanDAL.ThemTaiKhoan(tk);
@@ -91,16 +82,12 @@ namespace Bài_Tập_Lớn.BLL
                 throw new Exception("Mã tài khoản không được để trống!");
             return taiKhoanDAL.CapNhatTaiKhoan(tk);
         }
-
-        // ── THAY ĐỔI: hash mật khẩu mới trước khi đổi ──
         public bool DoiMatKhau(string maTK, string matKhauMoi)
         {
             if (string.IsNullOrWhiteSpace(maTK))
                 throw new Exception("Mã tài khoản không được để trống!");
             if (string.IsNullOrWhiteSpace(matKhauMoi))
                 throw new Exception("Mật khẩu mới không được để trống!");
-
-            // Hash mật khẩu mới trước khi lưu
             string matKhauHash = BCrypt.Net.BCrypt.HashPassword(matKhauMoi);
 
             return taiKhoanDAL.DoiMatKhau(maTK, matKhauHash);
@@ -117,13 +104,8 @@ namespace Bài_Tập_Lớn.BLL
         {
             return taiKhoanDAL.TimKiem(keyword);
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  ĐĂNG KÝ TÀI KHOẢN — tạo NhanVien trước, sau đó tạo TaiKhoan
-        // ══════════════════════════════════════════════════════════
         public bool DangKyTaiKhoan(string tenDangNhap, string matKhau, string nhapLaiMatKhau)
         {
-            // ── 1. Validate đầu vào ──────────────────────────────
             if (string.IsNullOrWhiteSpace(tenDangNhap))
                 throw new Exception("Tên đăng nhập không được để trống!");
             if (string.IsNullOrWhiteSpace(matKhau))
@@ -133,38 +115,30 @@ namespace Bài_Tập_Lớn.BLL
             if (KiemTraTenDangNhapTonTai(tenDangNhap))
                 throw new Exception("Tên đăng nhập này đã tồn tại trong hệ thống!");
 
-            // ── 2. Sinh mã mới ───────────────────────────────────
             string maTaiKhoanMoi = taiKhoanDAL.SinhMaMoi();
 
             NhanVienBLL nvBLL = new NhanVienBLL();
             string maNhanVienMoi = nvBLL.SinhMaMoi();
-
-            // ── 3. TẠO NHÂN VIÊN TRƯỚC (fix lỗi FK) ────────────
-            //     Chỉ điền MaNV + HoTen (bắt buộc),
-            //     các cột sdt/gioi_tinh/chuc_vu/ngay_sinh để null/rỗng
-            //     → nhân viên có thể cập nhật hồ sơ đầy đủ sau
             NhanVienDTO nhanVienMoi = new NhanVienDTO
             {
                 MaNV = maNhanVienMoi,
-                HoTen = tenDangNhap,   // dùng tên đăng nhập làm tên tạm
+                HoTen = tenDangNhap,
                 Sdt = "",
-                GioiTinh = "Nam",   // giá trị mặc định, user cập nhật sau
+                GioiTinh = "",
                 ChucVu = "Nhân viên",
                 NgaySinh = null
             };
 
-            nvBLL.ThemNhanVien(nhanVienMoi); // ← INSERT nhan_vien TRƯỚC
-
-            // ── 4. TẠO TÀI KHOẢN SAU ────────────────────────────
+            nvBLL.ThemNhanVien(nhanVienMoi);
             string matKhauHash = BCrypt.Net.BCrypt.HashPassword(matKhau);
 
             TaiKhoanDTO taiKhoanMoi = new TaiKhoanDTO
             {
                 MaTK = maTaiKhoanMoi,
                 TenDangNhap = tenDangNhap,
-                MatKhau = matKhauHash,  // ← lưu hash, không lưu raw
+                MatKhau = matKhauHash,
                 VaiTro = "Nhân viên",
-                MaNV = maNhanVienMoi // ← đã tồn tại trong nhan_vien → FK hợp lệ
+                MaNV = maNhanVienMoi
             };
 
             return taiKhoanDAL.ThemTaiKhoan(taiKhoanMoi);

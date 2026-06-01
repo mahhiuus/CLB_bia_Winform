@@ -9,10 +9,6 @@ namespace Bài_Tập_Lớn.DAL
 {
     internal class ChiTietHoaDonNhapDAL
     {
-        // ══════════════════════════════════════════════════════════
-        //  Sinh mã mới
-        //  FIX: DB column = ma_ct_hdn (có dấu gạch)
-        // ══════════════════════════════════════════════════════════
         public string SinhMaMoi()
         {
             string sql = @"SELECT ISNULL(MAX(CAST(SUBSTRING(ma_ct_hdn, 6, LEN(ma_ct_hdn)) AS INT)), 0)
@@ -33,7 +29,6 @@ namespace Bài_Tập_Lớn.DAL
 
         public List<ChiTietHoaDonNhapDTO> LayTatCaChiTiet()
         {
-            // FIX: dùng alias để Dapper map đúng property DTO
             string sql = @"SELECT
                                ma_ct_hdn    AS MaCTHDN,
                                ma_hdn       AS MaHDN,
@@ -79,7 +74,6 @@ namespace Bài_Tập_Lớn.DAL
 
         public double TinhTongTien(string maHDN)
         {
-            // FIX: don_gia → don_gia_nhap
             string sql = @"SELECT ISNULL(SUM(so_luong * don_gia_nhap), 0)
                            FROM chi_tiet_hoa_don_nhap
                            WHERE ma_hdn = @MaHDN";
@@ -98,8 +92,6 @@ namespace Bài_Tập_Lớn.DAL
 
         public bool ThemChiTiet(ChiTietHoaDonNhapDTO ct)
         {
-            // FIX: ma_cthdn → ma_ct_hdn, don_gia → don_gia_nhap
-            //      anonymous object để @DonGiaNhap map đúng ct.DonGiaNhap
             string sql = @"INSERT INTO chi_tiet_hoa_don_nhap
                                (ma_ct_hdn, ma_hdn, ma_sp, so_luong, don_gia_nhap)
                            VALUES

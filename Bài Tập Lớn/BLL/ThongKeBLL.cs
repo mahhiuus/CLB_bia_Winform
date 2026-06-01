@@ -7,10 +7,6 @@ namespace Bài_Tập_Lớn.BLL
     public class ThongKeBLL
     {
         private readonly ThongKeDAL thongKeDAL = new ThongKeDAL();
-
-        // ══════════════════════════════════════════════════════════
-        //  CARDS
-        // ══════════════════════════════════════════════════════════
         public double GetDoanhThuThangHienTai() => thongKeDAL.GetDoanhThuThangHienTai();
         public int GetSoHoaDonThangHienTai() => thongKeDAL.GetSoHoaDonThangHienTai();
         public int GetKhachHangMoiThangHienTai() => thongKeDAL.GetKhachHangMoiThangHienTai();
@@ -19,11 +15,6 @@ namespace Bài_Tập_Lớn.BLL
 
         public (double TienBida, double TienSanPham) GetTienBidaVaTienSanPhamThangHienTai()
             => thongKeDAL.GetTienBidaVaTienSanPhamThangHienTai();
-
-        // ══════════════════════════════════════════════════════════
-        //  [MỚI] Lợi Nhuận = TienBida + LãiSanPham
-        //  LãiSanPham = SUM((don_gia_ban - don_gia_von) * so_luong_ban)
-        // ══════════════════════════════════════════════════════════
         public double GetLoiNhuanThangHienTai()
         {
             return thongKeDAL.GetLoiNhuanThangHienTai();
@@ -31,17 +22,9 @@ namespace Bài_Tập_Lớn.BLL
 
         public (int SoHoaDon, DateTime NgayMoiNhat, int SoBanHoatDong) GetSnapshotThayDoi()
             => thongKeDAL.GetSnapshotThayDoi();
-
-        // ══════════════════════════════════════════════════════════
-        //  BIỂU ĐỒ NGÀY
-        //  Dictionary bổ sung key "lai_san_pham" để UI tính đúng
-        //  Lợi Nhuận = tien_bida + lai_san_pham
-        // ══════════════════════════════════════════════════════════
         public List<Dictionary<string, object>> GetBieuDoTheoNgay(DateTime tuNgay, DateTime denNgay)
         {
             var ketQua = new List<Dictionary<string, object>>();
-
-            // Lấy doanh thu / tien_bida / tien_san_pham theo ngày
             var listRaw = thongKeDAL.GetDuLieuBieuDoTheoNgay(tuNgay, denNgay);
             var dictDT = new Dictionary<DateTime, double>();
             var dictBida = new Dictionary<DateTime, double>();
@@ -53,8 +36,6 @@ namespace Bài_Tập_Lớn.BLL
                 dictBida[date] = Convert.ToDouble(item.TienBida);
                 dictSP[date] = Convert.ToDouble(item.TienSanPham);
             }
-
-            // Lấy lãi sản phẩm theo ngày (tính từ chi_tiet_hoa_don_ban)
             var listLai = thongKeDAL.GetLaiSanPhamTheoNgay(tuNgay, denNgay);
             var dictLai = new Dictionary<DateTime, double>();
             foreach (var item in listLai)
@@ -76,17 +57,12 @@ namespace Bài_Tập_Lớn.BLL
                     { "doanh_thu",      dt                  },
                     { "tien_bida",      tb                  },
                     { "tien_san_pham",  ts                  },
-                    { "lai_san_pham",   lai                 }   // [MỚI]
+                    { "lai_san_pham",   lai                 }
                 });
             }
 
             return ketQua;
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  BIỂU ĐỒ THÁNG
-        //  Dictionary bổ sung key "lai_san_pham"
-        // ══════════════════════════════════════════════════════════
         public List<Dictionary<string, object>> GetBieuDoTheoThang(int nam)
         {
             var ketQua = new List<Dictionary<string, object>>();
@@ -103,7 +79,6 @@ namespace Bài_Tập_Lớn.BLL
                 dictSP[thang] = Convert.ToDouble(item.TienSanPham);
             }
 
-            // Lấy lãi sản phẩm theo tháng
             var listLai = thongKeDAL.GetLaiSanPhamTheoThang(nam);
             var dictLai = new Dictionary<int, double>();
             foreach (var item in listLai)
@@ -125,24 +100,18 @@ namespace Bài_Tập_Lớn.BLL
                     { "doanh_thu",     dt               },
                     { "tien_bida",     tb               },
                     { "tien_san_pham", ts               },
-                    { "lai_san_pham",  lai              }   // [MỚI]
+                    { "lai_san_pham",  lai              }
                 });
             }
 
             return ketQua;
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  BIỂU ĐỒ NĂM
-        //  Dictionary bổ sung key "lai_san_pham"
-        // ══════════════════════════════════════════════════════════
         public List<Dictionary<string, object>> GetBieuDoTheoNam()
         {
             var ketQua = new List<Dictionary<string, object>>();
 
             var listRaw = thongKeDAL.GetDuLieuBieuDoTheoNam();
 
-            // Lấy lãi sản phẩm theo năm
             var listLai = thongKeDAL.GetLaiSanPhamTheoNam();
             var dictLai = new Dictionary<int, double>();
             foreach (var item in listLai)
@@ -165,16 +134,12 @@ namespace Bài_Tập_Lớn.BLL
                     { "doanh_thu",     dt             },
                     { "tien_bida",     tb             },
                     { "tien_san_pham", ts             },
-                    { "lai_san_pham",  lai            }   // [MỚI]
+                    { "lai_san_pham",  lai            }
                 });
             }
 
             return ketQua;
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  TOP MÁY DOANH THU CAO NHẤT THÁNG HIỆN TẠI
-        // ══════════════════════════════════════════════════════════
         public List<(string TenMay, double DoanhThu)> GetTopMayDoanhThu(int top = 3)
         {
             var result = new List<(string, double)>();

@@ -26,7 +26,6 @@ namespace Bài_Tập_Lớn.BLL
             var pc = phienChoiDAL.TimTheoMaPhien(maPhien);
             if (pc == null) return null;
 
-            // Tính tổng tiền sản phẩm (nước uống, thức ăn kèm theo dịch vụ bida chẳng hạn)
             double tienSanPham = chiTietPhienDAL.TinhTongTienTheoPhien(maPhien);
             double tongTien = tienBida + tienSanPham;
 
@@ -117,7 +116,7 @@ namespace Bài_Tập_Lớn.BLL
 
         public List<HoaDonBanDTO> LayTopHoaDon(int limit)
         {
-            if (limit <= 0) limit = 10; // Mặc định lấy top 10 nếu truyền vào lỗi
+            if (limit <= 0) limit = 10;
             return hoaDonBanDAL.LayTopHoaDon(limit);
         }
 

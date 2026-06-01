@@ -9,9 +9,6 @@ namespace Bài_Tập_Lớn.DAL
 {
     internal class HoaDonBanDAL
     {
-        // ══════════════════════════════════════════════════════════
-        //  Sinh mã mới
-        // ══════════════════════════════════════════════════════════
         public string SinhMaMoi()
         {
             const string sql = @"
@@ -31,13 +28,6 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception("Lỗi khi sinh mã hóa đơn bán: " + ex.Message);
             }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  Thêm hóa đơn
-        //  Dùng anonymous object để kiểm soát NULL cho MaKH, GhiChu
-        //  Dapper map string null → DBNull.Value tự động,
-        //  nhưng chỉ khi ta truyền đúng kiểu – anonymous object đảm bảo điều đó.
-        // ══════════════════════════════════════════════════════════
         public bool Them(HoaDonBanDTO hdb)
         {
             const string sql = @"
@@ -51,7 +41,6 @@ namespace Bài_Tập_Lớn.DAL
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    // Anonymous object: Dapper sẽ map null → DBNull đúng cách
                     int rows = conn.Execute(sql, new
                     {
                         hdb.MaHDB,
@@ -72,10 +61,6 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception("Lỗi khi thêm hóa đơn bán: " + ex.Message);
             }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  Cập nhật hóa đơn
-        // ══════════════════════════════════════════════════════════
         public bool CapNhat(HoaDonBanDTO hdb)
         {
             const string sql = @"
@@ -107,10 +92,6 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception("Lỗi khi cập nhật hóa đơn bán: " + ex.Message);
             }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  Xoá
-        // ══════════════════════════════════════════════════════════
         public bool Xoa(string maHDB)
         {
             const string sql = "DELETE FROM hoa_don_ban WHERE ma_hdb = @MaHDB";
@@ -127,10 +108,6 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception("Lỗi khi xóa hóa đơn bán: " + ex.Message);
             }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  Truy vấn
-        // ══════════════════════════════════════════════════════════
         public List<HoaDonBanDTO> LayTatCa()
         {
             const string sql = "SELECT * FROM hoa_don_ban ORDER BY ma_hdb DESC";

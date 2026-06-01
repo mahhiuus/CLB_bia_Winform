@@ -8,8 +8,6 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using Guna.UI2.WinForms;
 using iTextSharp.text.pdf;
-
-// Alias để tránh xung đột với System.Drawing.Font
 using PdfDocument = iTextSharp.text.Document;
 using PdfFont = iTextSharp.text.Font;
 using PdfParagraph = iTextSharp.text.Paragraph;
@@ -18,7 +16,6 @@ using PdfPhrase = iTextSharp.text.Phrase;
 using PdfElement = iTextSharp.text.Element;
 using PdfBaseColor = iTextSharp.text.BaseColor;
 using PdfBaseFont = iTextSharp.text.pdf.BaseFont;
-
 using Bài_Tập_Lớn.BLL;
 using Bài_Tập_Lớn.DTO;
 
@@ -26,34 +23,25 @@ namespace Bài_Tập_Lớn.GUI
 {
     public partial class HoaDonNhapUi : Form
     {
-        // ── BLL ──
         private readonly HoaDonNhapBLL _hoaDonNhapBLL = new HoaDonNhapBLL();
         private readonly ChiTietHoaDonNhapBLL _chiTietHDNBLL = new ChiTietHoaDonNhapBLL();
         private readonly SanPhamBLL _sanPhamBLL = new SanPhamBLL();
-
-        // ── Colors ──
         static readonly Color GREEN_DARK = ColorTranslator.FromHtml("#2b4e23");
         static readonly Color GREEN_LIGHT = ColorTranslator.FromHtml("#79ae6f");
         static readonly Color GREEN_HOVER = ColorTranslator.FromHtml("#e8f5e8");
         static readonly Color CREAM = Color.FromArgb(255, 255, 251);
-
-        // ── Controls ──
         private TableLayoutPanel rootTable;
         private Guna2DataGridView gridHoaDonNhap;
         private Guna2Button btnExportPdf, btnPrint, btnLoc, btnCancelLoc, btnReload;
         private Guna2DateTimePicker dtpTuNgay, dtpDenNgay;
         private Label lblPageInfo;
         private Guna2Button btnPrev, btnNext;
-
-        // ── Pagination & Logic State ──
         private List<HoaDonNhapDTO> _allInvoices = new List<HoaDonNhapDTO>();
         private int _currentPage = 1;
         private int _pageSize = 12;
         private int _totalPages = 1;
         private HoaDonNhapDTO _selectedHoaDon = null;
         private int _rowToDeselect = -1;
-
-        // ── Cache tên SP (MaSP → TenSP) ──
         private Dictionary<string, string> _cacheTenSP = new Dictionary<string, string>();
 
         public HoaDonNhapUi()
@@ -73,8 +61,6 @@ namespace Bài_Tập_Lớn.GUI
             ResetDatePickers();
             LoadData();
         }
-
-        // Nạp toàn bộ tên SP vào cache một lần khi form load
         private void BuildCacheTenSP()
         {
             try
@@ -87,16 +73,11 @@ namespace Bài_Tập_Lớn.GUI
             }
             catch { /* Nếu lỗi thì PDF sẽ in MaSP thay vì tên */ }
         }
-
         private void ResetDatePickers()
         {
             dtpTuNgay.Value = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             dtpDenNgay.Value = DateTime.Now;
         }
-
-        // ════════════════════════════════════════════════════════
-        //  XÂY DỰNG GIAO DIỆN GUNA 2 (UI BUILDER)
-        // ════════════════════════════════════════════════════════
         private void BuildLayout()
         {
             this.BackColor = CREAM;
@@ -175,7 +156,6 @@ namespace Bài_Tập_Lớn.GUI
 
             rootTable.Controls.Add(tlpToolbar, 0, 0);
 
-            // 2. Guna2DataGridView
             gridHoaDonNhap = new Guna2DataGridView
             {
                 Dock = DockStyle.Fill,
@@ -225,7 +205,6 @@ namespace Bài_Tập_Lớn.GUI
                 BorderRadius = 15
             };
 
-            // 3. Pager Panel
             Panel panelBottom = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0) };
 
             btnPrev = CreatePagerButton("<");
@@ -310,10 +289,6 @@ namespace Bài_Tập_Lớn.GUI
                 HoverState = { FillColor = GREEN_LIGHT }
             };
         }
-
-        // ════════════════════════════════════════════════════════
-        //  SỰ KIỆN LỌC, HỦY LỌC NGÀY VÀ LÀM MỚI
-        // ════════════════════════════════════════════════════════
         private void BtnLoc_Click(object sender, EventArgs e)
         {
             DateTime tuNgay = dtpTuNgay.Value.Date;
@@ -339,28 +314,21 @@ namespace Bài_Tập_Lớn.GUI
                     "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         private void BtnCancelLoc_Click(object sender, EventArgs e)
         {
             ResetDatePickers();
             LoadData();
         }
-
         private void BtnReload_Click(object sender, EventArgs e)
         {
             ResetDatePickers();
             LoadData();
         }
-
-        // ════════════════════════════════════════════════════════
-        //  TOGGLE SELECTION
-        // ════════════════════════════════════════════════════════
         private void GridHoaDonNhap_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (e.RowIndex >= 0 && e.Button == MouseButtons.Left)
                 _rowToDeselect = gridHoaDonNhap.Rows[e.RowIndex].Selected ? e.RowIndex : -1;
         }
-
         private void GridHoaDonNhap_CellMouseUp(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (e.RowIndex >= 0 && e.RowIndex == _rowToDeselect && e.Button == MouseButtons.Left)
@@ -369,10 +337,6 @@ namespace Bài_Tập_Lớn.GUI
                 _rowToDeselect = -1;
             }
         }
-
-        // ════════════════════════════════════════════════════════
-        //  HOVER
-        // ════════════════════════════════════════════════════════
         private void GridHoaDonNhap_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0 && !gridHoaDonNhap.Rows[e.RowIndex].Selected)
@@ -385,10 +349,6 @@ namespace Bài_Tập_Lớn.GUI
                 gridHoaDonNhap.Rows[e.RowIndex].DefaultCellStyle.BackColor =
                     (e.RowIndex % 2 == 0) ? Color.White : CREAM;
         }
-
-        // ════════════════════════════════════════════════════════
-        //  DATA & PAGINATION
-        // ════════════════════════════════════════════════════════
         private void LoadData()
         {
             try
@@ -404,7 +364,6 @@ namespace Bài_Tập_Lớn.GUI
                     "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         private void ChangePage(int newPage)
         {
             if (newPage < 1 || newPage > _totalPages) return;
@@ -436,7 +395,6 @@ namespace Bài_Tập_Lớn.GUI
             gridHoaDonNhap.ClearSelection();
             SetActionButtonsState(false);
         }
-
         private void GridHoaDonNhap_SelectionChanged(object sender, EventArgs e)
         {
             if (gridHoaDonNhap.SelectedRows.Count > 0)
@@ -450,7 +408,6 @@ namespace Bài_Tập_Lớn.GUI
                 SetActionButtonsState(false);
             }
         }
-
         private void SetActionButtonsState(bool isEnabled)
         {
             btnExportPdf.Enabled = isEnabled;
@@ -458,10 +415,6 @@ namespace Bài_Tập_Lớn.GUI
             btnExportPdf.FillColor = isEnabled ? Color.White : Color.FromArgb(240, 240, 240);
             btnPrint.FillColor = isEnabled ? Color.White : Color.FromArgb(240, 240, 240);
         }
-
-        // ════════════════════════════════════════════════════════
-        //  XUẤT PDF & MỞ PREVIEW
-        // ════════════════════════════════════════════════════════
         private void BtnExportPdf_Click(object sender, EventArgs e)
         {
             if (_selectedHoaDon == null) return;
@@ -477,14 +430,13 @@ namespace Bài_Tập_Lớn.GUI
 
                 try
                 {
-                    // Load chi tiết SP theo MaHDN
                     List<ChiTietHoaDonNhapDTO> dsChiTiet = new List<ChiTietHoaDonNhapDTO>();
                     try
                     {
                         dsChiTiet = _chiTietHDNBLL.TimTheoMaHDN(_selectedHoaDon.MaHDN)
                                     ?? new List<ChiTietHoaDonNhapDTO>();
                     }
-                    catch { /* Nếu lỗi load SP thì vẫn xuất PDF, chỉ thiếu bảng SP */ }
+                    catch {}
 
                     ExportToPdf(sfd.FileName, _selectedHoaDon, dsChiTiet);
                     Process.Start(new ProcessStartInfo(sfd.FileName) { UseShellExecute = true });
@@ -502,15 +454,9 @@ namespace Bài_Tập_Lớn.GUI
             MessageBox.Show("Chức năng in hóa đơn nhập đang kết nối tới máy in văn phòng...",
                 "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
-
-        // ════════════════════════════════════════════════════════
-        //  XUẤT PDF — khổ receipt nhiệt 80mm
-        //  Có đầy đủ bảng chi tiết sản phẩm nhập
-        // ════════════════════════════════════════════════════════
         private void ExportToPdf(string filePath, HoaDonNhapDTO hdn,
                                   List<ChiTietHoaDonNhapDTO> dsChiTiet)
         {
-            // ── Tính chiều cao động theo số dòng sản phẩm ───────────
             int soMon = dsChiTiet.Count;
             float rowH = 16f;
             float headerH = 120f;
@@ -531,7 +477,6 @@ namespace Bài_Tập_Lớn.GUI
             PdfWriter.GetInstance(doc, new FileStream(filePath, FileMode.Create));
             doc.Open();
 
-            // ── Fonts ────────────────────────────────────────────────
             string fontPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "arial.ttf");
             PdfBaseFont bf = PdfBaseFont.CreateFont(fontPath,
@@ -563,7 +508,6 @@ namespace Bài_Tập_Lớn.GUI
             doc.Add(new PdfChunk(sepGray));
             doc.Add(new PdfParagraph(" "));
 
-            // ── Thông tin phiếu nhập ─────────────────────────────────
             AddReceiptRow(doc, "Mã phiếu nhập", hdn.MaHDN, fLabel, fValue);
             AddReceiptRow(doc, "Nhân viên", hdn.MaNV, fLabel, fValue);
             AddReceiptRow(doc, "Nhà cung cấp", hdn.MaNCC, fLabel, fValue);
@@ -575,13 +519,11 @@ namespace Bài_Tập_Lớn.GUI
             doc.Add(new PdfChunk(sepGray));
             doc.Add(new PdfParagraph(" "));
 
-            // ── Bảng chi tiết sản phẩm nhập ─────────────────────────
             if (dsChiTiet.Count > 0)
             {
                 var tbl = new PdfPTable(4) { WidthPercentage = 100, SpacingAfter = 2f };
                 tbl.SetWidths(new float[] { 38f, 10f, 22f, 22f });
 
-                // Header bảng
                 foreach ((string txt, bool right) in new[]
                 {
                     ("Sản phẩm", false),
@@ -599,7 +541,6 @@ namespace Bài_Tập_Lớn.GUI
                     });
                 }
 
-                // Rows sản phẩm
                 bool alt = false;
                 foreach (var ct in dsChiTiet)
                 {
@@ -617,7 +558,6 @@ namespace Bài_Tập_Lớn.GUI
             doc.Add(new PdfChunk(sepGray));
             doc.Add(new PdfParagraph(" "));
 
-            // ── Tổng tiền ────────────────────────────────────────────
             doc.Add(new PdfParagraph(" ") { SpacingAfter = 2f });
             doc.Add(new PdfChunk(sepGreen));
             doc.Add(new PdfParagraph(" "));
@@ -628,7 +568,6 @@ namespace Bài_Tập_Lớn.GUI
             doc.Add(new PdfChunk(sepGray));
             doc.Add(new PdfParagraph(" "));
 
-            // ── Ký xác nhận ──────────────────────────────────────────
             var tblSign = new PdfPTable(2) { WidthPercentage = 100, SpacingAfter = 4f };
             tblSign.SetWidths(new float[] { 50f, 50f });
             tblSign.AddCell(new PdfPCell(new PdfPhrase("Người Lập Phiếu\n(Ký, họ tên)", fSign))
@@ -657,7 +596,6 @@ namespace Bài_Tập_Lớn.GUI
             doc.Close();
         }
 
-        // ── Helper: tra tên SP từ cache ──────────────────────────
         private string LayTenSP(string maSP)
         {
             if (_cacheTenSP != null &&
@@ -667,7 +605,6 @@ namespace Bài_Tập_Lớn.GUI
             return maSP;
         }
 
-        // ── Receipt helper: 1 dòng label – value ─────────────────
         private static void AddReceiptRow(PdfDocument doc, string label, string value,
                                           PdfFont fLabel, PdfFont fValue)
         {
@@ -684,7 +621,6 @@ namespace Bài_Tập_Lớn.GUI
             doc.Add(tbl);
         }
 
-        // ── Receipt helper: 1 cell bảng SP ───────────────────────
         private static PdfPCell ReceiptCell(string text, PdfFont font,
                                              PdfBaseColor bg, bool right)
         {

@@ -14,19 +14,16 @@ namespace Bài_Tập_Lớn.BLL
             nccDAL = new NhaCungCapDAL();
         }
 
-        // Sinh mã mới
         public string SinhMaMoi()
         {
             return nccDAL.SinhMaMoi();
         }
 
-        // Lấy tất cả nhà cung cấp
         public List<NhaCungCapDTO> LayTatCaNhaCungCap()
         {
             return nccDAL.LayTatCaNhaCungCap();
         }
 
-        // Tìm theo mã
         public NhaCungCapDTO TimTheoMaNhaCungCap(string maNCC)
         {
             if (string.IsNullOrWhiteSpace(maNCC))
@@ -36,14 +33,10 @@ namespace Bài_Tập_Lớn.BLL
 
             return nccDAL.TimTheoMaNhaCungCap(maNCC);
         }
-
-        // Tìm kiếm
         public List<NhaCungCapDTO> TimKiem(string keyword)
         {
             return nccDAL.TimKiem(keyword);
         }
-
-        // Thêm nhà cung cấp
         public bool ThemNhaCungCap(NhaCungCapDTO ncc)
         {
             if (ncc == null)
@@ -63,8 +56,6 @@ namespace Bài_Tập_Lớn.BLL
 
             return nccDAL.ThemNhaCungCap(ncc);
         }
-
-        // Cập nhật nhà cung cấp
         public bool CapNhatNhaCungCap(NhaCungCapDTO ncc)
         {
             if (ncc == null)
@@ -79,8 +70,6 @@ namespace Bài_Tập_Lớn.BLL
 
             return nccDAL.CapNhatNhaCungCap(ncc);
         }
-
-        // Xóa nhà cung cấp
         public bool XoaNhaCungCap(string maNCC)
         {
             if (string.IsNullOrWhiteSpace(maNCC))

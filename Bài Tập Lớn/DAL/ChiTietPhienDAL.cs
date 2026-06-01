@@ -9,7 +9,6 @@ namespace Bài_Tập_Lớn.DAL
 {
     internal class ChiTietPhienDAL
     {
-        // Map tên cột DB → property DTO (Dapper không tự map snake_case → PascalCase)
         static ChiTietPhienDAL()
         {
             Dapper.SqlMapper.SetTypeMap(typeof(Bài_Tập_Lớn.DTO.ChiTietPhienDTO),
@@ -28,7 +27,6 @@ namespace Bài_Tập_Lớn.DAL
         }
       public  string SinhMaMoi()
         {
-            // ma_ctp có format 'CTP001', 'CTP002', ... → lấy phần số sau 3 ký tự đầu
             string sql = @"SELECT ISNULL(MAX(CAST(SUBSTRING(ma_ctp, 4, LEN(ma_ctp)) AS INT)), 0)
                    FROM chi_tiet_phien";
 

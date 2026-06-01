@@ -9,7 +9,6 @@ namespace Bài_Tập_Lớn.DAL
 {
     internal class KhachHangDAL
     {
-        // Sinh mã khách hàng mới
         public string SinhMaMoi()
         {
             string sql = @"SELECT ISNULL(MAX(CAST(SUBSTRING(ma_kh, 3, LEN(ma_kh)) AS INT)),0) 
@@ -29,7 +28,6 @@ namespace Bài_Tập_Lớn.DAL
             }
         }
 
-        // Lấy tất cả khách hàng
         public List<KhachHangDTO> LayTatCaKhachHang()
         {
             string sql = "SELECT * FROM khach_hang";
@@ -47,7 +45,6 @@ namespace Bài_Tập_Lớn.DAL
             }
         }
 
-        // Tìm theo mã khách hàng
         public KhachHangDTO TimTheoMaKhachHang(string maKH)
         {
             string sql = "SELECT * FROM khach_hang WHERE ma_kh = @MaKH";
@@ -67,8 +64,6 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception("Lỗi khi tìm khách hàng: " + ex.Message);
             }
         }
-
-        // Tìm kiếm khách hàng
         public List<KhachHangDTO> TimKiem(string keyword)
         {
             string sql = @"SELECT * 
@@ -91,8 +86,6 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception("Lỗi khi tìm kiếm khách hàng: " + ex.Message);
             }
         }
-
-        // Thêm khách hàng
         public bool ThemKhachHang(KhachHangDTO kh)
         {
             string sql = @"INSERT INTO khach_hang
@@ -113,8 +106,6 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception("Lỗi khi thêm khách hàng: " + ex.Message);
             }
         }
-
-        // Cập nhật khách hàng
         public bool CapNhatKhachHang(KhachHangDTO kh)
         {
             string sql = @"UPDATE khach_hang SET
@@ -138,8 +129,6 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception("Lỗi khi cập nhật khách hàng: " + ex.Message);
             }
         }
-
-        // Xóa khách hàng
         public bool XoaKhachHang(string maKH)
         {
             string sql = "DELETE FROM khach_hang WHERE ma_kh = @MaKH";

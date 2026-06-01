@@ -312,11 +312,6 @@ namespace Bài_Tập_Lớn.GUI
             path.CloseFigure();
             dgvChiTiet.Region = new Region(path);
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  XÁC NHẬN — Lưu phiếu nhập + cập nhật tồn kho
-        //  FIX: Gọi NhapHangBLL.TaoPhieuNhap() thay vì tự INSERT
-        // ══════════════════════════════════════════════════════════
         private void btnXacNhan_Click(object sender, EventArgs e)
         {
             try
@@ -324,7 +319,6 @@ namespace Bài_Tập_Lớn.GUI
                 if (_gio.Count == 0)
                     throw new Exception("Vui lòng thêm ít nhất 1 sản phẩm vào phiếu nhập!");
 
-                // Lấy mã NCC
                 string maNCC = "";
                 if (cboNCC.SelectedItem is NhaCungCapDTO selNCC)
                     maNCC = selNCC.MaNCC ?? "";
@@ -332,37 +326,32 @@ namespace Bài_Tập_Lớn.GUI
                 if (string.IsNullOrWhiteSpace(maNCC))
                     throw new Exception("Vui lòng chọn nhà cung cấp!");
 
-                // Tính tổng tiền
                 double tongTien = 0;
                 foreach (var (ct, _) in _gio)
                     tongTien += ct.SoLuong * ct.DonGiaNhap;
 
-                // Tạo header HoaDonNhap
                 var hdn = new HoaDonNhapDTO
                 {
                     MaHDN = inputMaHDN.Text.Trim(),
                     MaNCC = maNCC,
-                    MaNV = "",   // TODO: lấy từ session nếu có
+                    MaNV = "",
                     NgayNhap = dtpNgayNhap.Value.Date,
                     TongTien = tongTien,
                     GhiChu = inputGhiChu.Text.Trim()
                 };
 
-                // Chuẩn hóa list chi tiết (mã CT để BLL sinh)
                 var dsChiTiet = new List<ChiTietHoaDonNhapDTO>();
                 foreach (var (ct, _) in _gio)
                 {
                     dsChiTiet.Add(new ChiTietHoaDonNhapDTO
                     {
-                        MaCTHDN = "",        // BLL sẽ sinh: HDNxxx_01, HDNxxx_02...
+                        MaCTHDN = "",
                         MaHDN = hdn.MaHDN,
                         MaSP = ct.MaSP,
                         SoLuong = ct.SoLuong,
                         DonGiaNhap = ct.DonGiaNhap
                     });
                 }
-
-                // Gọi BLL — sẽ INSERT hóa đơn + chi tiết + CẬP NHẬT TỒN KHO
                 bool ok = _bll.TaoPhieuNhap(hdn, dsChiTiet);
 
                 if (ok)
@@ -387,10 +376,6 @@ namespace Bài_Tập_Lớn.GUI
                 MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  Hủy
-        // ══════════════════════════════════════════════════════════
         private void btnHuy_Click(object sender, EventArgs e)
         {
             if (_gio.Count > 0)

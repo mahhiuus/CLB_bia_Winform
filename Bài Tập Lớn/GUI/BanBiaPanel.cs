@@ -13,26 +13,15 @@ namespace Bài_Tập_Lớn.GUI
 {
     public partial class BanBiaPanel : Form
     {
-        // ══════════════════════════════════════════════════════════
-        //  Fields
-        // ══════════════════════════════════════════════════════════
         private readonly BanBidaBLL _bll = new BanBidaBLL();
         private bool _dangKhoiTao = true;
-
-        // ── Pagination ────────────────────────────────────────────
         private List<BanBidaDTO> _dsDayDu = new List<BanBidaDTO>();
         private int _trangHienTai = 1;
         private const int _soDoiMoiTrang = 10;
         private int _tongSoTrang => (int)Math.Ceiling((double)_dsDayDu.Count / _soDoiMoiTrang);
-
-        // ── Pager controls (tạo code, không dùng Designer) ───────
         private Guna2Button _btnPrev;
         private Guna2Button _btnNext;
         private Label _lblTrangInfo;
-
-        // ══════════════════════════════════════════════════════════
-        //  Khởi tạo
-        // ══════════════════════════════════════════════════════════
         public BanBiaPanel()
         {
             InitializeComponent();
@@ -42,28 +31,21 @@ namespace Bài_Tập_Lớn.GUI
             _dangKhoiTao = false;
             TaiDanhSach();
 
-            // ════ BẠN THÊM ĐOẠN NÀY ĐỂ ĐĂNG KÝ SỰ KIỆN CHO GRID ════
             guna2DataGridView1.CellFormatting += guna2DataGridView1_CellFormatting;
             guna2DataGridView1.CellMouseEnter += guna2DataGridView1_CellMouseEnter;
             guna2DataGridView1.CellMouseLeave += guna2DataGridView1_CellMouseLeave;
             guna2DataGridView1.CellMouseDown += guna2DataGridView1_CellMouseDown;
             guna2DataGridView1.CellContentClick += guna2DataGridView1_CellContentClick;
-            // ═══════════════════════════════════════════════════════
 
             this.Load += (s, e) => ApDungBoTron();
             guna2DataGridView1.Resize += (s, e) => ApDungBoTron();
         }
-        // ══════════════════════════════════════════════════════════
-        //  Tạo nút phân trang vào guna2Panel3
-        // ══════════════════════════════════════════════════════════
         private void TaoPhanTrang()
         {
-            // ── Màu sắc theo ảnh mẫu ─────────────────────────────
             Color clrBtnNormal = Color.FromArgb(200, 200, 200);   // xám nhạt
             Color clrBtnHover = Color.FromArgb(170, 170, 170);   // xám đậm hơn khi hover
             Color clrText = Color.FromArgb(43, 78, 35);    // xanh lá đậm
 
-            // Nút Trước  "<"
             _btnPrev = new Guna2Button
             {
                 Text = "<",
@@ -80,8 +62,6 @@ namespace Bài_Tập_Lớn.GUI
             _btnPrev.HoverState.FillColor = clrBtnHover;
             _btnPrev.HoverState.ForeColor = Color.FromArgb(50, 50, 50);
             _btnPrev.Click += (s, e) => ChuyenTrang(_trangHienTai - 1);
-
-            // Label "Trang X / Y"
             _lblTrangInfo = new Label
             {
                 Text = "Trang 1 / 1",
@@ -92,8 +72,6 @@ namespace Bài_Tập_Lớn.GUI
                 ForeColor = clrText,
                 BackColor = Color.Transparent,
             };
-
-            // Nút Sau  ">"
             _btnNext = new Guna2Button
             {
                 Text = ">",
@@ -115,9 +93,6 @@ namespace Bài_Tập_Lớn.GUI
             guna2Panel3.Controls.Add(_lblTrangInfo);
             guna2Panel3.Controls.Add(_btnNext);
         }
-        // ══════════════════════════════════════════════════════════
-        //  Chuyển trang
-        // ══════════════════════════════════════════════════════════
         private void ChuyenTrang(int trang)
         {
             if (trang < 1 || trang > _tongSoTrang) return;
@@ -137,11 +112,7 @@ namespace Bài_Tập_Lớn.GUI
             guna2DataGridView1.ClearSelection();
 
             int tongTrang = Math.Max(1, _tongSoTrang);
-
-            // ── Format label theo ảnh mẫu ────────────────────────
             _lblTrangInfo.Text = $"Trang {_trangHienTai} / {tongTrang}";
-
-            // Nút disabled → xám rất nhạt; enabled → xám bình thường
             _btnPrev.Enabled = _trangHienTai > 1;
             _btnNext.Enabled = _trangHienTai < tongTrang;
             _btnPrev.FillColor = _btnPrev.Enabled
@@ -157,9 +128,6 @@ namespace Bài_Tập_Lớn.GUI
               ? Color.FromArgb(80, 80, 80)
               : Color.FromArgb(180, 180, 180);
         }
-        // ══════════════════════════════════════════════════════════
-        //  Bo tròn DataGridView
-        // ══════════════════════════════════════════════════════════
         private void ApDungBoTron()
         {
             const int r = 16;
@@ -172,18 +140,12 @@ namespace Bài_Tập_Lớn.GUI
             path.CloseFigure();
             guna2DataGridView1.Region = new Region(path);
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  Thiết lập Grid
-        // ══════════════════════════════════════════════════════════
         private void CauHinhGrid()
         {
             guna2DataGridView1.Enabled = true;
             guna2DataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             guna2DataGridView1.ReadOnly = true;
             guna2DataGridView1.AutoGenerateColumns = false;
-
-            // Xử lý chặn popup lỗi DataError mặc định của Grid
             guna2DataGridView1.DataError += (s, e) => { e.Cancel = true; };
 
             Column1.DataPropertyName = "MaBan";
@@ -202,7 +164,6 @@ namespace Bài_Tập_Lớn.GUI
             guna2DataGridView1.RowTemplate.Height = 38;
             guna2DataGridView1.DefaultCellStyle.Padding = new Padding(8, 0, 8, 0);
 
-            // Bổ sung các thuộc tính nút Xóa
             Column7.UseColumnTextForButtonValue = true;
             Column7.Text = "🗑  Xóa";
             Column7.FlatStyle = FlatStyle.Flat;
@@ -223,10 +184,6 @@ namespace Bài_Tập_Lớn.GUI
       };
             selectTimKiem.SelectedIndex = 0;
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  Load & Hiển thị dữ liệu
-        // ══════════════════════════════════════════════════════════
         private void TaiDanhSach()
         {
             try
@@ -248,10 +205,6 @@ namespace Bài_Tập_Lớn.GUI
             _trangHienTai = 1;
             HienThiTrangHienTai();
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  CellFormatting — nút Xóa đỏ đồng đều
-        // ══════════════════════════════════════════════════════════
         private void guna2DataGridView1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             if (e.RowIndex < 0) return;
@@ -262,10 +215,6 @@ namespace Bài_Tập_Lớn.GUI
             e.CellStyle.SelectionBackColor = Color.FromArgb(180, 20, 20);
             e.CellStyle.SelectionForeColor = Color.White;
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  Hover / Press nút Xóa
-        // ══════════════════════════════════════════════════════════
         private void guna2DataGridView1_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
@@ -289,10 +238,6 @@ namespace Bài_Tập_Lớn.GUI
             guna2DataGridView1.Rows[e.RowIndex].Cells["Column7"].Style.BackColor = Color.FromArgb(185, 28, 28);
             guna2DataGridView1.Rows[e.RowIndex].Cells["Column7"].Style.ForeColor = Color.White;
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  Tìm kiếm / lọc
-        // ══════════════════════════════════════════════════════════
         private void ThucHienTimKiem()
         {
             try
@@ -314,10 +259,6 @@ namespace Bài_Tập_Lớn.GUI
                   MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  Sự kiện
-        // ══════════════════════════════════════════════════════════
         private void btnReload_Click(object sender, EventArgs e)
         {
             try
@@ -340,7 +281,6 @@ namespace Bài_Tập_Lớn.GUI
                 btnReload.Text = "Tải Lại";
             }
         }
-
         private void guna2Button1_Click(object sender, EventArgs e)
         {
             _dangKhoiTao = true;
@@ -348,14 +288,11 @@ namespace Bài_Tập_Lớn.GUI
             _dangKhoiTao = false;
             TaiDanhSach();
         }
-
         private void selectTimKiem_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (_dangKhoiTao) return;
             ThucHienTimKiem();
         }
-
-        // ── Thêm mới ─────────────────────────────────────────────
         private void btnThem_Click(object sender, EventArgs e)
         {
             using (var popup = new BanBiaPopupUi())
@@ -366,8 +303,6 @@ namespace Bài_Tập_Lớn.GUI
                     TaiDanhSach();
             }
         }
-
-        // ── Click vào cell ────────────────────────────────────────
         private void guna2DataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
@@ -380,8 +315,6 @@ namespace Bài_Tập_Lớn.GUI
 
             MoPopupSua(e.RowIndex);
         }
-
-        // ── Mở popup Sửa ─────────────────────────────────────────
         private void MoPopupSua(int rowIndex)
         {
             string maBan = guna2DataGridView1.Rows[rowIndex].Cells["Column1"].Value?.ToString();
@@ -398,8 +331,6 @@ namespace Bài_Tập_Lớn.GUI
                     TaiDanhSach();
             }
         }
-
-        // ── Xóa qua ConfirmDeleteUI ───────────────────────────────
         private void XuLyXoa(int rowIndex)
         {
             string maBan = guna2DataGridView1.Rows[rowIndex].Cells["Column1"].Value?.ToString();
@@ -428,8 +359,6 @@ namespace Bài_Tập_Lớn.GUI
                 MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-        // ── Event stubs ───────────────────────────────────────────
         private void MainHeader_Paint(object sender, PaintEventArgs e) { }
         private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e) { }
         private void guna2Panel3_Paint(object sender, PaintEventArgs e) { }

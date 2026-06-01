@@ -11,8 +11,6 @@ namespace Bài_Tập_Lớn.DAL
     {
         public string SinhMaMoi()
         {
-            // Dùng PATINDEX để tìm vị trí bắt đầu của phần số trong mã (AN001 → vị trí 3)
-            // Tránh lỗi CAST khi prefix có nhiều hơn 1 ký tự chữ
             string sql = @"
                 SELECT ISNULL(MAX(CAST(
                     SUBSTRING(ma_ban, PATINDEX('%[0-9]%', ma_ban), LEN(ma_ban))
@@ -23,7 +21,6 @@ namespace Bài_Tập_Lớn.DAL
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
                     int soThuTu = conn.ExecuteScalar<int>(sql) + 1;
-                    // Giữ đúng định dạng AN001, AN002, ...
                     return $"AN{soThuTu:D3}";
                 }
             }
@@ -195,7 +192,6 @@ namespace Bài_Tập_Lớn.DAL
 
         public List<BanBidaDTO> TimTheoLoaiBan(string loaiBan)
         {
-            // Fix: đổi tên bảng từ BanBida → ban_bida cho nhất quán
             string sql = @"SELECT 
                             ma_ban       AS MaBan, 
                             ten_ban      AS TenBan, 

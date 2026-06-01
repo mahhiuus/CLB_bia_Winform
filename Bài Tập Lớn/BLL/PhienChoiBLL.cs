@@ -118,11 +118,6 @@ namespace Bài_Tập_Lớn.BLL
 
             return phienChoiDAL.XoaPhien(maPhien);
         }
-
-        /// <summary>
-        /// Lấy phiên đang chơi của một bàn (alias của TimPhienDangChoiTheoBan).
-        /// Trả về null nếu bàn không có phiên nào đang hoạt động.
-        /// </summary>
         public PhienChoiDTO LayPhienDangChoi(string maBan)
         {
             if (string.IsNullOrWhiteSpace(maBan))

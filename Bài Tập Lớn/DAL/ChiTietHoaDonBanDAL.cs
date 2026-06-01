@@ -11,7 +11,6 @@ namespace Bài_Tập_Lớn.DAL
     {
         public string SinhMaMoi()
         {
-            // Tối ưu bằng SQL: Trích xuất phần số sau chuỗi 'CTB' và lấy giá trị lớn nhất
             string sql = @"SELECT ISNULL(MAX(CAST(SUBSTRING(ma_ct_hdb, 4, LEN(ma_ct_hdb)) AS INT)), 0) 
                            FROM chi_tiet_hoa_don_ban 
                            WHERE ma_ct_hdb LIKE 'CTB%'";
@@ -20,7 +19,7 @@ namespace Bài_Tập_Lớn.DAL
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
                     int soThuTu = conn.ExecuteScalar<int>(sql) + 1;
-                    return $"CTB{soThuTu:D3}"; // Định dạng ví dụ: CTB001
+                    return $"CTB{soThuTu:D3}";
                 }
             }
             catch (Exception ex)
@@ -43,7 +42,6 @@ namespace Bài_Tập_Lớn.DAL
             }
             catch (Exception ex)
             {
-                // Bọc lỗi thân thiện khi trùng lặp khóa chính hoặc lỗi DB giống code Java của bạn
                 if (ex.Message.Contains("Duplicate entry") || ex.Message.Contains("PRIMARY KEY violation"))
                 {
                     throw new Exception("Phát hiện kết nối mạng bị lặp, hệ thống đã tự động gỡ lỗi. Vui lòng thanh toán lại!");

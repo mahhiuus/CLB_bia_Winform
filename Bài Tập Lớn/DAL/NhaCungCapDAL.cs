@@ -9,7 +9,6 @@ namespace Bài_Tập_Lớn.DAL
 {
     internal class NhaCungCapDAL
     {
-        // Sinh mã nhà cung cấp mới
         public string SinhMaMoi()
         {
             string sql = @"SELECT ISNULL(MAX(CAST(SUBSTRING(ma_ncc, 4, LEN(ma_ncc)) AS INT)),0)
@@ -28,8 +27,6 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception("Lỗi khi sinh mã nhà cung cấp: " + ex.Message);
             }
         }
-
-        // Lấy tất cả nhà cung cấp
         public List<NhaCungCapDTO> LayTatCaNhaCungCap()
         {
             string sql = "SELECT * FROM nha_cung_cap";
@@ -46,8 +43,6 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception("Lỗi khi lấy danh sách nhà cung cấp: " + ex.Message);
             }
         }
-
-        // Tìm theo mã nhà cung cấp
         public NhaCungCapDTO TimTheoMaNhaCungCap(string maNCC)
         {
             string sql = "SELECT * FROM nha_cung_cap WHERE ma_ncc = @MaNCC";
@@ -67,8 +62,6 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception("Lỗi khi tìm nhà cung cấp: " + ex.Message);
             }
         }
-
-        // Tìm kiếm nhà cung cấp
         public List<NhaCungCapDTO> TimKiem(string keyword)
         {
             string sql = @"SELECT * 
@@ -91,7 +84,6 @@ namespace Bài_Tập_Lớn.DAL
             }
         }
 
-        // Thêm nhà cung cấp
         public bool ThemNhaCungCap(NhaCungCapDTO ncc)
         {
             string sql = @"INSERT INTO nha_cung_cap
@@ -112,8 +104,6 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception("Lỗi khi thêm nhà cung cấp: " + ex.Message);
             }
         }
-
-        // Cập nhật nhà cung cấp
         public bool CapNhatNhaCungCap(NhaCungCapDTO ncc)
         {
             string sql = @"UPDATE nha_cung_cap SET
@@ -137,8 +127,6 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception("Lỗi khi cập nhật nhà cung cấp: " + ex.Message);
             }
         }
-
-        // Xóa nhà cung cấp
         public bool XoaNhaCungCap(string maNCC)
         {
             string sql = "DELETE FROM nha_cung_cap WHERE ma_ncc = @MaNCC";

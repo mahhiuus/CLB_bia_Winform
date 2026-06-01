@@ -152,11 +152,6 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception("Lỗi khi tìm kiếm sản phẩm: " + ex.Message);
             }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  THÊM MỚI: Tăng tồn kho khi NHẬP HÀNG xác nhận
-        //  Gọi sau khi TaoPhieuNhap thành công
-        // ══════════════════════════════════════════════════════════
         public bool TangTonKho(string maSP, int soLuong)
         {
             if (string.IsNullOrWhiteSpace(maSP) || soLuong <= 0)
@@ -177,17 +172,11 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception($"Lỗi khi tăng tồn kho SP {maSP}: " + ex.Message);
             }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  THÊM MỚI: Giảm tồn kho khi THANH TOÁN hóa đơn bán
-        //  Chỉ gọi khi IsPaid = true, KHÔNG gọi khi chỉ order
-        // ══════════════════════════════════════════════════════════
         public bool GiamTonKho(string maSP, int soLuong)
         {
             if (string.IsNullOrWhiteSpace(maSP) || soLuong <= 0)
                 throw new ArgumentException("Mã SP hoặc số lượng không hợp lệ!");
 
-            // Kiểm tra tồn kho đủ trước khi trừ
             string sqlCheck = "SELECT so_luong_ton FROM san_pham WHERE ma_sp = @MaSP";
             string sqlUpdate = @"UPDATE san_pham
                                  SET so_luong_ton = so_luong_ton - @SoLuong
@@ -208,10 +197,6 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception($"Lỗi khi giảm tồn kho SP {maSP}: " + ex.Message);
             }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  THÊM MỚI: Lấy tồn kho hiện tại theo mã SP
-        // ══════════════════════════════════════════════════════════
         public int LayTonKho(string maSP)
         {
             string sql = "SELECT ISNULL(so_luong_ton, 0) FROM san_pham WHERE ma_sp = @MaSP";
@@ -225,8 +210,6 @@ namespace Bài_Tập_Lớn.DAL
                 throw new Exception("Lỗi khi lấy tồn kho: " + ex.Message);
             }
         }
-
-
         public List<SanPhamDTO> LayTatCa()
         {
             string sql = @"SELECT ma_sp        AS MaSP,

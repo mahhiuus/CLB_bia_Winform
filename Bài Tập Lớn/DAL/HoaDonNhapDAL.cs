@@ -163,7 +163,6 @@ namespace Bài_Tập_Lớn.DAL
         }
         public List<HoaDonNhapDTO> LayTheoNgay(DateTime tuNgay, DateTime denNgay)
         {
-            // Sử dụng câu lệnh SQL lọc chính xác cả ngày và mốc giờ cuối ngày
             string sql = "SELECT * FROM hoa_don_nhap WHERE ngay_nhap BETWEEN @TuNgay AND @DenNgay";
 
             try
@@ -198,7 +197,6 @@ namespace Bài_Tập_Lớn.DAL
 
         public List<HoaDonNhapDTO> LayTopHoaDonTheoNgay(DateTime ngay, int limit)
         {
-            // Lọc toàn bộ giờ trong ngày được chọn (00:00:00 -> 23:59:59)
             string sql = @"SELECT TOP (@Limit) * FROM hoa_don_nhap 
                            WHERE CAST(ngay_nhap AS DATE) = CAST(@Ngay AS DATE)
                            ORDER BY ngay_nhap DESC";
@@ -218,7 +216,6 @@ namespace Bài_Tập_Lớn.DAL
 
         public List<HoaDonNhapDTO> LayTopHoaDonTheoThang(int thang, int nam, int limit)
         {
-            // Sử dụng hàm MONTH() và YEAR() của SQL Server
             string sql = @"SELECT TOP (@Limit) * FROM hoa_don_nhap 
                            WHERE MONTH(ngay_nhap) = @Thang AND YEAR(ngay_nhap) = @Nam
                            ORDER BY ngay_nhap DESC";

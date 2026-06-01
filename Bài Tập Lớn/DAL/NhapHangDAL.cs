@@ -9,9 +9,6 @@ namespace Bài_Tập_Lớn.DAL
 {
 	internal class NhapHangDAL
 	{
-		// ══════════════════════════════════════════════════════════
-		//  Sinh mã mới
-		// ══════════════════════════════════════════════════════════
 		public string SinhMaHDNMoi()
 		{
 			string sql = @"SELECT COALESCE(MAX(CAST(SUBSTRING(ma_hdn, 4, LEN(ma_hdn)) AS INT)), 0) FROM hoa_don_nhap";
@@ -45,10 +42,6 @@ namespace Bài_Tập_Lớn.DAL
 				throw new Exception("Lỗi khi sinh mã chi tiết hóa đơn nhập: " + ex.Message);
 			}
 		}
-
-		// ══════════════════════════════════════════════════════════
-		//  Thêm hóa đơn nhập + chi tiết (Transaction)
-		// ══════════════════════════════════════════════════════════
 		public bool ThemPhieuNhap(HoaDonNhapDTO hdn, List<ChiTietHoaDonNhapDTO> dsChiTiet)
 		{
 			if (hdn == null) throw new ArgumentNullException(nameof(hdn));
@@ -76,10 +69,7 @@ namespace Bài_Tập_Lớn.DAL
 					{
 						try
 						{
-							// 1. Insert hóa đơn nhập
 							conn.Execute(sqlHDN, hdn, tx);
-
-							// 2. Insert từng chi tiết + cập nhật tồn kho
 							foreach (var ct in dsChiTiet)
 							{
 								conn.Execute(sqlCT, ct, tx);
@@ -103,9 +93,6 @@ namespace Bài_Tập_Lớn.DAL
 			}
 		}
 
-		// ══════════════════════════════════════════════════════════
-		//  Lấy danh sách hóa đơn nhập
-		// ══════════════════════════════════════════════════════════
 		public List<HoaDonNhapDTO> LayTatCa()
 		{
 			string sql = @"SELECT ma_hdn AS MaHDN, ma_ncc AS MaNCC, ma_nv AS MaNV,
@@ -144,10 +131,6 @@ namespace Bài_Tập_Lớn.DAL
 				throw new Exception("Lỗi khi tìm kiếm phiếu nhập: " + ex.Message);
 			}
 		}
-
-		// ══════════════════════════════════════════════════════════
-		//  Lấy chi tiết theo mã hóa đơn nhập
-		// ══════════════════════════════════════════════════════════
 		public List<ChiTietHoaDonNhapDTO> LayChiTietTheoMaHDN(string maHDN)
 		{
 			string sql = @"SELECT ma_cthdn AS MaCTHDN, ma_hdn AS MaHDN, ma_sp AS MaSP,
@@ -166,10 +149,6 @@ namespace Bài_Tập_Lớn.DAL
 				throw new Exception("Lỗi khi tải chi tiết phiếu nhập: " + ex.Message);
 			}
 		}
-
-		// ══════════════════════════════════════════════════════════
-		//  Xóa hóa đơn nhập
-		// ══════════════════════════════════════════════════════════
 		public bool XoaPhieuNhap(string maHDN)
 		{
 			if (string.IsNullOrWhiteSpace(maHDN))

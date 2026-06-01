@@ -6,24 +6,12 @@ using System.Drawing.Drawing2D;
 
 namespace Bài_Tập_Lớn.UI
 {
-    /// <summary>
-    /// Popup xác nhận xóa dùng chung cho mọi loại dữ liệu.
-    /// Dùng: new ConfirmDeleteUI("Bàn 01")
-    ///   hoặc new ConfirmDeleteUI("Bàn 01", "bàn bida")
-    /// </summary>
     public class ConfirmDeleteUI : Form
     {
         static readonly Color CREAM = Color.FromArgb(255, 255, 251);
         static readonly Color DANGER = Color.FromArgb(192, 57, 43);
-
-        // ── Constructor đơn giản: chỉ truyền tên ─────────────────
         public ConfirmDeleteUI(string tenDoiTuong)
             : this(tenDoiTuong, "") { }
-
-        // ── Constructor đầy đủ: tên + loại ───────────────────────
-        // Ví dụ: ConfirmDeleteUI("Bàn 01", "bàn bida")
-        //        ConfirmDeleteUI("Nguyễn Văn A", "nhân viên")
-        //        ConfirmDeleteUI("HĐ-0012", "hóa đơn")
         public ConfirmDeleteUI(string tenDoiTuong, string loaiDoiTuong)
         {
             string dongMsg = string.IsNullOrWhiteSpace(loaiDoiTuong)

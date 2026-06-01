@@ -7,9 +7,6 @@ using System.Windows.Forms;
 
 namespace Bài_Tập_Lớn.GUI
 {
-    // ═══════════════════════════════════════════════════════════════
-    // OVERLAY FORM
-    // ═══════════════════════════════════════════════════════════════
     internal class OverlayForm : Form
     {
         private System.Windows.Forms.Timer _fadeTimer;
@@ -43,9 +40,6 @@ namespace Bài_Tập_Lớn.GUI
         private void InitializeComponent()
         {
             this.SuspendLayout();
-            // 
-            // OverlayForm
-            // 
             this.ClientSize = new System.Drawing.Size(282, 253);
             this.Name = "OverlayForm";
             this.Load += new System.EventHandler(this.OverlayForm_Load);
@@ -58,10 +52,6 @@ namespace Bài_Tập_Lớn.GUI
 
         }
     }
-
-    // ═══════════════════════════════════════════════════════════════
-    // BAN BIA POPUP
-    // ═══════════════════════════════════════════════════════════════
     public partial class BanBiaPopupUi : Form
     {
         private readonly BanBidaBLL _bll = new BanBidaBLL();
@@ -70,8 +60,6 @@ namespace Bài_Tập_Lớn.GUI
 
         public BanBidaDTO KetQua { get; private set; }
         public bool DaXoa { get; private set; } = false;
-
-        // ── Constructor: Thêm mới ─────────────────────────────────
         public BanBiaPopupUi()
         {
             InitializeComponent();
@@ -80,8 +68,6 @@ namespace Bài_Tập_Lớn.GUI
             inputMaNv.Text = _bll.SinhMaMoi();
             inputMaNv.ReadOnly = true;
         }
-
-        // ── Constructor: Sửa ─────────────────────────────────────
         public BanBiaPopupUi(BanBidaDTO ban) : this()
         {
             _laSua = true;
@@ -92,24 +78,18 @@ namespace Bài_Tập_Lớn.GUI
             selectBan.SelectedValue = ban.LoaiBan;
             selectTrangThai.SelectedValue = ban.TrangThai;
         }
-
-        // ── Hiện Overlay ─────────────────────────────────────────
         public void ShowOverlay(Form parent)
         {
             _overlay = new OverlayForm();
             _overlay.Show(parent);
             _overlay.StartFade();
         }
-
-        // ── Tự đóng overlay khi popup đóng ───────────────────────
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             base.OnFormClosed(e);
             _overlay?.Close();
             _overlay = null;
         }
-
-        // ── Khởi tạo ComboBox ────────────────────────────────────
         private void KhởiTaoCombo()
         {
             selectBan.DataSource = new[]
@@ -139,8 +119,6 @@ namespace Bài_Tập_Lớn.GUI
             guna2HtmlLabel7.Text = "Giá Theo Giờ (VNĐ)";
             guna2HtmlLabel4.Text = "Trạng Thái";
         }
-
-        // ── Vẽ tiêu đề header panel ──────────────────────────────
         private void guna2Panel1_Paint(object sender, PaintEventArgs e)
         {
             string tieuDe = _laSua ? "Sửa Dữ Liệu" : "Thêm Bàn Bida";
@@ -156,8 +134,6 @@ namespace Bài_Tập_Lớn.GUI
                 e.Graphics.DrawString(tieuDe, font, brush, x, y);
             }
         }
-
-        // ── Xác Nhận ─────────────────────────────────────────────
         private void btnXacNhan_Click_1(object sender, EventArgs e)
         {
             try
@@ -200,8 +176,6 @@ namespace Bài_Tập_Lớn.GUI
                 MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-        // ── Xóa ──────────────────────────────────────────────────
         private void btnXoa_Click(object sender, EventArgs e)
         {
             string tenBan = inputHoTen.Text.Trim();
@@ -227,15 +201,11 @@ namespace Bài_Tập_Lớn.GUI
                 }
             }
         }
-
-        // ── Hủy ──────────────────────────────────────────────────
         private void btnHuy_Click(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
-
-        // ── Event rỗng giữ cho Designer không lỗi ────────────────
         private void inputHoTen_Load(object sender, EventArgs e) { }
         private void inputMaNv_Load(object sender, EventArgs e) { }
         private void txtGiaTheoGio_Load(object sender, EventArgs e) { }

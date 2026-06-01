@@ -51,33 +51,18 @@ namespace Bài_Tập_Lớn.BLL
             if (string.IsNullOrWhiteSpace(maSP)) throw new Exception("Mã sản phẩm không được để trống!");
             return sanPhamDAL.XoaSanPham(maSP);
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  THÊM MỚI: Tăng tồn kho sau khi xác nhận phiếu nhập
-        //  Gọi từ NhapHangBLL.TaoPhieuNhap()
-        // ══════════════════════════════════════════════════════════
         public bool TangTonKho(string maSP, int soLuong)
         {
             if (string.IsNullOrWhiteSpace(maSP)) throw new Exception("Mã SP không được để trống!");
             if (soLuong <= 0) throw new Exception("Số lượng phải > 0!");
             return sanPhamDAL.TangTonKho(maSP, soLuong);
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  THÊM MỚI: Giảm tồn kho khi thanh toán hóa đơn bán
-        //  Chỉ gọi khi IsPaid = true — KHÔNG gọi khi order
-        // ══════════════════════════════════════════════════════════
         public bool GiamTonKho(string maSP, int soLuong)
         {
             if (string.IsNullOrWhiteSpace(maSP)) throw new Exception("Mã SP không được để trống!");
             if (soLuong <= 0) throw new Exception("Số lượng phải > 0!");
             return sanPhamDAL.GiamTonKho(maSP, soLuong);
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  THÊM MỚI: Giảm tồn kho cho nhiều sản phẩm cùng lúc
-        //  Dùng khi thanh toán nhiều món trong một đơn
-        // ══════════════════════════════════════════════════════════
         public void GiamTonKhoNhieu(List<ChiTietHoaDonBanDTO> dsChiTiet)
         {
             if (dsChiTiet == null || dsChiTiet.Count == 0) return;
@@ -87,10 +72,6 @@ namespace Bài_Tập_Lớn.BLL
                     sanPhamDAL.GiamTonKho(ct.MaSP, ct.SoLuong);
             }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  THÊM MỚI: Lấy tồn kho hiện tại (dùng để validate khi order)
-        // ══════════════════════════════════════════════════════════
         public int LayTonKho(string maSP)
         {
             if (string.IsNullOrWhiteSpace(maSP)) return 0;

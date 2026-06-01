@@ -98,10 +98,6 @@ namespace Bài_Tập_Lớn.BLL
 
             return chiTietPhienDAL.XoaChiTietPhien(maChiTiet);
         }
-
-        /// <summary>
-        /// Thêm mới nếu MaCTP chưa tồn tại, cập nhật nếu đã tồn tại.
-        /// </summary>
         public bool ThemHoacCapNhat(ChiTietPhienDTO ct)
         {
             if (ct == null)
@@ -122,7 +118,6 @@ namespace Bài_Tập_Lớn.BLL
             if (ct.DonGia < 0)
                 throw new Exception("Đơn giá không hợp lệ!");
 
-            // Kiểm tra đã tồn tại chưa bằng cách thử lấy theo phiên
             var dsCu = chiTietPhienDAL.TimTheoMaPhien(ct.MaPhien);
             bool daCoMaCTP = dsCu != null && dsCu.Exists(x => x.MaCTP == ct.MaCTP);
 
@@ -130,10 +125,6 @@ namespace Bài_Tập_Lớn.BLL
                 ? chiTietPhienDAL.CapNhatChiTietPhien(ct)
                 : chiTietPhienDAL.ThemChiTietPhien(ct);
         }
-
-        /// <summary>
-        /// Lấy danh sách chi tiết theo mã phiên (alias của TimTheoMaPhien).
-        /// </summary>
         public List<ChiTietPhienDTO> LayTheoPhien(string maPhien)
         {
             if (string.IsNullOrWhiteSpace(maPhien))

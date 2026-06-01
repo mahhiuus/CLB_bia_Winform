@@ -8,9 +8,6 @@ namespace Bài_Tập_Lớn.DAL
 {
     internal class ThongKeDAL
     {
-        // ══════════════════════════════════════════════════════════
-        //  HELPER: tháng/năm của hóa đơn gần nhất
-        // ══════════════════════════════════════════════════════════
         private (int Thang, int Nam) LayThangNamGanNhat()
         {
             string sql = @"
@@ -29,11 +26,6 @@ namespace Bài_Tập_Lớn.DAL
             catch { }
             return (DateTime.Now.Month, DateTime.Now.Year);
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  SQL HELPER: CTE tính đơn giá vốn trung bình theo sản phẩm
-        //  don_gia_von = SUM(so_luong * don_gia_nhap) / SUM(so_luong)
-        // ══════════════════════════════════════════════════════════
         private const string CTE_GIA_VON = @"
             WITH gia_von_tb AS (
                 SELECT  ma_sp,
@@ -41,10 +33,6 @@ namespace Bài_Tập_Lớn.DAL
                 FROM    chi_tiet_hoa_don_nhap
                 GROUP BY ma_sp
             )";
-
-        // ══════════════════════════════════════════════════════════
-        //  1. Doanh thu tháng gần nhất
-        // ══════════════════════════════════════════════════════════
         public double GetDoanhThuThangHienTai()
         {
             var (thang, nam) = LayThangNamGanNhat();
@@ -59,10 +47,6 @@ namespace Bài_Tập_Lớn.DAL
             }
             catch (Exception ex) { throw new Exception("Lỗi doanh thu tháng: " + ex.Message); }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  2. Số hóa đơn tháng gần nhất
-        // ══════════════════════════════════════════════════════════
         public int GetSoHoaDonThangHienTai()
         {
             var (thang, nam) = LayThangNamGanNhat();
@@ -77,10 +61,6 @@ namespace Bài_Tập_Lớn.DAL
             }
             catch (Exception ex) { throw new Exception("Lỗi số hóa đơn: " + ex.Message); }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  3. Khách hàng mới tháng hiện tại
-        // ══════════════════════════════════════════════════════════
         public int GetKhachHangMoiThangHienTai()
         {
             string sql = @"
@@ -94,10 +74,6 @@ namespace Bài_Tập_Lớn.DAL
             }
             catch (Exception ex) { throw new Exception("Lỗi khách hàng mới: " + ex.Message); }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  4. Số bàn đang hoạt động
-        // ══════════════════════════════════════════════════════════
         public int GetSoBanDangHoatDong()
         {
             string sql = "SELECT COUNT(*) FROM phien_choi WHERE trang_thai != 'DA_KET_THUC'";
@@ -108,10 +84,6 @@ namespace Bài_Tập_Lớn.DAL
             }
             catch (Exception ex) { throw new Exception("Lỗi số bàn hoạt động: " + ex.Message); }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  5. Giá vốn tháng gần nhất
-        // ══════════════════════════════════════════════════════════
         public double GetGiaVonThangHienTai()
         {
             var (thang, nam) = LayThangNamGanNhat();
@@ -128,10 +100,6 @@ namespace Bài_Tập_Lớn.DAL
             }
             catch (Exception ex) { throw new Exception("Lỗi giá vốn tháng: " + ex.Message); }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  6. Giá vốn theo ngày
-        // ══════════════════════════════════════════════════════════
         public double GetGiaVonTheoNgay(DateTime ngay)
         {
             string sql = CTE_GIA_VON + @"
@@ -147,10 +115,6 @@ namespace Bài_Tập_Lớn.DAL
             }
             catch { return 0; }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  7. Giá vốn theo tháng
-        // ══════════════════════════════════════════════════════════
         public double GetGiaVonTheoThang(int thang, int nam)
         {
             string sql = CTE_GIA_VON + @"
@@ -166,14 +130,6 @@ namespace Bài_Tập_Lớn.DAL
             }
             catch { return 0; }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  [MỚI] Lãi sản phẩm = SUM((don_gia_ban - don_gia_von) * so_luong_ban)
-        //  Dùng chung bởi GetTienBidaVaTienSanPhamThangHienTai,
-        //  GetDuLieuBieuDoTheoNgay, GetDuLieuBieuDoTheoThang, GetDuLieuBieuDoTheoNam
-        // ══════════════════════════════════════════════════════════
-
-        /// <summary>Lãi SP tháng gần nhất</summary>
         public double GetLaiSanPhamThangHienTai()
         {
             var (thang, nam) = LayThangNamGanNhat();
@@ -194,8 +150,6 @@ namespace Bài_Tập_Lớn.DAL
             }
             catch { return 0; }
         }
-
-        /// <summary>Lãi SP theo khoảng ngày – GROUP BY ngày, trả List dynamic (NgayBan, LaiSanPham)</summary>
         public List<dynamic> GetLaiSanPhamTheoNgay(DateTime tuNgay, DateTime denNgay)
         {
             string sql = CTE_GIA_VON + @"
@@ -217,8 +171,6 @@ namespace Bài_Tập_Lớn.DAL
             }
             catch { return new List<dynamic>(); }
         }
-
-        /// <summary>Lãi SP theo tháng – GROUP BY tháng, trả List dynamic (Thang, LaiSanPham)</summary>
         public List<dynamic> GetLaiSanPhamTheoThang(int nam)
         {
             string sql = CTE_GIA_VON + @"
@@ -239,8 +191,6 @@ namespace Bài_Tập_Lớn.DAL
             }
             catch { return new List<dynamic>(); }
         }
-
-        /// <summary>Lãi SP theo năm – GROUP BY năm, trả List dynamic (Nam, LaiSanPham)</summary>
         public List<dynamic> GetLaiSanPhamTheoNam()
         {
             string sql = CTE_GIA_VON + @"
@@ -260,11 +210,6 @@ namespace Bài_Tập_Lớn.DAL
             }
             catch { return new List<dynamic>(); }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  8. Biểu đồ THEO NGÀY
-        //  Thêm cột lai_san_pham để BLL tính lợi nhuận đúng
-        // ══════════════════════════════════════════════════════════
         public List<dynamic> GetDuLieuBieuDoTheoNgay(DateTime tuNgay, DateTime denNgay)
         {
             string sql = @"
@@ -285,10 +230,6 @@ namespace Bài_Tập_Lớn.DAL
             }
             catch (Exception ex) { throw new Exception("Lỗi biểu đồ ngày: " + ex.Message); }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  9. Biểu đồ THEO THÁNG
-        // ══════════════════════════════════════════════════════════
         public List<dynamic> GetDuLieuBieuDoTheoThang(int nam)
         {
             string sql = @"
@@ -308,10 +249,6 @@ namespace Bài_Tập_Lớn.DAL
             }
             catch (Exception ex) { throw new Exception("Lỗi biểu đồ tháng: " + ex.Message); }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  10. TienBida + TienSanPham tháng gần nhất (Pie Chart + Cards)
-        // ══════════════════════════════════════════════════════════
         public (double TienBida, double TienSanPham) GetTienBidaVaTienSanPhamThangHienTai()
         {
             var (thang, nam) = LayThangNamGanNhat();
@@ -336,7 +273,6 @@ namespace Bài_Tập_Lớn.DAL
         {
             var (thang, nam) = LayThangNamGanNhat();
 
-            // Đã sửa 'c.don_gia' thành 'c.don_gia_ban' theo đúng DB của bạn
             string sql = CTE_GIA_VON + @"
         SELECT 
             (SELECT ISNULL(SUM(tien_bida), 0) 
@@ -355,23 +291,15 @@ namespace Bài_Tập_Lớn.DAL
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    // SỬA CHÍ MẠNG: Đổi <double> thành <decimal> để Dapper không bị lỗi ép kiểu
                     decimal loiNhuanDecimal = conn.ExecuteScalar<decimal>(sql, new { Thang = thang, Nam = nam });
-
-                    // Sau đó mới convert sang double để trả về cho BLL
                     return Convert.ToDouble(loiNhuanDecimal);
                 }
             }
             catch (Exception ex)
             {
-                // Bỏ 'catch { return 0; }' ẩn lỗi đi để nếu sai cái gì bạn nhìn thấy ngay ở đây!
                 throw new Exception("Lỗi tính lợi nhuận: " + ex.Message);
             }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  11. Snapshot phát hiện thay đổi
-        // ══════════════════════════════════════════════════════════
         public (int SoHoaDon, DateTime NgayMoiNhat, int SoBanHoatDong) GetSnapshotThayDoi()
         {
             var (thang, nam) = LayThangNamGanNhat();
@@ -394,10 +322,6 @@ namespace Bài_Tập_Lớn.DAL
             }
             catch { return (0, DateTime.MinValue, 0); }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  12. Biểu đồ THEO NĂM
-        // ══════════════════════════════════════════════════════════
         public List<dynamic> GetDuLieuBieuDoTheoNam()
         {
             string sql = @"
@@ -416,10 +340,6 @@ namespace Bài_Tập_Lớn.DAL
             }
             catch (Exception ex) { throw new Exception("Lỗi biểu đồ năm: " + ex.Message); }
         }
-
-        // ══════════════════════════════════════════════════════════
-        //  13. Top máy doanh thu cao nhất tháng gần nhất
-        // ══════════════════════════════════════════════════════════
         public List<dynamic> GetTopMayDoanhThu(int top = 3)
         {
             var (thang, nam) = LayThangNamGanNhat();
