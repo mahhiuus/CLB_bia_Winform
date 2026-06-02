@@ -1217,5 +1217,10 @@ namespace Bài_Tập_Lớn.GUI
         private void guna2Panel12_Paint(object sender, PaintEventArgs e) { }
         private void btnExportExcel_Click_1(object sender, EventArgs e) { }
         private void guna2HtmlLabel4_Click(object sender, EventArgs e) { }
+
+        private void guna2GradientPanel3_Paint_1(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 }

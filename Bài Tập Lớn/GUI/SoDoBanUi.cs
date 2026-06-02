@@ -405,8 +405,9 @@ namespace Bài_Tập_Lớn.GUI
             };
             card.Controls.Add(lblStatus);
 
+
             // ── Click & Hover ─────────────────────────────────────────────
-            EventHandler onClick = (s, e) => HandleCardClick(ban, isActive);
+            EventHandler onClick = (s, e) => HandleCardClick(ban, ban.TrangThai?.ToUpper() == "DANG_CHOI");
             card.Click += onClick;
             picBox.Click += onClick;
             lblName.Click += onClick;
@@ -453,6 +454,9 @@ namespace Bài_Tập_Lớn.GUI
                         _phienBLL.ThemPhien(phien);
                         _banBLL.CapNhatTrangThai(ban.MaBan, "DANG_CHOI");
 
+                        // Cập nhật trạng thái object trên RAM để lần click sau không bị hỏi mở bàn nữa
+                        ban.TrangThai = "DANG_CHOI"; // <--- THÊM DÒNG NÀY
+
                         // Chỉ update đúng card này, không reload toàn bộ
                         UpdateCardInPlace(ban.MaBan);
 
@@ -480,6 +484,9 @@ namespace Bài_Tập_Lớn.GUI
                         if (fix == DialogResult.Yes)
                         {
                             _banBLL.CapNhatTrangThai(ban.MaBan, "TRONG");
+
+                            // Sửa cả trên bộ nhớ để tránh kẹt trạng thái
+                            ban.TrangThai = "TRONG"; // <--- THÊM DÒNG NÀY
 
                             // Chỉ update đúng card này, không reload toàn bộ
                             UpdateCardInPlace(ban.MaBan);
@@ -517,16 +524,17 @@ namespace Bài_Tập_Lớn.GUI
                                 {
                                     var cthd = new ChiTietHoaDonBanDTO
                                     {
-                                        MaHDB = dialog.HoaDonDaTao.MaHDB, // Lấy mã hóa đơn vừa được Dialog tạo thành công
+                                        MaHDB = dialog.HoaDonDaTao.MaHDB,
                                         MaSP = item.MaSP,
                                         SoLuong = item.SoLuong,
-                                        DonGiaBan = item.DonGia // Đơn giá từ chi tiết phiên chuyển sang đơn giá bán
+                                        DonGiaBan = item.DonGia
                                     };
-
-                                    // Gọi xuống tầng BLL để thực thi lệnh lưu vào SQL Server
                                     chiTietHoaDonBanBLL.ThemChiTiet(cthd);
                                 }
                             }
+
+                            // Cập nhật lại object thành TRỐNG sau khi đã thanh toán thành công
+                            ban.TrangThai = "TRONG"; // <--- THÊM DÒNG NÀY
 
                             // Đã sửa dòng này từ RefreshMap() thành UpdateCardInPlace
                             UpdateCardInPlace(ban.MaBan);
@@ -543,8 +551,7 @@ namespace Bài_Tập_Lớn.GUI
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-        }
-        // ════════════════════════════════════════════════════════
+        }        // ════════════════════════════════════════════════════════
         //  Hiển thị hóa đơn sau khi thanh toán xong
         //  (mở lại ThanhToanDialog ở chế độ preview — chỉ đọc)
         // ════════════════════════════════════════════════════════
