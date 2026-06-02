@@ -388,5 +388,15 @@ namespace Bài_Tập_Lớn.GUI
             this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
+
+        private void panelFooter_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void lblMaHDN_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

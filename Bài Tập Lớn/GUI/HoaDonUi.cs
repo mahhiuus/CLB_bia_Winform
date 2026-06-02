@@ -40,7 +40,7 @@ namespace Bài_Tập_Lớn.GUI
         // ── Controls ──
         private TableLayoutPanel rootTable;
         private Guna2DataGridView gridHoaDon;
-        private Guna2Button btnExportPdf, btnPrint, btnLoc, btnCancelLoc;
+        private Guna2Button btnExportPdf, btnPrint, btnLoc, btnCancelLoc, btnReload;
         private Guna2DateTimePicker dtpTuNgay, dtpDenNgay;
         private Label lblPageInfo;
         private Guna2Button btnPrev, btnNext;
@@ -113,12 +113,12 @@ namespace Bài_Tập_Lớn.GUI
             rootTable.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
             rootTable.RowStyles.Add(new RowStyle(SizeType.Absolute, 50f));
 
-            // 1. TOOLBAR PANEL 8 CỘT
+            // 1. TOOLBAR PANEL 9 CỘT
             TableLayoutPanel tlpToolbar = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
                 RowCount = 1,
-                ColumnCount = 8,
+                ColumnCount = 9,
                 Margin = new Padding(0)
             };
             tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));       // 0: dtpTuNgay
@@ -126,9 +126,10 @@ namespace Bài_Tập_Lớn.GUI
             tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));       // 2: dtpDenNgay
             tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));       // 3: btnLoc
             tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));       // 4: btnCancelLoc
-            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f)); // 5: spacer
-            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));       // 6: btnExportPdf
-            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));       // 7: btnPrint
+            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));       // 5: btnReload
+            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f)); // 6: spacer
+            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));       // 7: btnExportPdf
+            tlpToolbar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));       // 8: btnPrint
 
             dtpTuNgay = CreateDatePicker();
             Label lblDivider = new Label
@@ -152,11 +153,15 @@ namespace Bài_Tập_Lớn.GUI
             btnCancelLoc.HoverState.ForeColor = Color.FromArgb(180, 40, 40);
             btnCancelLoc.Click += BtnCancelLoc_Click;
 
+            btnReload = CreateToolbarButton("Làm mới", 110);
+            btnReload.Click += BtnReload_Click;
+
             tlpToolbar.Controls.Add(dtpTuNgay, 0, 0);
             tlpToolbar.Controls.Add(lblDivider, 1, 0);
             tlpToolbar.Controls.Add(dtpDenNgay, 2, 0);
             tlpToolbar.Controls.Add(btnLoc, 3, 0);
             tlpToolbar.Controls.Add(btnCancelLoc, 4, 0);
+            tlpToolbar.Controls.Add(btnReload, 5, 0);
 
             btnExportPdf = CreateToolbarButton("Xuất PDF", 130);
             btnExportPdf.Click += BtnExportPdf_Click;
@@ -165,8 +170,8 @@ namespace Bài_Tập_Lớn.GUI
             btnPrint.Click += BtnPrint_Click;
             btnPrint.Margin = new Padding(15, 0, 0, 0);
 
-            tlpToolbar.Controls.Add(btnExportPdf, 6, 0);
-            tlpToolbar.Controls.Add(btnPrint, 7, 0);
+            tlpToolbar.Controls.Add(btnExportPdf, 7, 0);
+            tlpToolbar.Controls.Add(btnPrint, 8, 0);
 
             rootTable.Controls.Add(tlpToolbar, 0, 0);
 
@@ -339,6 +344,22 @@ namespace Bài_Tập_Lớn.GUI
         {
             ResetDatePickers();
             LoadData();
+        }
+
+        private void BtnReload_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                btnReload.Enabled = false;
+                btnReload.Text = "Đang tải...";
+                ResetDatePickers();
+                LoadData();
+            }
+            finally
+            {
+                btnReload.Enabled = true;
+                btnReload.Text = "Làm mới";
+            }
         }
 
         // ════════════════════════════════════════════════════════

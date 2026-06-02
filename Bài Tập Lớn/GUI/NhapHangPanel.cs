@@ -67,6 +67,24 @@ namespace Bài_Tập_Lớn.GUI
             dgvPhieuNhap.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvPhieuNhap.ReadOnly = true;
             dgvPhieuNhap.AutoGenerateColumns = false;
+
+            // Cấu hình giao diện cho các cột nút bấm
+            if (dgvPhieuNhap.Columns.Contains("ColXemCT") && dgvPhieuNhap.Columns["ColXemCT"] is DataGridViewButtonColumn btnXem)
+            {
+                btnXem.UseColumnTextForButtonValue = true;
+                btnXem.FlatStyle = FlatStyle.Flat;
+            }
+            if (dgvPhieuNhap.Columns.Contains("ColXoa") && dgvPhieuNhap.Columns["ColXoa"] is DataGridViewButtonColumn btnXoa)
+            {
+                btnXoa.UseColumnTextForButtonValue = true;
+                btnXoa.FlatStyle = FlatStyle.Flat;
+            }
+
+            // Đăng ký các sự kiện chuột và màu sắc
+            dgvPhieuNhap.CellFormatting += dgvPhieuNhap_CellFormatting;
+            dgvPhieuNhap.CellMouseEnter += dgvPhieuNhap_CellMouseEnter;
+            dgvPhieuNhap.CellMouseLeave += dgvPhieuNhap_CellMouseLeave;
+            dgvPhieuNhap.CellMouseDown += dgvPhieuNhap_CellMouseDown;
         }
 
         // ══════════════════════════════════════════════════════════
@@ -212,93 +230,97 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ══════════════════════════════════════════════════════════
-        //  CellFormatting — màu nút Xem CT & Xóa
-        //  (giống cách TaiKhoanPanel tô màu Column5)
+        //  CellFormatting — Set màu gốc
         // ══════════════════════════════════════════════════════════
         private void dgvPhieuNhap_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             if (e.RowIndex < 0) return;
 
-            int colXemCT = dgvPhieuNhap.Columns["ColXemCT"].Index;
-            int colXoa = dgvPhieuNhap.Columns["ColXoa"].Index;
+            int colXemCT = dgvPhieuNhap.Columns.Contains("ColXemCT") ? dgvPhieuNhap.Columns["ColXemCT"].Index : -1;
+            int colXoa = dgvPhieuNhap.Columns.Contains("ColXoa") ? dgvPhieuNhap.Columns["ColXoa"].Index : -1;
 
             if (e.ColumnIndex == colXemCT)
             {
-                e.CellStyle.BackColor = Color.FromArgb(43, 78, 35);   // xanh lá đậm
+                e.CellStyle.BackColor = Color.FromArgb(43, 78, 35);       // Xanh lá gốc
                 e.CellStyle.ForeColor = Color.White;
-                e.CellStyle.SelectionBackColor = Color.FromArgb(60, 110, 48);
+                e.CellStyle.SelectionBackColor = Color.FromArgb(34, 62, 28); // Xanh lá đậm khi select
                 e.CellStyle.SelectionForeColor = Color.White;
-                e.CellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
-                e.CellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             }
             else if (e.ColumnIndex == colXoa)
             {
-                e.CellStyle.BackColor = Color.FromArgb(192, 30, 30);  // đỏ đậm
+                e.CellStyle.BackColor = Color.FromArgb(220, 53, 53);      // Đỏ gốc
                 e.CellStyle.ForeColor = Color.White;
-                e.CellStyle.SelectionBackColor = Color.FromArgb(220, 50, 50);
+                e.CellStyle.SelectionBackColor = Color.FromArgb(185, 28, 28); // Đỏ đậm khi select
                 e.CellStyle.SelectionForeColor = Color.White;
-                e.CellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
-                e.CellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             }
         }
 
         // ══════════════════════════════════════════════════════════
-        //  Hover — sáng lên khi di chuột vào
+        //  Hover — Đậm màu lên khi chuột đi vào
         // ══════════════════════════════════════════════════════════
         private void dgvPhieuNhap_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
 
-            int colXemCT = dgvPhieuNhap.Columns["ColXemCT"].Index;
-            int colXoa = dgvPhieuNhap.Columns["ColXoa"].Index;
+            int colXemCT = dgvPhieuNhap.Columns.Contains("ColXemCT") ? dgvPhieuNhap.Columns["ColXemCT"].Index : -1;
+            int colXoa = dgvPhieuNhap.Columns.Contains("ColXoa") ? dgvPhieuNhap.Columns["ColXoa"].Index : -1;
 
             if (e.ColumnIndex == colXemCT)
             {
-                dgvPhieuNhap.Rows[e.RowIndex].Cells["ColXemCT"].Style.BackColor = Color.FromArgb(60, 110, 48);
+                // Xanh lá đậm hơn
+                dgvPhieuNhap.Rows[e.RowIndex].Cells["ColXemCT"].Style.BackColor = Color.FromArgb(34, 62, 28);
                 dgvPhieuNhap.Rows[e.RowIndex].Cells["ColXemCT"].Style.ForeColor = Color.White;
             }
             else if (e.ColumnIndex == colXoa)
             {
+                // Đỏ đậm hơn
                 dgvPhieuNhap.Rows[e.RowIndex].Cells["ColXoa"].Style.BackColor = Color.FromArgb(185, 28, 28);
                 dgvPhieuNhap.Rows[e.RowIndex].Cells["ColXoa"].Style.ForeColor = Color.White;
             }
         }
 
+        // ══════════════════════════════════════════════════════════
+        //  Leave — Trả lại màu gốc (Không dùng Color.Empty để tránh bị xám)
+        // ══════════════════════════════════════════════════════════
         private void dgvPhieuNhap_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
 
-            int colXemCT = dgvPhieuNhap.Columns["ColXemCT"].Index;
-            int colXoa = dgvPhieuNhap.Columns["ColXoa"].Index;
+            int colXemCT = dgvPhieuNhap.Columns.Contains("ColXemCT") ? dgvPhieuNhap.Columns["ColXemCT"].Index : -1;
+            int colXoa = dgvPhieuNhap.Columns.Contains("ColXoa") ? dgvPhieuNhap.Columns["ColXoa"].Index : -1;
 
             if (e.ColumnIndex == colXemCT)
             {
-                dgvPhieuNhap.Rows[e.RowIndex].Cells["ColXemCT"].Style.BackColor = Color.Empty;
-                dgvPhieuNhap.Rows[e.RowIndex].Cells["ColXemCT"].Style.ForeColor = Color.Empty;
-            }
-            else if (e.ColumnIndex == colXoa)
-            {
-                dgvPhieuNhap.Rows[e.RowIndex].Cells["ColXoa"].Style.BackColor = Color.Empty;
-                dgvPhieuNhap.Rows[e.RowIndex].Cells["ColXoa"].Style.ForeColor = Color.Empty;
-            }
-        }
-
-        // ── Press (giống TaiKhoanPanel CellMouseDown) ─────────────
-        private void dgvPhieuNhap_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
-        {
-            if (e.RowIndex < 0) return;
-
-            int colXemCT = dgvPhieuNhap.Columns["ColXemCT"].Index;
-            int colXoa = dgvPhieuNhap.Columns["ColXoa"].Index;
-
-            if (e.ColumnIndex == colXemCT)
-            {
-                dgvPhieuNhap.Rows[e.RowIndex].Cells["ColXemCT"].Style.BackColor = Color.FromArgb(38, 68, 20);
+                // Trả về xanh lá gốc
+                dgvPhieuNhap.Rows[e.RowIndex].Cells["ColXemCT"].Style.BackColor = Color.FromArgb(43, 78, 35);
                 dgvPhieuNhap.Rows[e.RowIndex].Cells["ColXemCT"].Style.ForeColor = Color.White;
             }
             else if (e.ColumnIndex == colXoa)
             {
-                dgvPhieuNhap.Rows[e.RowIndex].Cells["ColXoa"].Style.BackColor = Color.FromArgb(160, 20, 20);
+                // Trả về đỏ gốc
+                dgvPhieuNhap.Rows[e.RowIndex].Cells["ColXoa"].Style.BackColor = Color.FromArgb(220, 53, 53);
+                dgvPhieuNhap.Rows[e.RowIndex].Cells["ColXoa"].Style.ForeColor = Color.White;
+            }
+        }
+
+        // ── Press (CellMouseDown) ─────────────
+        private void dgvPhieuNhap_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            int colXemCT = dgvPhieuNhap.Columns.Contains("ColXemCT") ? dgvPhieuNhap.Columns["ColXemCT"].Index : -1;
+            int colXoa = dgvPhieuNhap.Columns.Contains("ColXoa") ? dgvPhieuNhap.Columns["ColXoa"].Index : -1;
+
+            if (e.ColumnIndex == colXemCT)
+            {
+                // Xanh lá tối nhất
+                dgvPhieuNhap.Rows[e.RowIndex].Cells["ColXemCT"].Style.BackColor = Color.FromArgb(25, 45, 20);
+                dgvPhieuNhap.Rows[e.RowIndex].Cells["ColXemCT"].Style.ForeColor = Color.White;
+            }
+            else if (e.ColumnIndex == colXoa)
+            {
+                // Đỏ tối nhất
+                dgvPhieuNhap.Rows[e.RowIndex].Cells["ColXoa"].Style.BackColor = Color.FromArgb(150, 20, 20);
                 dgvPhieuNhap.Rows[e.RowIndex].Cells["ColXoa"].Style.ForeColor = Color.White;
             }
         }
@@ -331,7 +353,7 @@ namespace Bài_Tập_Lớn.GUI
                 if (dsChiTiet == null || dsChiTiet.Count == 0)
                 {
                     MessageBox.Show("Không có chi tiết cho phiếu nhập này.",
-                        "Thông tin", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        "Thông cấu", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 

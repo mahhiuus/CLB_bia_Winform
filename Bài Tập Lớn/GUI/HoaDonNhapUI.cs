@@ -415,6 +415,25 @@ namespace Bài_Tập_Lớn.GUI
             btnExportPdf.FillColor = isEnabled ? Color.White : Color.FromArgb(240, 240, 240);
             btnPrint.FillColor = isEnabled ? Color.White : Color.FromArgb(240, 240, 240);
         }
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // HoaDonNhapUi
+            // 
+            this.ClientSize = new System.Drawing.Size(282, 253);
+            this.Name = "HoaDonNhapUi";
+            this.Load += new System.EventHandler(this.HoaDonNhapUi_Load_1);
+            this.ResumeLayout(false);
+
+        }
+
+        private void HoaDonNhapUi_Load_1(object sender, EventArgs e)
+        {
+
+        }
+
         private void BtnExportPdf_Click(object sender, EventArgs e)
         {
             if (_selectedHoaDon == null) return;

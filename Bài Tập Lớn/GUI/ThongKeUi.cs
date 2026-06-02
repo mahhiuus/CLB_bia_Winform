@@ -35,11 +35,16 @@ namespace Bài_Tập_Lớn.GUI
         private bool pieChartLoaded = false;
         private bool barChartLoaded = false;       // biểu đồ THÁNG
         private bool dailyBarChartLoaded = false;  // biểu đồ NGÀY
-        private bool yearChartLoaded = false;      // [MỚI] biểu đồ NĂM
+        private bool yearChartLoaded = false;      // biểu đồ NĂM
 
         public ThongKeUi()
         {
             InitializeComponent();
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer |
+                          ControlStyles.AllPaintingInWmPaint |
+                          ControlStyles.UserPaint, true);
+            this.UpdateStyles();
+
             this.Load += ThongKeUi_Load;
             this.FormClosing += ThongKeUi_FormClosing;
         }
@@ -95,29 +100,28 @@ namespace Bài_Tập_Lớn.GUI
             pieChartLoaded = false;
             barChartLoaded = false;
             dailyBarChartLoaded = false;
-            yearChartLoaded = false;  // [MỚI]
+            yearChartLoaded = false;
 
             LoadCards();
-            LoadTopMayCard();        // [MỚI] card top máy
+            LoadTopMayCard();        // card top máy
             LoadPieChart();
             LoadBarChartThang();
             LoadDailyBarChart();
-            LoadYearBarChart();      // [MỚI] biểu đồ năm
+            LoadYearBarChart();      // biểu đồ năm
         }
 
         // ════════════════════════════════════════════════════════
         //  CARDS
-        //  [SỬA #2] Lợi Nhuận = TienBida - TienSanPham
         // ════════════════════════════════════════════════════════
         private void LoadCards()
         {
             try
             {
                 double doanhThu = _thongKeBLL.GetDoanhThuThangHienTai();
-                guna2HtmlLabel3.Text = (doanhThu / 1).ToString("N1");
+                guna2HtmlLabel3.Text = (doanhThu / 1000).ToString("N1");
 
                 double loiNhuan = _thongKeBLL.GetLoiNhuanThangHienTai();
-                guna2HtmlLabel6.Text = (loiNhuan / 1).ToString("N1");
+                guna2HtmlLabel6.Text = (loiNhuan / 1000).ToString("N1");
 
                 // ── Số Hóa Đơn ──
                 int soHoaDon = _thongKeBLL.GetSoHoaDonThangHienTai();
@@ -135,10 +139,7 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ════════════════════════════════════════════════════════
-        //  [MỚI #4] CARD TOP MÁY DOANH THU CAO NHẤT
-        //  Hiển thị động vào guna2Panel_TopMay (tạo runtime)
-        //  – Nếu bạn muốn gắn vào panel cụ thể trong Designer,
-        //    đổi _topMayHost thành tên panel đó.
+        //  CARD TOP MÁY DOANH THU CAO NHẤT
         // ════════════════════════════════════════════════════════
         private Panel _topMayHost;   // host panel tạo runtime
 
@@ -146,22 +147,17 @@ namespace Bài_Tập_Lớn.GUI
         {
             try
             {
-                // Tạo panel host lần đầu (gắn vào tableLayoutPanel2 row 0 nếu còn chỗ)
                 if (_topMayHost == null)
                 {
                     _topMayHost = new Panel();
                     _topMayHost.Size = new Size(280, 120);
                     _topMayHost.BackColor = Color.FromArgb(255, 255, 251);
-                    // Đặt vị trí tuỳ layout thực tế; ví dụ gắn vào guna2Panel2
                     guna2Panel2.Controls.Add(_topMayHost);
                     _topMayHost.Location = new Point(10, 10);
                 }
 
                 _topMayHost.Controls.Clear();
 
-                // ── Lấy top máy từ BLL ──
-                // Giả sử BLL trả về List<(string tenMay, double doanhThu)>
-                // Nếu chưa có method này, xem phần hướng dẫn BLL bên dưới.
                 var topList = _thongKeBLL.GetTopMayDoanhThu(top: 3);
 
                 int y = 8;
@@ -195,9 +191,6 @@ namespace Bài_Tập_Lớn.GUI
             }
         }
 
-        // ════════════════════════════════════════════════════════
-        //  PIE CHART – cơ cấu doanh thu
-        // ════════════════════════════════════════════════════════
         private void guna2TextBox1_TextChanged(object sender, EventArgs e) { }
         private void guna2GradientPanel3_Paint(object sender, PaintEventArgs e) { }
         private void guna2GradientPanel1_Paint(object sender, PaintEventArgs e) { }
@@ -208,6 +201,9 @@ namespace Bài_Tập_Lớn.GUI
         private void gunaChart1_Load(object sender, EventArgs e) { }
         private void guna2Panel6_Paint(object sender, PaintEventArgs e) { }
 
+        // ════════════════════════════════════════════════════════
+        //  PIE CHART – cơ cấu doanh thu
+        // ════════════════════════════════════════════════════════
         private void LoadPieChart()
         {
             if (pieChartLoaded) return;
@@ -228,16 +224,16 @@ namespace Bài_Tập_Lớn.GUI
 
                 data = new Dictionary<string, double>
                 {
-                    { "Bàn Bida",  pctBida    },
-                    { "Sản Phẩm",  pctSanPham },
+                    { "Bàn Bida",   pctBida    },
+                    { "Sản Phẩm",   pctSanPham },
                 };
             }
             catch
             {
                 data = new Dictionary<string, double>
                 {
-                    { "Bàn Bida",  60.0 },
-                    { "Sản Phẩm",  40.0 },
+                    { "Bàn Bida",   60.0 },
+                    { "Sản Phẩm",   40.0 },
                 };
             }
 
@@ -266,7 +262,7 @@ namespace Bài_Tập_Lớn.GUI
             chartArea.BackColor = Color.Transparent;
             chartArea.BorderColor = Color.Transparent;
             chartArea.BorderDashStyle = ChartDashStyle.NotSet;
-            chartArea.InnerPlotPosition = new ElementPosition(2, 2, 96, 96);
+            chartArea.InnerPlotPosition = new ElementPosition(2, 2, 88, 88);
             chart.ChartAreas.Add(chartArea);
 
             var legend = new Legend("legend");
@@ -345,8 +341,7 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ════════════════════════════════════════════════════════
-        //  [SỬA #3] BAR CHART THÁNG → Column dọc bo tròn
-        //  (đồng bộ với biểu đồ ngày)
+        //  BAR CHART THÁNG → Cột nằm ngang bo tròn (ĐÃ SỬA CÔNG THỨC)
         // ════════════════════════════════════════════════════════
         private void guna2Panel7_Paint(object sender, PaintEventArgs e) { }
 
@@ -377,17 +372,19 @@ namespace Bài_Tập_Lớn.GUI
                     labels[i] = "T" + thangLabel.Replace("Tháng ", "");
                     doanhThuArr[i] = Math.Round(Convert.ToDouble(listData[i]["doanh_thu"]) / 1_000_000, 1);
 
-                    // [SỬA] Lợi Nhuận = tien_bida - tien_san_pham
                     double tb = Convert.ToDouble(listData[i]["tien_bida"]);
                     double ts = Convert.ToDouble(listData[i]["tien_san_pham"]);
-                    loiNhuanArr[i] = Math.Round((tb - ts) / 1_000_000, 1);
+
+                    // Cập nhật công thức đồng đều doanh thu và lợi nhuận công bằng
+                    double loiNhuanThang = tb + (ts * 0.4);
+                    loiNhuanArr[i] = Math.Round(loiNhuanThang / 1_000_000, 1);
                 }
             }
             catch
             {
                 labels = new[] { "T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12" };
                 doanhThuArr = new double[] { 85, 72, 95, 110, 88, 120, 95, 130, 100, 115, 90, 140 };
-                loiNhuanArr = new double[] { 32, 28, 41, 50, 35, 55, 40, 58, 42, 50, 35, 62 };
+                loiNhuanArr = new double[] { 65, 55, 72, 85, 68, 92, 73, 99, 78, 88, 69, 108 };
                 count = labels.Length;
             }
 
@@ -415,13 +412,16 @@ namespace Bài_Tập_Lớn.GUI
             ca.BorderColor = Color.Transparent;
             ca.BorderDashStyle = ChartDashStyle.NotSet;
 
+            // Trục X (trục đứng, hiển thị Tháng)
             ca.AxisX.LabelStyle.ForeColor = Color.FromArgb(130, 130, 130);
             ca.AxisX.LabelStyle.Font = new Font("Segoe UI", 8f);
             ca.AxisX.LineColor = Color.FromArgb(210, 210, 210);
             ca.AxisX.MajorGrid.Enabled = false;
             ca.AxisX.MajorTickMark.Enabled = false;
             ca.AxisX.Interval = 1;
+            ca.AxisX.IsReversed = true;
 
+            // Trục Y (trục ngang, hiển thị Giá trị)
             ca.AxisY.LabelStyle.ForeColor = Color.FromArgb(130, 130, 130);
             ca.AxisY.LabelStyle.Font = new Font("Segoe UI", 8f);
             ca.AxisY.LabelStyle.Format = "# 'tr'";
@@ -431,14 +431,14 @@ namespace Bài_Tập_Lớn.GUI
             ca.AxisY.MajorTickMark.Enabled = false;
             ca.AxisY.Minimum = 0;
 
-            ca.InnerPlotPosition = new ElementPosition(0, 5, 88, 88);
+            ca.InnerPlotPosition = new ElementPosition(5, 0, 88, 88);
             chart.ChartAreas.Add(ca);
 
             chart.Legends.Add(new Legend("leg") { Enabled = false });
 
-            // ── Series (Column, Color Transparent – vẽ lại bằng PostPaint) ──
+            // ── Series (Sử dụng Bar chart, Color Transparent) ──
             var sDT = new Series("DoanhThu");
-            sDT.ChartType = SeriesChartType.Column;  // [SỬA] Bar → Column
+            sDT.ChartType = SeriesChartType.Bar;
             sDT.ChartArea = "thang";
             sDT.IsVisibleInLegend = false;
             sDT.Color = Color.Transparent;
@@ -450,7 +450,7 @@ namespace Bài_Tập_Lớn.GUI
             chart.Series.Add(sDT);
 
             var sLN = new Series("LoiNhuan");
-            sLN.ChartType = SeriesChartType.Column;  // [SỬA] Bar → Column
+            sLN.ChartType = SeriesChartType.Bar;
             sLN.ChartArea = "thang";
             sLN.IsVisibleInLegend = false;
             sLN.Color = Color.Transparent;
@@ -461,42 +461,44 @@ namespace Bài_Tập_Lớn.GUI
                 sLN.Points.AddXY(labels[i], loiNhuanArr[i]);
             chart.Series.Add(sLN);
 
-            // ── PostPaint: cột dọc bo tròn ──
+            // ── PostPaint: Vẽ cột ngang bo tròn ──
             chart.PostPaint += (s, pe) =>
             {
                 var g = pe.ChartGraphics.Graphics;
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
-                float x0 = (float)ca.AxisX.ValueToPixelPosition(1.0);
-                float x1 = (float)ca.AxisX.ValueToPixelPosition(2.0);
-                float unitPx = Math.Abs(x1 - x0);
+                float y0 = (float)ca.AxisX.ValueToPixelPosition(1.0);
+                float y1 = (float)ca.AxisX.ValueToPixelPosition(2.0);
+                float unitPx = Math.Abs(y1 - y0);
 
                 float innerGap = 4f;
-                float totalBarW = unitPx * 0.75f;
-                float barW = (totalBarW - innerGap) / 2f;
-                float yBot = (float)ca.AxisY.ValueToPixelPosition(0);
+                float totalBarH = unitPx * 0.75f;
+                float barH = (totalBarH - innerGap) / 2f;
+                float xLeft = (float)ca.AxisY.ValueToPixelPosition(0);
                 int radius = 3;
 
                 for (int i = 0; i < count; i++)
                 {
-                    float xCenter = (float)ca.AxisX.ValueToPixelPosition(i + 1.0);
+                    float yCenter = (float)ca.AxisX.ValueToPixelPosition(i + 1.0);
 
-                    float yTopDT = (float)ca.AxisY.ValueToPixelPosition(doanhThuArr[i]);
-                    float hDT = yBot - yTopDT;
-                    if (hDT > 0)
+                    // Vẽ Doanh Thu (cột bên trên)
+                    float xRightDT = (float)ca.AxisY.ValueToPixelPosition(doanhThuArr[i]);
+                    float wDT = xRightDT - xLeft;
+                    if (wDT > 0)
                     {
-                        float leftDT = xCenter - (barW + innerGap / 2f);
+                        float topDT = yCenter - (barH + innerGap / 2f);
                         using (var br = new SolidBrush(colorDoanhThu))
-                            DrawRoundedTopBar(g, br, leftDT, yTopDT, barW, hDT, radius);
+                            DrawRoundedRightBar(g, br, xLeft, topDT, wDT, barH, radius);
                     }
 
-                    float yTopLN = (float)ca.AxisY.ValueToPixelPosition(loiNhuanArr[i]);
-                    float hLN = yBot - yTopLN;
-                    if (hLN > 0)
+                    // Vẽ Lợi Nhuận (cột bên dưới)
+                    float xRightLN = (float)ca.AxisY.ValueToPixelPosition(loiNhuanArr[i]);
+                    float wLN = xRightLN - xLeft;
+                    if (wLN > 0)
                     {
-                        float leftLN = xCenter + innerGap / 2f;
+                        float topLN = yCenter + innerGap / 2f;
                         using (var br = new SolidBrush(colorLoiNhuan))
-                            DrawRoundedTopBar(g, br, leftLN, yTopLN, barW, hLN, radius);
+                            DrawRoundedRightBar(g, br, xLeft, topLN, wLN, barH, radius);
                     }
                 }
             };
@@ -508,8 +510,28 @@ namespace Bài_Tập_Lớn.GUI
             guna2Panel7.Controls.Add(mainLayout);
         }
 
+        // Hàm vẽ cột nằm ngang bo tròn 2 góc bên phải
+        private void DrawRoundedRightBar(Graphics g, Brush br, float x, float y, float w, float h, int r)
+        {
+            if (w <= 0 || h <= 0) return;
+
+            if (r * 2 > h) r = (int)(h / 2);
+            if (r * 2 > w) r = (int)(w / 2);
+
+            using (var path = new System.Drawing.Drawing2D.GraphicsPath())
+            {
+                path.AddLine(x, y, x + w - r, y);
+                path.AddArc(x + w - r * 2, y, r * 2, r * 2, 270, 90);
+                path.AddArc(x + w - r * 2, y + h - r * 2, r * 2, r * 2, 0, 90);
+                path.AddLine(x + w - r, y + h, x, y + h);
+
+                path.CloseFigure();
+                g.FillPath(br, path);
+            }
+        }
+
         // ════════════════════════════════════════════════════════
-        //  BAR CHART NGÀY (7 ngày gần nhất) – giữ nguyên
+        //  BAR CHART NGÀY (7 ngày gần nhất) – Đmax bo tròn (ĐA SỬA CÔNG THỨC)
         // ════════════════════════════════════════════════════════
         private void guna2Panel5_Paint_2(object sender, PaintEventArgs e) { }
 
@@ -543,17 +565,19 @@ namespace Bài_Tập_Lớn.GUI
                     labels[i] = listData[i]["ngay_ban_label"].ToString();
                     doanhThu[i] = Math.Round(Convert.ToDouble(listData[i]["doanh_thu"]) / 1_000_000, 1);
 
-                    // [SỬA] Lợi Nhuận = tien_bida - tien_san_pham
                     double tb = Convert.ToDouble(listData[i]["tien_bida"]);
                     double ts = Convert.ToDouble(listData[i]["tien_san_pham"]);
-                    loiNhuan[i] = Math.Round((tb - ts) / 1_000_000, 1);
+
+                    // Sửa công thức lợi nhuận ngày đồng đều với doanh thu
+                    double loiNhuanNgay = tb + (ts * 0.4);
+                    loiNhuan[i] = Math.Round(loiNhuanNgay / 1_000_000, 1);
                 }
             }
             catch
             {
                 labels = new[] { "T2", "T3", "T4", "T5", "T6", "T7", "CN" };
                 doanhThu = new double[] { 85, 72, 110, 95, 130, 148, 60 };
-                loiNhuan = new double[] { 32, 28, 50, 41, 58, 65, 22 };
+                loiNhuan = new double[] { 62, 54, 85, 71, 98, 112, 46 };
                 count = labels.Length;
             }
 
@@ -596,7 +620,7 @@ namespace Bài_Tập_Lớn.GUI
             ca.AxisY.MajorTickMark.Enabled = false;
             ca.AxisY.Minimum = 0;
 
-            ca.InnerPlotPosition = new ElementPosition(0, 5, 88, 88);
+            ca.InnerPlotPosition = new ElementPosition(0, 5, 90, 90);
             chart.ChartAreas.Add(ca);
 
             chart.Legends.Add(new Legend("leg") { Enabled = false });
@@ -670,9 +694,7 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ════════════════════════════════════════════════════════
-        //  [MỚI #1] BIỂU ĐỒ NĂM – doanh thu các năm gần nhất
-        //  Vẽ vào một Panel mới tạo runtime (gắn vào guna2Panel2)
-        //  Hoặc thêm guna2Panel_Year vào Designer nếu muốn
+        //  BIỂU ĐỒ NĂM – doanh thu các năm gần nhất (ĐÃ SỬA CÔNG THỨC)
         // ════════════════════════════════════════════════════════
         private Panel _yearChartHost;
 
@@ -681,13 +703,11 @@ namespace Bài_Tập_Lớn.GUI
             if (yearChartLoaded) return;
             yearChartLoaded = true;
 
-            // Tạo panel host lần đầu
             if (_yearChartHost == null)
             {
                 _yearChartHost = new Panel();
                 _yearChartHost.Size = new Size(460, 200);
                 _yearChartHost.BackColor = Color.FromArgb(255, 255, 251);
-                // Gắn vào guna2Panel2 (hoặc thay bằng panel phù hợp layout)
                 guna2Panel2.Controls.Add(_yearChartHost);
                 _yearChartHost.Location = new Point(10, 140);
             }
@@ -701,8 +721,6 @@ namespace Bài_Tập_Lớn.GUI
 
             try
             {
-                // BLL cần có method GetBieuDoTheoNam() trả về List<Dictionary>
-                // với keys: "nam_label" (string), "doanh_thu" (double), "tien_bida", "tien_san_pham"
                 var listData = _thongKeBLL.GetBieuDoTheoNam();
                 count = listData.Count;
                 labels = new string[count];
@@ -715,16 +733,18 @@ namespace Bài_Tập_Lớn.GUI
                     doanhThuArr[i] = Math.Round(Convert.ToDouble(listData[i]["doanh_thu"]) / 1_000_000, 1);
                     double tb = Convert.ToDouble(listData[i]["tien_bida"]);
                     double ts = Convert.ToDouble(listData[i]["tien_san_pham"]);
-                    loiNhuanArr[i] = Math.Round((tb - ts) / 1_000_000, 1);
+
+                    // Sửa công thức lợi nhuận năm đồng đều
+                    double loiNhuanNam = tb + (ts * 0.4);
+                    loiNhuanArr[i] = Math.Round(loiNhuanNam / 1_000_000, 1);
                 }
             }
             catch
             {
-                // Fallback: 3 năm gần nhất
                 int yr = DateTime.Now.Year;
                 labels = new[] { (yr - 2).ToString(), (yr - 1).ToString(), yr.ToString() };
                 doanhThuArr = new double[] { 980, 1150, 640 };
-                loiNhuanArr = new double[] { 350, 420, 210 };
+                loiNhuanArr = new double[] { 740, 890, 480 };
                 count = 3;
             }
 
@@ -838,9 +858,7 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ════════════════════════════════════════════════════════
-        //  [MỚI #5] EXPORT EXCEL
-        //  Gọi method này từ button Click event trong Designer
-        //  (đặt tên button: btnExportExcel)
+        //  EXPORT EXCEL (ĐA SỬA CÔNG THỨC EXCEL)
         // ════════════════════════════════════════════════════════
         private void btnExportExcel_Click(object sender, EventArgs e)
         {
@@ -855,238 +873,133 @@ namespace Bài_Tập_Lớn.GUI
                 {
                     string fontName = "Times New Roman";
 
-                    // ════════════════════════════════════════════════════════
-                    // HEADER STYLE
-                    // ════════════════════════════════════════════════════════
-                    void ApplyHeaderStyle(IXLWorksheet ws,
-                        string mainTitle,
-                        string subTitle,
-                        int maxColumn)
+                    // ===== HEADER STYLE =====
+                    void ApplyHeaderStyle(IXLWorksheet ws, string mainTitle, string subTitle, int maxColumn)
                     {
-                        // ===== TITLE =====
                         var titleRange = ws.Range(2, 1, 2, maxColumn);
                         titleRange.Merge();
 
                         var cellTitle = ws.Cell(2, 1);
                         cellTitle.Value = mainTitle;
-
                         cellTitle.Style.Font.FontName = fontName;
                         cellTitle.Style.Font.FontSize = 16;
                         cellTitle.Style.Font.Bold = true;
                         cellTitle.Style.Font.FontColor = XLColor.White;
+                        cellTitle.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        cellTitle.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
-                        cellTitle.Style.Alignment.Horizontal =
-                            XLAlignmentHorizontalValues.Center;
-
-                        cellTitle.Style.Alignment.Vertical =
-                            XLAlignmentVerticalValues.Center;
-
-                        titleRange.Style.Fill.BackgroundColor =
-                            XLColor.FromHtml("#2b4e23");
-
-                        titleRange.Style.Border.OutsideBorder =
-                            XLBorderStyleValues.Medium;
-
-                        titleRange.Style.Border.OutsideBorderColor =
-                            XLColor.FromHtml("#1d3617");
+                        titleRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#2b4e23");
+                        titleRange.Style.Border.OutsideBorder = XLBorderStyleValues.Medium;
+                        titleRange.Style.Border.OutsideBorderColor = XLColor.FromHtml("#1d3617");
 
                         ws.Row(2).Height = 30;
 
-                        // ===== SUB TITLE =====
                         var subTitleRange = ws.Range(3, 1, 3, maxColumn);
                         subTitleRange.Merge();
 
                         var cellSub = ws.Cell(3, 1);
                         cellSub.Value = subTitle;
-
                         cellSub.Style.Font.FontName = fontName;
                         cellSub.Style.Font.FontSize = 11;
                         cellSub.Style.Font.Italic = true;
-                        cellSub.Style.Font.FontColor =
-                            XLColor.FromHtml("#555555");
-
-                        cellSub.Style.Alignment.Horizontal =
-                            XLAlignmentHorizontalValues.Center;
-
-                        cellSub.Style.Alignment.Vertical =
-                            XLAlignmentVerticalValues.Center;
+                        cellSub.Style.Font.FontColor = XLColor.FromHtml("#555555");
+                        cellSub.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        cellSub.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
                         ws.Row(3).Height = 22;
-
                         ws.Row(4).Height = 10;
                     }
 
-                    // ════════════════════════════════════════════════════════
-                    // FOOTER
-                    // ════════════════════════════════════════════════════════
-                    void ApplyFooterSignature(IXLWorksheet ws,
-                        int startRow,
-                        int maxColumn)
+                    // ===== FOOTER SIGNATURE =====
+                    void ApplyFooterSignature(IXLWorksheet ws, int startRow, int maxColumn)
                     {
                         int rDate = startRow + 2;
                         int rSign = startRow + 3;
 
                         var cellDate = ws.Cell(rDate, maxColumn - 1);
-
-                        cellDate.Value =
-                            $"Hà Nội, ngày {DateTime.Now.Day} tháng {DateTime.Now.Month} năm {DateTime.Now.Year}";
-
+                        cellDate.Value = $"Hà Nội, ngày {DateTime.Now.Day} tháng {DateTime.Now.Month} năm {DateTime.Now.Year}";
                         cellDate.Style.Font.FontName = fontName;
                         cellDate.Style.Font.FontSize = 11;
                         cellDate.Style.Font.Italic = true;
 
-                        ws.Range(rDate, maxColumn - 1, rDate, maxColumn)
-                            .Merge()
-                            .Style.Alignment.Horizontal =
-                                XLAlignmentHorizontalValues.Center;
+                        ws.Range(rDate, maxColumn - 1, rDate, maxColumn).Merge()
+                            .Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
                         var cellSign = ws.Cell(rSign, maxColumn - 1);
-
                         cellSign.Value = "Người lập báo cáo";
-
                         cellSign.Style.Font.FontName = fontName;
                         cellSign.Style.Font.FontSize = 11;
                         cellSign.Style.Font.Bold = true;
 
-                        ws.Range(rSign, maxColumn - 1, rSign, maxColumn)
-                            .Merge()
-                            .Style.Alignment.Horizontal =
-                                XLAlignmentHorizontalValues.Center;
+                        ws.Range(rSign, maxColumn - 1, rSign, maxColumn).Merge()
+                            .Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     }
 
-                    // ════════════════════════════════════════════════════════
-                    // SHEET 1
-                    // ════════════════════════════════════════════════════════
+                    // ── SHEET 1 ──
                     var ws1 = wb.Worksheets.Add("Tháng Hiện Tại");
+                    ApplyHeaderStyle(ws1, "CÂU LẠC BỘ BILLIARD DOUBLE2N - TỔNG QUAN THÁNG", $"Tháng hiện tại: {DateTime.Now:MM/yyyy}", 3);
 
-                    ApplyHeaderStyle(
-                        ws1,
-                        "CÂU LẠC BỘ BILLIARD DOUBLE2N - TỔNG QUAN THÁNG",
-                        $"Tháng hiện tại: {DateTime.Now:MM/yyyy}",
-                        3);
-
-                    string[] headers1 =
-                    {
-                "Chỉ số",
-                "Giá trị",
-                "Đơn vị"
-            };
-
+                    string[] headers1 = { "Chỉ số", "Giá trị", "Đơn vị" };
                     for (int i = 0; i < headers1.Length; i++)
                     {
                         var cell = ws1.Cell(5, i + 1);
-
                         cell.Value = headers1[i];
-
                         cell.Style.Font.FontName = fontName;
                         cell.Style.Font.FontSize = 11;
                         cell.Style.Font.Bold = true;
                         cell.Style.Font.FontColor = XLColor.White;
-
-                        cell.Style.Fill.BackgroundColor =
-                            XLColor.FromHtml("#2b4e23");
-
-                        cell.Style.Border.TopBorder =
-                            XLBorderStyleValues.Thin;
-
-                        cell.Style.Border.BottomBorder =
-                            XLBorderStyleValues.Thin;
-
-                        cell.Style.Border.LeftBorder =
-                            XLBorderStyleValues.Thin;
-
-                        cell.Style.Border.RightBorder =
-                            XLBorderStyleValues.Thin;
-
-                        cell.Style.Alignment.Horizontal =
-                            XLAlignmentHorizontalValues.Center;
-
-                        cell.Style.Alignment.Vertical =
-                            XLAlignmentVerticalValues.Center;
+                        cell.Style.Fill.BackgroundColor = XLColor.FromHtml("#2b4e23");
+                        cell.Style.Border.TopBorder = XLBorderStyleValues.Thin;
+                        cell.Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                        cell.Style.Border.LeftBorder = XLBorderStyleValues.Thin;
+                        cell.Style.Border.RightBorder = XLBorderStyleValues.Thin;
+                        cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                     }
-
                     ws1.Row(5).Height = 22;
 
-                    double doanhThu =
-                        _thongKeBLL.GetDoanhThuThangHienTai();
+                    double doanhThu = _thongKeBLL.GetDoanhThuThangHienTai();
+                    var (tienBida, tienSanPham) = _thongKeBLL.GetTienBidaVaTienSanPhamThangHienTai();
 
-                    var (tienBida, tienSanPham) =
-                        _thongKeBLL.GetTienBidaVaTienSanPhamThangHienTai();
+                    // Cập nhật công thức lợi nhuận đồng bộ Excel Sheet 1
+                    double loiNhuan = tienBida + (tienSanPham * 0.4);
 
-                    double loiNhuan = tienBida - tienSanPham;
-
-                    int soHoaDon =
-                        _thongKeBLL.GetSoHoaDonThangHienTai();
-
-                    int soBan =
-                        _thongKeBLL.GetSoBanDangHoatDong();
+                    int soHoaDon = _thongKeBLL.GetSoHoaDonThangHienTai();
+                    int soBan = _thongKeBLL.GetSoBanDangHoatDong();
 
                     object[,] data1 =
                     {
-                { "Doanh Thu", doanhThu, "VNĐ" },
-                { "Lợi Nhuận (Bida - SP)", loiNhuan, "VNĐ" },
-                { "Tiền Bida", tienBida, "VNĐ" },
-                { "Tiền Sản Phẩm", tienSanPham, "VNĐ" },
-                { "Số Hóa Đơn", soHoaDon, "Hóa đơn" },
-                { "Số Bàn Hoạt Động", soBan, "Bàn" }
-            };
+                        { "Doanh Thu", doanhThu, "VNĐ" },
+                        { "Lợi Nhuận Thống Kê", loiNhuan, "VNĐ" },
+                        { "Tiền Bida", tienBida, "VNĐ" },
+                        { "Tiền Sản Phẩm", tienSanPham, "VNĐ" },
+                        { "Số Hóa Đơn", soHoaDon, "Hóa đơn" },
+                        { "Số Bàn Hoạt Động", soBan, "Bàn" }
+                    };
 
                     int row1 = 6;
-
                     for (int i = 0; i < data1.GetLength(0); i++)
                     {
-                        ws1.Cell(row1, 1).Value =
-                            data1[i, 0].ToString();
+                        ws1.Cell(row1, 1).Value = data1[i, 0].ToString();
+                        ws1.Cell(row1, 2).Value = Convert.ToDouble(data1[i, 1]);
+                        ws1.Cell(row1, 3).Value = data1[i, 2].ToString();
 
-                        ws1.Cell(row1, 2).Value =
-                            Convert.ToDouble(data1[i, 1]);
+                        ws1.Range(row1, 1, row1, 3).Style.Font.FontName = fontName;
+                        ws1.Range(row1, 1, row1, 3).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                        ws1.Range(row1, 1, row1, 3).Style.Border.BottomBorderColor = XLColor.FromHtml("#E0E0E0");
 
-                        ws1.Cell(row1, 3).Value =
-                            data1[i, 2].ToString();
-
-                        ws1.Range(row1, 1, row1, 3)
-                            .Style.Font.FontName = fontName;
-
-                        ws1.Range(row1, 1, row1, 3)
-                            .Style.Border.BottomBorder =
-                                XLBorderStyleValues.Thin;
-
-                        ws1.Range(row1, 1, row1, 3)
-                            .Style.Border.BottomBorderColor =
-                                XLColor.FromHtml("#E0E0E0");
-
-                        ws1.Cell(row1, 2)
-                            .Style.NumberFormat.Format = "#,##0";
-
-                        ws1.Cell(row1, 1)
-                            .Style.Alignment.Horizontal =
-                                XLAlignmentHorizontalValues.Left;
-
-                        ws1.Cell(row1, 2)
-                            .Style.Alignment.Horizontal =
-                                XLAlignmentHorizontalValues.Right;
-
-                        ws1.Cell(row1, 3)
-                            .Style.Alignment.Horizontal =
-                                XLAlignmentHorizontalValues.Center;
-
+                        ws1.Cell(row1, 2).Style.NumberFormat.Format = "#,##0";
+                        ws1.Cell(row1, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                        ws1.Cell(row1, 2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                        ws1.Cell(row1, 3).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                         ws1.Row(row1).Height = 20;
-
                         row1++;
                     }
-
                     ApplyFooterSignature(ws1, row1, 3);
 
-                    // ════════════════════════════════════════════════════════
-                    // SHEET 2
-                    // ════════════════════════════════════════════════════════
+                    // ── SHEET 2 ──
                     var ws2 = wb.Worksheets.Add("Theo Tháng");
-
-                    ApplyHeaderStyle(
-                        ws2,
-                        "CÂU LẠC BỘ BILLIARD DOUBLE2N - DOANH THU THEO THÁNG",
-                        $"Năm báo cáo: {DateTime.Now.Year}",
-                        3);
+                    ApplyHeaderStyle(ws2, "CÂU LẠC BỘ BILLIARD DOUBLE2N - DOANH THU THEO THÁNG", $"Năm báo cáo: {DateTime.Now.Year}", 3);
 
                     ws2.Cell(5, 1).Value = "Tháng";
                     ws2.Cell(5, 2).Value = "Doanh Thu (VNĐ)";
@@ -1095,115 +1008,57 @@ namespace Bài_Tập_Lớn.GUI
                     for (int col = 1; col <= 3; col++)
                     {
                         var cell = ws2.Cell(5, col);
-
                         cell.Style.Font.FontName = fontName;
                         cell.Style.Font.Bold = true;
                         cell.Style.Font.FontColor = XLColor.White;
-
-                        cell.Style.Fill.BackgroundColor =
-                            XLColor.FromHtml("#2b4e23");
-
-                        cell.Style.Border.TopBorder =
-                            XLBorderStyleValues.Thin;
-
-                        cell.Style.Border.BottomBorder =
-                            XLBorderStyleValues.Thin;
-
-                        cell.Style.Border.LeftBorder =
-                            XLBorderStyleValues.Thin;
-
-                        cell.Style.Border.RightBorder =
-                            XLBorderStyleValues.Thin;
-
-                        cell.Style.Alignment.Horizontal =
-                            col == 1
-                            ? XLAlignmentHorizontalValues.Center
-                            : XLAlignmentHorizontalValues.Right;
+                        cell.Style.Fill.BackgroundColor = XLColor.FromHtml("#2b4e23");
+                        cell.Style.Border.TopBorder = XLBorderStyleValues.Thin;
+                        cell.Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                        cell.Style.Border.LeftBorder = XLBorderStyleValues.Thin;
+                        cell.Style.Border.RightBorder = XLBorderStyleValues.Thin;
+                        cell.Style.Alignment.Horizontal = col == 1 ? XLAlignmentHorizontalValues.Center : XLAlignmentHorizontalValues.Right;
                     }
 
                     int row2 = 6;
-
                     try
                     {
-                        var listThang =
-                            _thongKeBLL.GetBieuDoTheoThang(DateTime.Now.Year);
-
+                        var listThang = _thongKeBLL.GetBieuDoTheoThang(DateTime.Now.Year);
                         foreach (var item in listThang)
                         {
-                            ws2.Cell(row2, 1).Value =
-                                item["thang_label"].ToString();
+                            ws2.Cell(row2, 1).Value = item["thang_label"].ToString();
+                            ws2.Cell(row2, 2).Value = Convert.ToDouble(item["doanh_thu"]);
 
-                            ws2.Cell(row2, 2).Value =
-                                Convert.ToDouble(item["doanh_thu"]);
+                            double tb = Convert.ToDouble(item["tien_bida"]);
+                            double ts = Convert.ToDouble(item["tien_san_pham"]);
 
-                            double tb =
-                                Convert.ToDouble(item["tien_bida"]);
+                            // Sửa công thức lợi nhuận đồng bộ Excel Sheet 2
+                            ws2.Cell(row2, 3).Value = tb + (ts * 0.4);
 
-                            double ts =
-                                Convert.ToDouble(item["tien_san_pham"]);
-
-                            ws2.Cell(row2, 3).Value = tb - ts;
-
-                            ws2.Range(row2, 1, row2, 3)
-                                .Style.Font.FontName = fontName;
-
-                            ws2.Range(row2, 1, row2, 3)
-                                .Style.Border.BottomBorder =
-                                    XLBorderStyleValues.Thin;
-
-                            ws2.Range(row2, 1, row2, 3)
-                                .Style.Border.BottomBorderColor =
-                                    XLColor.FromHtml("#E0E0E0");
-
+                            ws2.Range(row2, 1, row2, 3).Style.Font.FontName = fontName;
+                            ws2.Range(row2, 1, row2, 3).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                            ws2.Range(row2, 1, row2, 3).Style.Border.BottomBorderColor = XLColor.FromHtml("#E0E0E0");
                             ws2.Row(row2).Height = 20;
-
                             row2++;
                         }
                     }
                     catch { }
 
                     ws2.Cell(row2, 1).Value = "Tổng cộng:";
-
                     ws2.Cell(row2, 1).Style.Font.Bold = true;
+                    ws2.Cell(row2, 2).FormulaA1 = $"=SUM(B6:B{row2 - 1})";
+                    ws2.Cell(row2, 3).FormulaA1 = $"=SUM(C6:C{row2 - 1})";
 
-                    ws2.Cell(row2, 2).FormulaA1 =
-                        $"=SUM(B6:B{row2 - 1})";
-
-                    ws2.Cell(row2, 3).FormulaA1 =
-                        $"=SUM(C6:C{row2 - 1})";
-
-                    ws2.Range(row2, 1, row2, 3)
-                        .Style.Font.Bold = true;
-
-                    ws2.Range(row2, 1, row2, 3)
-                        .Style.Border.TopBorder =
-                            XLBorderStyleValues.Thin;
-
-                    ws2.Range(row2, 1, row2, 3)
-                        .Style.Border.BottomBorder =
-                            XLBorderStyleValues.Double;
-
-                    ws2.Columns(2, 3)
-                        .Style.NumberFormat.Format = "#,##0";
-
+                    ws2.Range(row2, 1, row2, 3).Style.Font.Bold = true;
+                    ws2.Range(row2, 1, row2, 3).Style.Border.TopBorder = XLBorderStyleValues.Thin;
+                    ws2.Range(row2, 1, row2, 3).Style.Border.BottomBorder = XLBorderStyleValues.Double;
+                    ws2.Columns(2, 3).Style.NumberFormat.Format = "#,##0";
                     ApplyFooterSignature(ws2, row2, 3);
 
-                    // ════════════════════════════════════════════════════════
-                    // SHEET 3
-                    // ════════════════════════════════════════════════════════
+                    // ── SHEET 3 ──
                     var ws3 = wb.Worksheets.Add("7 Ngày Gần Nhất");
-
-                    string tuNgay =
-                        DateTime.Today.AddDays(-6).ToString("dd/MM/yyyy");
-
-                    string denNgay =
-                        DateTime.Today.ToString("dd/MM/yyyy");
-
-                    ApplyHeaderStyle(
-                        ws3,
-                        "CÂU LẠC BỘ BILLIARD DOUBLE2N - DOANH THU THEO NGÀY",
-                        $"Từ ngày: {tuNgay} đến ngày: {denNgay}",
-                        3);
+                    string tuNgay = DateTime.Today.AddDays(-6).ToString("dd/MM/yyyy");
+                    string denNgay = DateTime.Today.ToString("dd/MM/yyyy");
+                    ApplyHeaderStyle(ws3, "CÂU LẠC BỘ BILLIARD DOUBLE2N - DOANH THU THEO NGÀY", $"Từ ngày: {tuNgay} đến ngày: {denNgay}", 3);
 
                     ws3.Cell(5, 1).Value = "Ngày";
                     ws3.Cell(5, 2).Value = "Doanh Thu (VNĐ)";
@@ -1212,151 +1067,80 @@ namespace Bài_Tập_Lớn.GUI
                     for (int col = 1; col <= 3; col++)
                     {
                         var cell = ws3.Cell(5, col);
-
                         cell.Style.Font.FontName = fontName;
                         cell.Style.Font.Bold = true;
                         cell.Style.Font.FontColor = XLColor.White;
-
-                        cell.Style.Fill.BackgroundColor =
-                            XLColor.FromHtml("#2b4e23");
-
-                        cell.Style.Border.TopBorder =
-                            XLBorderStyleValues.Thin;
-
-                        cell.Style.Border.BottomBorder =
-                            XLBorderStyleValues.Thin;
-
-                        cell.Style.Border.LeftBorder =
-                            XLBorderStyleValues.Thin;
-
-                        cell.Style.Border.RightBorder =
-                            XLBorderStyleValues.Thin;
-
-                        cell.Style.Alignment.Horizontal =
-                            col == 1
-                            ? XLAlignmentHorizontalValues.Center
-                            : XLAlignmentHorizontalValues.Right;
+                        cell.Style.Fill.BackgroundColor = XLColor.FromHtml("#2b4e23");
+                        cell.Style.Border.TopBorder = XLBorderStyleValues.Thin;
+                        cell.Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                        cell.Style.Border.LeftBorder = XLBorderStyleValues.Thin;
+                        cell.Style.Border.RightBorder = XLBorderStyleValues.Thin;
+                        cell.Style.Alignment.Horizontal = col == 1 ? XLAlignmentHorizontalValues.Center : XLAlignmentHorizontalValues.Right;
                     }
 
                     int row3 = 6;
-
                     try
                     {
-                        var listNgay =
-                            _thongKeBLL.GetBieuDoTheoNgay(
-                                DateTime.Today.AddDays(-6),
-                                DateTime.Today);
-
+                        var listNgay = _thongKeBLL.GetBieuDoTheoNgay(DateTime.Today.AddDays(-6), DateTime.Today);
                         foreach (var item in listNgay)
                         {
-                            ws3.Cell(row3, 1).Value =
-                                item["ngay_ban_label"].ToString();
+                            ws3.Cell(row3, 1).Value = item["ngay_ban_label"].ToString();
+                            ws3.Cell(row3, 2).Value = Convert.ToDouble(item["doanh_thu"]);
 
-                            ws3.Cell(row3, 2).Value =
-                                Convert.ToDouble(item["doanh_thu"]);
+                            double tb = Convert.ToDouble(item["tien_bida"]);
+                            double ts = Convert.ToDouble(item["tien_san_pham"]);
 
-                            double tb =
-                                Convert.ToDouble(item["tien_bida"]);
+                            // Sửa công thức lợi nhuận đồng bộ Excel Sheet 3
+                            ws3.Cell(row3, 3).Value = tb + (ts * 0.4);
 
-                            double ts =
-                                Convert.ToDouble(item["tien_san_pham"]);
-
-                            ws3.Cell(row3, 3).Value = tb - ts;
-
-                            ws3.Range(row3, 1, row3, 3)
-                                .Style.Font.FontName = fontName;
-
-                            ws3.Range(row3, 1, row3, 3)
-                                .Style.Border.BottomBorder =
-                                    XLBorderStyleValues.Thin;
-
-                            ws3.Range(row3, 1, row3, 3)
-                                .Style.Border.BottomBorderColor =
-                                    XLColor.FromHtml("#E0E0E0");
-
+                            ws3.Range(row3, 1, row3, 3).Style.Font.FontName = fontName;
+                            ws3.Range(row3, 1, row3, 3).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                            ws3.Range(row3, 1, row3, 3).Style.Border.BottomBorderColor = XLColor.FromHtml("#E0E0E0");
                             ws3.Row(row3).Height = 20;
-
                             row3++;
                         }
                     }
                     catch { }
 
                     ws3.Cell(row3, 1).Value = "Tổng cộng:";
-
                     ws3.Cell(row3, 1).Style.Font.Bold = true;
+                    ws3.Cell(row3, 2).FormulaA1 = $"=SUM(B6:B{row3 - 1})";
+                    ws3.Cell(row3, 3).FormulaA1 = $"=SUM(C6:C{row3 - 1})";
 
-                    ws3.Cell(row3, 2).FormulaA1 =
-                        $"=SUM(B6:B{row3 - 1})";
-
-                    ws3.Cell(row3, 3).FormulaA1 =
-                        $"=SUM(C6:C{row3 - 1})";
-
-                    ws3.Range(row3, 1, row3, 3)
-                        .Style.Font.Bold = true;
-
-                    ws3.Range(row3, 1, row3, 3)
-                        .Style.Border.TopBorder =
-                            XLBorderStyleValues.Thin;
-
-                    ws3.Range(row3, 1, row3, 3)
-                        .Style.Border.BottomBorder =
-                            XLBorderStyleValues.Double;
-
-                    ws3.Columns(2, 3)
-                        .Style.NumberFormat.Format = "#,##0";
-
+                    ws3.Range(row3, 1, row3, 3).Style.Font.Bold = true;
+                    ws3.Range(row3, 1, row3, 3).Style.Border.TopBorder = XLBorderStyleValues.Thin;
+                    ws3.Range(row3, 1, row3, 3).Style.Border.BottomBorder = XLBorderStyleValues.Double;
+                    ws3.Columns(2, 3).Style.NumberFormat.Format = "#,##0";
                     ApplyFooterSignature(ws3, row3, 3);
 
-                    // ════════════════════════════════════════════════════════
-                    // STYLE CHUNG
-                    // ════════════════════════════════════════════════════════
+                    // ===== STYLE CHUNG =====
                     foreach (var ws in wb.Worksheets)
                     {
                         var used = ws.RangeUsed();
-
                         if (used != null)
                         {
-                            used.Style.Border.InsideBorder =
-                                XLBorderStyleValues.Thin;
-
-                            used.Style.Border.InsideBorderColor =
-                                XLColor.FromHtml("#EAEAEA");
-
-                            used.Style.Alignment.Vertical =
-                                XLAlignmentVerticalValues.Center;
+                            used.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                            used.Style.Border.InsideBorderColor = XLColor.FromHtml("#EAEAEA");
+                            used.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                         }
-
                         ws.Columns().AdjustToContents();
-
                         foreach (var col in ws.Columns(1, 3))
                         {
                             col.Width += 4;
                         }
                     }
 
-                    // ════════════════════════════════════════════════════════
-                    // SAVE FILE
-                    // ════════════════════════════════════════════════════════
+                    // ===== SAVE FILE =====
                     using (var dlg = new SaveFileDialog())
                     {
                         dlg.Filter = "Excel Files|*.xlsx";
-
-                        dlg.FileName =
-                            $"BaoCaoDoanhThu_Double2N_{DateTime.Now:yyyyMMdd_HHmm}.xlsx";
-
+                        dlg.FileName = $"BaoCaoDoanhThu_Double2N_{DateTime.Now:yyyyMMdd_HHmm}.xlsx";
                         dlg.Title = "Lưu báo cáo Excel";
 
                         if (dlg.ShowDialog() == DialogResult.OK)
                         {
                             wb.SaveAs(dlg.FileName);
-
-                            MessageBox.Show(
-                                "Xuất Excel thành công!",
-                                "Thành công",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Information);
-
-                            // ── PREVIEW sau khi lưu thành công ──────────────
+                            MessageBox.Show("Xuất Excel thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             PreviewExcel(dlg.FileName);
                         }
                     }
@@ -1364,17 +1148,10 @@ namespace Bài_Tập_Lớn.GUI
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    "Lỗi xuất Excel: " + ex.Message,
-                    "Lỗi",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi xuất Excel: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        // ════════════════════════════════════════════════════════════════════
-        // PREVIEW FILE SAU KHI XUẤT
-        // ════════════════════════════════════════════════════════════════════
         private void PreviewExcel(string filePath)
         {
             try
@@ -1387,18 +1164,13 @@ namespace Bài_Tập_Lớn.GUI
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    "Không thể mở file preview: " + ex.Message,
-                    "Cảnh báo",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                MessageBox.Show("Không thể mở file preview: " + ex.Message, "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
+
         // ════════════════════════════════════════════════════════
         //  HELPERS dùng chung
         // ════════════════════════════════════════════════════════
-
-        /// <summary>Tạo legend panel chung cho tất cả biểu đồ</summary>
         private FlowLayoutPanel BuildLegendPanel(Color colorDoanhThu, Color colorLoiNhuan)
         {
             var legendPanel = new FlowLayoutPanel();
@@ -1423,9 +1195,7 @@ namespace Bài_Tập_Lớn.GUI
             return legendPanel;
         }
 
-        /// <summary>Vẽ cột bo tròn 2 góc trên</summary>
-        private void DrawRoundedTopBar(Graphics g, Brush brush,
-            float x, float y, float width, float height, int radius)
+        private void DrawRoundedTopBar(Graphics g, Brush brush, float x, float y, float width, float height, int radius)
         {
             if (radius <= 0 || height < radius * 2)
             {
@@ -1444,15 +1214,8 @@ namespace Bài_Tập_Lớn.GUI
 
         private void guna2ImageButton1_Click(object sender, EventArgs e) { }
         private void guna2HtmlLabel11_Click(object sender, EventArgs e) { }
-
-        private void guna2Panel12_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void btnExportExcel_Click_1(object sender, EventArgs e)
-        {
-
-        }
+        private void guna2Panel12_Paint(object sender, PaintEventArgs e) { }
+        private void btnExportExcel_Click_1(object sender, EventArgs e) { }
+        private void guna2HtmlLabel4_Click(object sender, EventArgs e) { }
     }
 }
