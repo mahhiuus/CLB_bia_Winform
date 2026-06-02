@@ -283,6 +283,9 @@
     <Compile Include="GUI\ConfirmDeleteUI.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="GUI\ConfirmDeleteUI.Designer.cs">
+      <DependentUpon>ConfirmDeleteUI.cs</DependentUpon>
+    </Compile>
     <Compile Include="GUI\customUI.cs" />
     <Compile Include="GUI\HoaDonNhapUI.cs">
       <SubType>Form</SubType>
@@ -617,6 +620,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\import %282%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\bin.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

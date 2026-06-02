@@ -85,6 +85,12 @@ namespace Bài_Tập_Lớn.GUI
         //  sửa/xóa từ máy khác) → tự động reload danh sách card.
         //  Không rebuild right bar vì right bar phụ thuộc phiên chơi
         //  (không bị ảnh hưởng bởi thay đổi danh mục sản phẩm).
+        //  ──────────────────────────────────────────────────────────
+        //  [THÊM MỚI v2] PHÁT HIỆN THANH TOÁN — trong cùng Tick:
+        //  Nếu bàn đang chọn có phiên, kiểm tra TimPhienDangChoiTheoBan.
+        //  Nếu trả về null hoặc MaPhien khác → phiên đã đóng (đã
+        //  thanh toán từ máy khác) → tự reset combobox về index 0,
+        //  clear right bar, cập nhật tồn kho card.
         // ══════════════════════════════════════════════════════════
         private System.Windows.Forms.Timer _timerPolling;
         private const int POLLING_INTERVAL_MS = 5000; // 5 giây
@@ -138,14 +144,53 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         /// <summary>
-        /// Tick mỗi 5 giây: fetch DB → tính hash → nếu khác snapshot
-        /// cũ thì cập nhật _dsDayDu và reload card (giữ trang hiện tại
-        /// nếu có thể, giữ nguyên _tonKhoTam).
+        /// Tick mỗi 5 giây:
+        /// [1] Kiểm tra phiên đang chọn — nếu đã thanh toán từ máy
+        ///     khác thì reset combobox về '-- Chọn bàn --' và clear
+        ///     right bar, cập nhật tồn kho tất cả card.
+        /// [2] Fetch DB sản phẩm → tính hash → nếu khác snapshot cũ
+        ///     thì cập nhật _dsDayDu và reload card (giữ trang hiện tại
+        ///     nếu có thể, giữ nguyên _tonKhoTam).
         /// </summary>
         private void PollingTimer_Tick(object sender, EventArgs e)
         {
             try
             {
+                // ══ [THÊM MỚI] Kiểm tra phiên đang chọn có bị thanh toán không ══
+                if (_banDangChon != null && _phienHienTai != null)
+                {
+                    var phienCheck = _phienBll.TimPhienDangChoiTheoBan(_banDangChon.MaBan);
+
+                    // Phiên đã đóng nếu: không còn phiên active (null)
+                    // hoặc MaPhien đã đổi (phiên mới được tạo sau khi thanh toán)
+                    bool daThanhToan = (phienCheck == null)
+                        || !string.Equals(phienCheck.MaPhien, _phienHienTai.MaPhien,
+                                          StringComparison.OrdinalIgnoreCase);
+
+                    if (daThanhToan)
+                    {
+                        // Reset toàn bộ state phiên/bàn
+                        _banDangChon = null;
+                        _phienHienTai = null;
+                        _dsChiTiet = new List<ChiTietPhienDTO>();
+                        _tonKhoTam.Clear();
+
+                        // Cập nhật tồn kho card theo DB thật
+                        CapNhatTatCaCardSauThanhToan();
+
+                        // Reset combobox + right bar phải chạy trên UI thread
+                        // (Windows.Forms.Timer Tick đã chạy trên UI thread,
+                        //  nhưng giữ Invoke để an toàn nếu code được di chuyển)
+                        if (cboBan.InvokeRequired)
+                            cboBan.Invoke(new Action(ResetComboVaRightBar));
+                        else
+                            ResetComboVaRightBar();
+
+                        return; // Không cần check hash SP trong tick này
+                    }
+                }
+
+                // ══ (giữ nguyên) Kiểm tra thay đổi danh sách SP ══
                 var dsMoi = _bll.TimKiem("") ?? new List<SanPhamDTO>();
                 string hashMoi = TinhSnapshotHash(dsMoi);
 
@@ -168,6 +213,27 @@ namespace Bài_Tập_Lớn.GUI
             {
                 // Bỏ qua lỗi network tạm thời, tick sau sẽ thử lại
             }
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  [THÊM MỚI] RESET COMBO VÀ RIGHT BAR SAU KHI THANH TOÁN
+        //  Gọi trên UI thread khi polling phát hiện phiên đã đóng.
+        //  - NapDanhSachBan(): bàn vừa thanh toán sẽ tự biến mất
+        //    vì TrangThai không còn là DANG_CHOI.
+        //  - cboBan.SelectedIndex = 0: về '-- Chọn bàn --'.
+        //  - HienThiDonHang(): reset right bar về trạng thái trống.
+        // ══════════════════════════════════════════════════════════
+        private void ResetComboVaRightBar()
+        {
+            // Nạp lại danh sách bàn — bàn đã thanh toán tự biến mất
+            NapDanhSachBan();
+
+            // Về '-- Chọn bàn --' (index 0)
+            if (cboBan.Items.Count > 0)
+                cboBan.SelectedIndex = 0;
+
+            // Clear right bar (giống khi chọn '-- Chọn bàn --')
+            HienThiDonHang();
         }
 
         /// <summary>

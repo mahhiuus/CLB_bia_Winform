@@ -165,6 +165,7 @@
             this.tableBody.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableBody.Size = new System.Drawing.Size(480, 693);
             this.tableBody.TabIndex = 5;
+            this.tableBody.Paint += new System.Windows.Forms.PaintEventHandler(this.tableBody_Paint);
             // 
             // lblLBan
             // 

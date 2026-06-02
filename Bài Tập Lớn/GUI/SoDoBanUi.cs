@@ -258,80 +258,129 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ════════════════════════════════════════════════════════
-        //  Tạo card 1 bàn — 5 cột cố định, tự tính width
+        //  Update 1 card tại chỗ — không reload toàn bộ grid
         // ════════════════════════════════════════════════════════
+        private void UpdateCardInPlace(string maBan)
+        {
+            try
+            {
+                // Lấy trạng thái mới nhất từ DB
+                var dsBan = _banBLL.LayTatCaBan();
+                var banMoi = dsBan.FirstOrDefault(b => b.MaBan == maBan);
+                if (banMoi == null) return;
+
+                var grid = banMoi.LoaiBan?.ToUpper() == "VIP" ? _gridVip : _gridThuong;
+
+                // Tìm Card hiện tại đang hiển thị
+                Panel card = grid.Controls.OfType<Panel>().FirstOrDefault(p => p.Tag is BanBidaDTO b && b.MaBan == maBan);
+                if (card == null) return;
+
+                // Cập nhật Dữ liệu ngầm cho thẻ
+                card.Tag = banMoi;
+
+                bool isActive = banMoi.TrangThai?.ToUpper() == "DANG_CHOI";
+                bool isVip = banMoi.LoaiBan?.ToUpper() == "VIP";
+
+                Color currentActiveBg = isVip ? VIP_ACTIVE_BG : GREEN_ACTIVE_BG;
+                Color currentActiveText = isVip ? VIP_ACTIVE_TEXT : GREEN_DARK;
+                Color idleBg = Color.FromArgb(255, 255, 251);
+
+                // 1. Đổi màu nền Thẻ
+                card.BackColor = isActive ? currentActiveBg : idleBg;
+
+                // 2. Đổi Hình ảnh (Bật/Tắt đèn bàn)
+                if (card.Controls["picBox"] is PictureBox picBox)
+                    picBox.Image = isActive ? _imgActive : _imgDisable;
+
+                // 3. Đổi Màu chữ Tên bàn
+                if (card.Controls["lblName"] is Label lblName)
+                    lblName.ForeColor = isActive ? currentActiveText : Color.FromArgb(180, 120, 10);
+
+                // 4. Đổi Text và Màu chữ Trạng thái
+                if (card.Controls["lblStatus"] is Label lblStatus)
+                {
+                    lblStatus.Text = isActive ? "(đang chơi)" : "(trống)";
+                    lblStatus.ForeColor = isActive ? currentActiveText : Color.FromArgb(150, 150, 150);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi cập nhật thẻ UI: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }        // ════════════════════════════════════════════════════════
+                 //  Tạo card 1 bàn — 5 cột cố định, tự tính width
+                 // ════════════════════════════════════════════════════════
+                 // Thêm 2 tham số fixedW và fixedH vào chữ ký hàm
         private Panel CreateBanCard(BanBidaDTO ban)
         {
             bool isActive = ban.TrangThai?.ToUpper() == "DANG_CHOI";
             bool isVip = ban.LoaiBan?.ToUpper() == "VIP";
 
-            // Cấu hình màu nền, chữ, viền linh hoạt theo VIP và trạng thái
             Color currentActiveBg = isVip ? VIP_ACTIVE_BG : GREEN_ACTIVE_BG;
             Color currentActiveText = isVip ? VIP_ACTIVE_TEXT : GREEN_DARK;
-            Color currentActiveBorder = isVip ? VIP_ACTIVE_NONE : GREEN_LIGHT;
+            Color idleBg = Color.FromArgb(255, 255, 251);
 
-            // Tính width card = (panel width - padding*2 - gap*4) / 5
-            int panelW = guna2Panel2.Width > 0 ? guna2Panel2.Width : 900;
-            int cardW = Math.Max(140, (panelW - 48 - 4 * 16) / 5);
+            // ── Kích thước panel cha ──────────────────────────────────────
+            int panelW = (guna2Panel2 != null && guna2Panel2.Width > 10)
+                         ? guna2Panel2.Width
+                         : 960;  // fallback an toàn
+
+            int calculatedW = (panelW - 48) / 5 - 16;
+            int cardW = Math.Max(140, Math.Min(calculatedW, 220));
             int cardH = (int)(cardW * 1.2);
 
+            // ── Tính margin căn giữa ─────────────────────────────────────
+            int widthKhaDung = Math.Max(panelW - 48, 1); // tránh âm
+            int cardPlusGap = cardW + 16;
+            int soCot = Math.Max(1, widthKhaDung / cardPlusGap); // KHÔNG BAO GIỜ = 0
+
+            int khoangTrong = widthKhaDung - (cardW * soCot);
+            int denominator = soCot * 2;
+            int marginLR = denominator > 0
+                               ? Math.Max(8, khoangTrong / denominator)
+                               : 8; // fallback nếu vẫn lạ
+
+            // ── Tạo card ─────────────────────────────────────────────────
             var card = new Panel
             {
                 Width = cardW,
                 Height = cardH,
-                Margin = new Padding(8),
-                BackColor = isActive ? currentActiveBg : Color.White,
+                Margin = new Padding(marginLR, 15, marginLR, 15),
+                BackColor = isActive ? currentActiveBg : idleBg,
                 Cursor = Cursors.Hand,
                 Tag = ban
             };
 
-            // Border bo tròn — vẽ bằng Paint
-            card.Paint += (s, e) =>
+            // ── Bo góc an toàn ───────────────────────────────────────────
+            try
             {
-                var g = e.Graphics;
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                Color borderColor = isActive ? currentActiveBorder : BORDER_IDLE;
-                int bw = isActive ? 2 : 1;
-                using (var pen = new Pen(borderColor, bw))
-                using (var path = RoundedPath(new Rectangle(1, 1, card.Width - 2, card.Height - 2), 14))
-                    g.DrawPath(pen, path);
+                using (var pathRegion = RoundedPath(new Rectangle(0, 0, cardW, cardH), 14))
+                {
+                    if (pathRegion != null)
+                        card.Region = new Region(pathRegion);
+                }
+            }
+            catch { /* bỏ qua nếu bo góc lỗi, card vẫn hiện */ }
 
-                // Clip vùng bo tròn
-                using (var clip = RoundedPath(new Rectangle(0, 0, card.Width, card.Height), 14))
-                    g.SetClip(clip);
-
-                // Nền
-                using (var bg = new SolidBrush(card.BackColor))
-                    g.FillRectangle(bg, card.ClientRectangle);
-            };
-
-            // ── Ảnh bàn bida ──
+            // ── Ảnh bàn bida ─────────────────────────────────────────────
             int imgW = (int)(cardW * 0.80);
             int imgH = (int)(imgW * 0.58);
             var picBox = new PictureBox
             {
+                Name = "picBox",
                 Size = new Size(imgW, imgH),
                 Location = new Point((cardW - imgW) / 2, (int)(cardH * 0.08)),
                 SizeMode = PictureBoxSizeMode.Zoom,
                 BackColor = Color.Transparent,
                 Image = isActive ? _imgActive : _imgDisable
             };
-            // Placeholder nếu không có ảnh
-            if (picBox.Image == null)
-            {
-                picBox.Paint += (s, e) =>
-                {
-                    e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                    using (var b = new SolidBrush(isActive ? Color.FromArgb(200, currentActiveBorder) : Color.FromArgb(200, 200, 200)))
-                        e.Graphics.FillEllipse(b, 10, 10, imgW - 20, imgH - 20);
-                };
-            }
             card.Controls.Add(picBox);
 
-            // ── Tên bàn ──
+            // ── Tên bàn ──────────────────────────────────────────────────
             int lblY = picBox.Bottom + 6;
             var lblName = new Label
             {
+                Name = "lblName",
                 Text = ban.TenBan,
                 Location = new Point(0, lblY),
                 Size = new Size(cardW, 22),
@@ -342,12 +391,13 @@ namespace Bài_Tập_Lớn.GUI
             };
             card.Controls.Add(lblName);
 
-            // ── Trạng thái ──
+            // ── Trạng thái ───────────────────────────────────────────────
             var lblStatus = new Label
             {
+                Name = "lblStatus",
                 Text = isActive ? "(đang chơi)" : "(trống)",
                 Location = new Point(0, lblName.Bottom + 1),
-                Size = new Size(cardW, 24), // Đã tăng chiều cao lên 24
+                Size = new Size(cardW, 24),
                 TextAlign = ContentAlignment.MiddleCenter,
                 Font = new Font("Segoe UI", 8.5f, FontStyle.Regular),
                 ForeColor = isActive ? currentActiveText : Color.FromArgb(150, 150, 150),
@@ -355,34 +405,28 @@ namespace Bài_Tập_Lớn.GUI
             };
             card.Controls.Add(lblStatus);
 
-            // ── Click handler ──
+            // ── Click & Hover ─────────────────────────────────────────────
             EventHandler onClick = (s, e) => HandleCardClick(ban, isActive);
             card.Click += onClick;
             picBox.Click += onClick;
             lblName.Click += onClick;
             lblStatus.Click += onClick;
 
-            // Hover effect
             card.MouseEnter += (s, e) =>
             {
-                if (isActive)
-                {
-                    card.BackColor = isVip ? Color.FromArgb(100, 255, 145, 77) : Color.FromArgb(210, 240, 210);
-                }
-                else
-                {
-                    card.BackColor = Color.FromArgb(245, 250, 245);
-                }
+                bool active = ((BanBidaDTO)card.Tag).TrangThai?.ToUpper() == "DANG_CHOI";
+                card.BackColor = active
+                    ? (isVip ? Color.FromArgb(100, 255, 145, 77) : Color.FromArgb(210, 240, 210))
+                    : Color.FromArgb(245, 250, 245);
+            };
+            card.MouseLeave += (s, e) =>
+            {
+                bool active = ((BanBidaDTO)card.Tag).TrangThai?.ToUpper() == "DANG_CHOI";
+                card.BackColor = active ? currentActiveBg : idleBg;
             };
 
-            card.MouseLeave += (s, e) => card.BackColor = isActive ? currentActiveBg : Color.White;
-
             return card;
-        }
-
-        // ════════════════════════════════════════════════════════
-        //  Xử lý click bàn
-        // ════════════════════════════════════════════════════════
+        }                 // ════════════════════════════════════════════════════════
         private void HandleCardClick(BanBidaDTO ban, bool isActive)
         {
             if (!isActive)
@@ -408,7 +452,10 @@ namespace Bài_Tập_Lớn.GUI
                         };
                         _phienBLL.ThemPhien(phien);
                         _banBLL.CapNhatTrangThai(ban.MaBan, "DANG_CHOI");
-                        RefreshMap();
+
+                        // Chỉ update đúng card này, không reload toàn bộ
+                        UpdateCardInPlace(ban.MaBan);
+
                         // Thông báo ra ngoài để MenuSanPham cập nhật ComboBox
                         BanDuocMo?.Invoke(this, ban.MaBan);
                     }
@@ -433,7 +480,9 @@ namespace Bài_Tập_Lớn.GUI
                         if (fix == DialogResult.Yes)
                         {
                             _banBLL.CapNhatTrangThai(ban.MaBan, "TRONG");
-                            RefreshMap();
+
+                            // Chỉ update đúng card này, không reload toàn bộ
+                            UpdateCardInPlace(ban.MaBan);
                         }
                         return;
                     }
@@ -478,7 +527,10 @@ namespace Bài_Tập_Lớn.GUI
                                     chiTietHoaDonBanBLL.ThemChiTiet(cthd);
                                 }
                             }
-                            RefreshMap();
+
+                            // Đã sửa dòng này từ RefreshMap() thành UpdateCardInPlace
+                            UpdateCardInPlace(ban.MaBan);
+
                             // Hiển thị hóa đơn dạng preview (giống giao diện ThanhToanDialog)
                             if (dialog.HoaDonDaTao != null)
                                 HienThiHoaDonSauThanhToan(dialog.HoaDonDaTao, ban, phien, dsChiTiet, cacheTenSP);
@@ -492,7 +544,6 @@ namespace Bài_Tập_Lớn.GUI
                 }
             }
         }
-
         // ════════════════════════════════════════════════════════
         //  Hiển thị hóa đơn sau khi thanh toán xong
         //  (mở lại ThanhToanDialog ở chế độ preview — chỉ đọc)
@@ -529,10 +580,30 @@ namespace Bài_Tập_Lớn.GUI
         {
             if (this.Visible)
             {
-                RefreshMap();
+                // Nếu giao diện chưa có thẻ nào thì mới Load mới toàn bộ
+                if (_gridThuong.Controls.Count == 0 && _gridVip.Controls.Count == 0)
+                {
+                    RefreshMap();
+                }
+                else
+                {
+                    // Nếu đã có thẻ rồi, chỉ cập nhật trạng thái (Bật/Tắt) tại chỗ
+                    try
+                    {
+                        var dsBan = _banBLL.LayTatCaBan();
+                        foreach (var ban in dsBan)
+                        {
+                            UpdateCardInPlace(ban.MaBan);
+                        }
+                    }
+                    catch
+                    {
+                        // Fallback an toàn nếu có lỗi ngầm
+                        RefreshMap();
+                    }
+                }
             }
         }
-
         // ── Stub event handlers ──
         private void guna2Panel2_Paint(object sender, PaintEventArgs e) { }
         private void guna2HtmlLabel1_Click(object sender, EventArgs e) { }

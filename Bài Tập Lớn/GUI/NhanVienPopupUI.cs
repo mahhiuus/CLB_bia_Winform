@@ -64,7 +64,20 @@ namespace Bài_Tập_Lớn.GUI
                 _fadeTimer.Stop();
             }
         }
+        private void guna2Panel1_Paint(object sender, PaintEventArgs e)
+        {
+            string tieuDe = _isEdit ? "Cập Nhật Nhân Viên" : "Thêm Mới Nhân Viên";
 
+            using (Font font = new Font("Segoe UI", 15f, FontStyle.Bold))
+            using (SolidBrush brush = new SolidBrush(Color.White))
+            {
+                SizeF size = e.Graphics.MeasureString(tieuDe, font);
+                float x = (guna2Panel1.Width - size.Width) / 2f;
+                float y = (guna2Panel1.Height - size.Height) / 2f;
+                e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+                e.Graphics.DrawString(tieuDe, font, brush, x, y);
+            }
+        }
         public NhanVienPopupUI(NhanVienDTO nv, NhanVienBLL bll) : this()
         {
             _bll = bll;

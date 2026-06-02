@@ -18,6 +18,9 @@ namespace Bài_Tập_Lớn.GUI
         private readonly bool _laSua;
         private OverlayForm _overlay;
 
+        // Lưu lại chuỗi hash gốc khi sửa để không bị mất khi ấn Xác Nhận
+        private string _matKhauHashHienTai = "";
+
         // Toggle ẩn/hiện mật khẩu
         private bool _hienMatKhau = false;
         private bool _hienMatKhauMoi = false;   // dùng khi sửa (đổi mật khẩu)
@@ -56,7 +59,12 @@ namespace Bài_Tập_Lớn.GUI
 
             inputMaTK.Text = tk.MaTK;
             inputTenDangNhap.Text = tk.TenDangNhap;
-            inputMatKhau.Text = tk.MatKhau;        // mật khẩu hiện tại (readonly khi sửa)
+
+            // Giữ lại mã Hash thực tế để gửi xuống database
+            _matKhauHashHienTai = tk.MatKhau;
+
+            // HIỂN THỊ DẤU SAO thay vì hiển thị mã Hash Bcrypt xấu xí
+            inputMatKhau.Text = "********";
             inputMatKhau.ReadOnly = true;          // không cho sửa trực tiếp — dùng khu vực Đổi MK
 
             // Chọn đúng vai trò bằng SelectedValue
@@ -207,8 +215,10 @@ namespace Bài_Tập_Lớn.GUI
                 {
                     MaTK = inputMaTK.Text.Trim(),
                     TenDangNhap = inputTenDangNhap.Text.Trim(),
-                    MatKhau = inputMatKhau.Text.Trim(),
-                    // Lấy SelectedValue thay vì SelectedItem.ToString()
+
+                    // Nếu là sửa thì gửi lại mã Hash gốc, nếu Thêm Mới thì lấy chuỗi nhập vào để BLL hash
+                    MatKhau = _laSua ? _matKhauHashHienTai : inputMatKhau.Text.Trim(),
+
                     VaiTro = cboVaiTros.SelectedValue?.ToString(),
                     MaNV = maNV,
                 };
@@ -255,7 +265,7 @@ namespace Bài_Tập_Lớn.GUI
 
                 if (ok)
                 {
-                    inputMatKhau.Text = matKhauMoi;
+                    // Cập nhật lại UI nhưng giữ mã "********" để bảo mật
                     inputMatKhauMoi.Text = "";
                     MessageBox.Show("Đổi mật khẩu thành công!", "Thành công",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);

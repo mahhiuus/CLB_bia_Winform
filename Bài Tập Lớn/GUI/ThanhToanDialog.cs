@@ -740,6 +740,11 @@ namespace Bài_Tập_Lớn.GUI
         {
 
         }
+
+        private void tableBody_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 
     // ══════════════════════════════════════════════════════════════

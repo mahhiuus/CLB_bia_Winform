@@ -124,7 +124,7 @@ namespace Bài_Tập_Lớn.BLL
                 MaNV = maNhanVienMoi,
                 HoTen = tenDangNhap,
                 Sdt = "",
-                GioiTinh = "",
+                GioiTinh = "Nam",
                 ChucVu = "Nhân viên",
                 NgaySinh = null
             };

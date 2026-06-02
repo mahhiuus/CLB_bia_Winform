@@ -1,7 +1,7 @@
 ﻿// ╔══════════════════════════════════════════════════════════╗
 // ║  File: Maindashboard.cs                                  ║
 // ║  Thay THẾ HOÀN TOÀN file Maindashboard.cs cũ             ║
-// ║  Maindashboard.Designer.cs GIỮ NGUYÊN, không đụng vào   ║
+// ║  Maindashboard.Designer.cs GIỮ NGUYÊN, không đụng vào    ║
 // ╚══════════════════════════════════════════════════════════╝
 using Bài_Tập_Lớn.UI;
 using System;
@@ -32,7 +32,7 @@ namespace Bài_Tập_Lớn.GUI
         private TaiKhoanPanel _taiKhoanPanel = null;
         private SanPhamPanel _sanPhamPanel = null;
         private MenuSanPham _menuSanPham = null;
-        private NhapHangPanel _nhapHangPanel   =null;
+        private NhapHangPanel _nhapHangPanel = null;
         private Panel _whiteOverlay = null;
 
         // ════════════════════════════════════════════════════════
@@ -73,6 +73,10 @@ namespace Bài_Tập_Lớn.GUI
             };
             ParentMainContent.Controls.Add(_whiteOverlay);
             _whiteOverlay.SendToBack();
+
+            // ✅ Gắn Region cho ParentMainContent
+            ApplyRoundedRegion(ParentMainContent, 15);
+            ParentMainContent.Resize += (s, e2) => ApplyRoundedRegion(ParentMainContent, 15);
 
             btnTrangChu_Click(btnTrangChu, EventArgs.Empty);
 
@@ -120,12 +124,14 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ════════════════════════════════════════════════════════
-        //  ROUNDED REGION
+        //  ROUNDED REGION (Đã gộp chung và tối ưu)
         // ════════════════════════════════════════════════════════
-        private void ApplyRoundedRegion(Form form, int radius)
+        private void ApplyRoundedRegion(Control control, int radius)
         {
-            int w = ParentMainContent.Width;
-            int h = ParentMainContent.Height;
+            if (control == null) return;
+
+            int w = control.Width;
+            int h = control.Height;
             if (w <= 0 || h <= 0) return;
 
             var path = new GraphicsPath();
@@ -134,7 +140,7 @@ namespace Bài_Tập_Lớn.GUI
             path.AddArc(w - radius * 2, h - radius * 2, radius * 2, radius * 2, 0, 90);
             path.AddArc(0, h - radius * 2, radius * 2, radius * 2, 90, 90);
             path.CloseFigure();
-            form.Region = new Region(path);
+            control.Region = new Region(path);
         }
 
         // ════════════════════════════════════════════════════════
@@ -229,7 +235,7 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ════════════════════════════════════════════════════════
-        //  OPEN CHILD FORM — smooth transition + rounded corners
+        //  OPEN CHILD FORM
         // ════════════════════════════════════════════════════════
         private async void OpenChildForm(Form childForm, object btnSender)
         {
@@ -239,81 +245,65 @@ namespace Bài_Tập_Lớn.GUI
             _isTransitioning = true;
             UpdateNavButton(btnSender);
 
-            // 1) Ẩn form cũ ngay lập tức
+            // 1) Kéo skeleton lên che TẤT CẢ
+            _whiteOverlay.BringToFront();
+            _whiteOverlay.Visible = true;
+
+            // 2) Ẩn form cũ
             if (_activeForm != null && !_activeForm.IsDisposed)
-            {
                 _activeForm.Visible = false;
-                _activeForm.Opacity = 0;
-            }
 
             bool isFirstLoad = !ParentMainContent.Controls.Contains(childForm);
 
             if (isFirstLoad)
             {
-                // 2a) Lần đầu load
                 childForm.TopLevel = false;
                 childForm.FormBorderStyle = FormBorderStyle.None;
                 childForm.Dock = DockStyle.Fill;
                 childForm.BackColor = Color.FromArgb(255, 255, 251);
-                childForm.Opacity = 0;
                 childForm.Visible = false;
+
+                // FIX: Đăng ký bắt sự kiện để bo góc không bao giờ bị mất khi Form ẩn hiện
+                childForm.Resize += (s, ev) => ApplyRoundedRegion((Control)s, 15);
+                childForm.VisibleChanged += (s, ev) =>
+                {
+                    if (((Control)s).Visible)
+                        ApplyRoundedRegion((Control)s, 15);
+                };
 
                 ParentMainContent.SuspendLayout();
                 ParentMainContent.Controls.Add(childForm);
-
-                childForm.Show();
-                childForm.Hide();
-
                 ParentMainContent.ResumeLayout(false);
 
-                // Bo tròn 15px
-                ApplyRoundedRegion(childForm, 15);
+                // Show thoải mái vì skeleton đang che
+                childForm.Show();
+                Application.DoEvents();
+                await Task.Delay(50);
 
-                await Task.Delay(32);
+                ApplyRoundedRegion(childForm, 15);
             }
             else
             {
-                // 2b) Đã load rồi
                 if (childForm is IRefreshable r) r.RefreshData();
                 childForm.Dock = DockStyle.Fill;
-                childForm.Opacity = 0;
-                childForm.Visible = false;
+                childForm.Visible = true;
+                childForm.BringToFront();
 
-                // Cập nhật lại region (phòng resize)
+                // Backup apply nếu event VisibleChanged gặp độ trễ
                 ApplyRoundedRegion(childForm, 15);
-
-                await Task.Delay(16);
+                Application.DoEvents();
             }
 
-            // 3) Reveal: fade opacity 0.5 → 1.0 bằng Timer (~100ms)
+            // 3) Show thẳng, không flash, không fade
             _activeForm = childForm;
-            childForm.Opacity = 0.5;
             childForm.Visible = true;
             childForm.BringToFront();
 
-            var fadeTimer = new System.Windows.Forms.Timer();
-            fadeTimer.Interval = 16; // ~60fps
-            fadeTimer.Tick += (t, args) =>
-            {
-                if (childForm.IsDisposed)
-                {
-                    fadeTimer.Stop();
-                    fadeTimer.Dispose();
-                    _isTransitioning = false;
-                    return;
-                }
+            // 4) Ẩn skeleton ngay lập tức
+            _whiteOverlay.Visible = false;
+            _whiteOverlay.BackColor = Color.FromArgb(255, 255, 255, 251);
 
-                childForm.Opacity += 0.08;
-
-                if (childForm.Opacity >= 1.0)
-                {
-                    childForm.Opacity = 1.0;
-                    fadeTimer.Stop();
-                    fadeTimer.Dispose();
-                    _isTransitioning = false;
-                }
-            };
-            fadeTimer.Start();
+            _isTransitioning = false;
         }
 
         // ════════════════════════════════════════════════════════
@@ -354,10 +344,10 @@ namespace Bài_Tập_Lớn.GUI
         private void menutxt_Click(object sender, EventArgs e) { }
         private void ParentMainContent_Paint(object sender, PaintEventArgs e) { }
         private void guna2Button1_click(object sender, PaintEventArgs e) { }
-        private void guna2Button1_Click_1(object sender, EventArgs e) {
-            if(_nhapHangPanel == null || _nhapHangPanel.IsDisposed) _nhapHangPanel = new NhapHangPanel();
-            OpenChildForm( _nhapHangPanel, sender);
-
+        private void guna2Button1_Click_1(object sender, EventArgs e)
+        {
+            if (_nhapHangPanel == null || _nhapHangPanel.IsDisposed) _nhapHangPanel = new NhapHangPanel();
+            OpenChildForm(_nhapHangPanel, sender);
         }
     }
 

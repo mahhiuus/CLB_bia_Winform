@@ -2,8 +2,13 @@
 using Bài_Tập_Lớn.DTO;
 using Bài_Tập_Lớn.UI;
 using Guna.UI2.WinForms;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
 using System.Windows.Forms;
 
 namespace Bài_Tập_Lớn.GUI
@@ -16,9 +21,23 @@ namespace Bài_Tập_Lớn.GUI
         private readonly NhaCungCapBLL _bll = new NhaCungCapBLL();
         private readonly bool _laSua;
         private OverlayForm _overlay;
+        private static readonly HttpClient _http = new HttpClient();
+        private static readonly string CACHE_FILE = "provinces_cache.json";
 
         public NhaCungCapDTO KetQua { get; private set; }
         public bool DaXoa { get; private set; } = false;
+
+        // ── Helper: JSON model ────────────────────────────────────
+        private class DvhcItem
+        {
+            [JsonProperty("code")] public int Code { get; set; }
+            [JsonProperty("name")] public string Name { get; set; }
+
+            [JsonProperty("districts")] public List<DvhcItem> Districts { get; set; }
+            [JsonProperty("wards")] public List<DvhcItem> Wards { get; set; }
+
+            public override string ToString() => Name ?? string.Empty;
+        }
 
         // ── Constructor: Thêm mới ─────────────────────────────────
         public NhaCungCapPopupUi()
@@ -27,6 +46,12 @@ namespace Bài_Tập_Lớn.GUI
             _laSua = false;
             inputMaNCC.Text = _bll.SinhMaMoi();
             inputMaNCC.ReadOnly = true;
+
+            // Khoá Huyện & Phường cho đến khi user chọn cấp trên[cite: 4]
+            cboHuyen.Enabled = false;
+            cboPhuong.Enabled = false;
+
+            LoadTinh();
         }
 
         // ── Constructor: Sửa ─────────────────────────────────────
@@ -37,10 +62,11 @@ namespace Bài_Tập_Lớn.GUI
             inputTenCongTy.Text = ncc.TenCongTy;
             inputSdt.Text = ncc.Sdt;
             inputEmail.Text = ncc.Email;
-            inputDiaChi.Text = ncc.DiaChi;
             inputNguoiLH.Text = ncc.NguoiLienHe;
 
-            // Khi sửa hiện nút Xóa
+            // Khi form Sửa, địa chỉ cũ hiển thị dạng placeholder[cite: 4]
+            if (!string.IsNullOrWhiteSpace(ncc.DiaChi))
+                cboTinh.Text = $"Cũ: {ncc.DiaChi}";
         }
 
         // ── Hiện Overlay ─────────────────────────────────────────
@@ -75,6 +101,121 @@ namespace Bài_Tập_Lớn.GUI
             }
         }
 
+        // ══════════════════════════════════════════════════════════
+        //  API — Load Tỉnh/Thành (Hỗ trợ Cache Offline)[cite: 4]
+        // ══════════════════════════════════════════════════════════
+        private async void LoadTinh()
+        {
+            try
+            {
+                cboTinh.Enabled = false;
+                string json = string.Empty;
+
+                try
+                {
+                    json = await _http.GetStringAsync("https://provinces.open-api.vn/api/?depth=1");
+                    File.WriteAllText(CACHE_FILE, json); // Ghi đè vào bộ nhớ đệm khi có mạng
+                }
+                catch
+                {
+                    // Nếu mất mạng, kiểm tra xem có tệp cache cũ không
+                    if (File.Exists(CACHE_FILE))
+                    {
+                        json = File.ReadAllText(CACHE_FILE);
+                    }
+                    else
+                    {
+                        throw new Exception("Không có kết nối mạng và không tìm thấy dữ liệu đệm.");
+                    }
+                }
+
+                var list = JsonConvert.DeserializeObject<List<DvhcItem>>(json);
+
+                cboTinh.Items.Clear();
+                foreach (var t in list)
+                    cboTinh.Items.Add(t);
+
+                cboTinh.Enabled = true;
+            }
+            catch
+            {
+                MessageBox.Show(
+                    "Không tải được danh sách Tỉnh/Thành.\nVui lòng kiểm tra lại kết nối internet.",
+                    "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                cboTinh.Enabled = true;
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  Chọn Tỉnh → Load Quận/Huyện[cite: 4]
+        // ══════════════════════════════════════════════════════════
+        private async void cboTinh_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            cboHuyen.Items.Clear();
+            cboPhuong.Items.Clear();
+            cboHuyen.Enabled = false;
+            cboPhuong.Enabled = false;
+
+            if (!(cboTinh.SelectedItem is DvhcItem tinh)) return;
+
+            try
+            {
+                string json = await _http.GetStringAsync($"https://provinces.open-api.vn/api/p/{tinh.Code}?depth=2");
+                var data = JsonConvert.DeserializeObject<DvhcItem>(json);
+
+                foreach (var h in data.Districts)
+                    cboHuyen.Items.Add(h);
+
+                cboHuyen.Enabled = true;
+            }
+            catch
+            {
+                MessageBox.Show("Không tải được danh sách Quận/Huyện.",
+                    "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  Chọn Quận/Huyện → Load Phường/Xã[cite: 4]
+        // ══════════════════════════════════════════════════════════
+        private async void cboHuyen_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            cboPhuong.Items.Clear();
+            cboPhuong.Enabled = false;
+
+            if (!(cboHuyen.SelectedItem is DvhcItem huyen)) return;
+
+            try
+            {
+                string json = await _http.GetStringAsync($"https://provinces.open-api.vn/api/d/{huyen.Code}?depth=2");
+                var data = JsonConvert.DeserializeObject<DvhcItem>(json);
+
+                foreach (var p in data.Wards)
+                    cboPhuong.Items.Add(p);
+
+                cboPhuong.Enabled = true;
+            }
+            catch
+            {
+                MessageBox.Show("Không tải được danh sách Phường/Xã.",
+                    "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  Lấy chuỗi địa chỉ ghép từ 3 dropdown[cite: 4]
+        // ══════════════════════════════════════════════════════════
+        private string LayDiaChi()
+        {
+            var parts = new[]
+            {
+                (cboPhuong.SelectedItem as DvhcItem)?.Name,
+                (cboHuyen.SelectedItem  as DvhcItem)?.Name,
+                (cboTinh.SelectedItem   as DvhcItem)?.Name,
+            };
+            return string.Join(", ", parts.Where(s => !string.IsNullOrEmpty(s)));
+        }
+
         // ── Xác Nhận ─────────────────────────────────────────────
         private void btnXacNhan_Click(object sender, EventArgs e)
         {
@@ -86,13 +227,18 @@ namespace Bài_Tập_Lớn.GUI
                 if (string.IsNullOrWhiteSpace(inputSdt.Text))
                     throw new Exception("Vui lòng nhập Số Điện Thoại!");
 
+                // Đồng bộ bắt buộc kiểm tra địa chỉ đầy đủ giống Khách Hàng[cite: 4]
+                string diaChi = LayDiaChi();
+                if (string.IsNullOrWhiteSpace(diaChi))
+                    throw new Exception("Vui lòng chọn đầy đủ Tỉnh/Thành, Quận/Huyện, Phường/Xã!");
+
                 var ncc = new NhaCungCapDTO
                 {
                     MaNCC = inputMaNCC.Text.Trim(),
                     TenCongTy = inputTenCongTy.Text.Trim(),
                     Sdt = inputSdt.Text.Trim(),
                     Email = inputEmail.Text.Trim(),
-                    DiaChi = inputDiaChi.Text.Trim(),
+                    DiaChi = diaChi,
                     NguoiLienHe = inputNguoiLH.Text.Trim(),
                 };
 
@@ -160,7 +306,6 @@ namespace Bài_Tập_Lớn.GUI
         private void inputTenCongTy_Load(object sender, EventArgs e) { }
         private void inputSdt_Load(object sender, EventArgs e) { }
         private void inputEmail_Load(object sender, EventArgs e) { }
-        private void inputDiaChi_Load(object sender, EventArgs e) { }
         private void inputNguoiLH_Load(object sender, EventArgs e) { }
         private void guna2Panel2_Paint(object sender, PaintEventArgs e) { }
         private void guna2Panel3_Paint(object sender, PaintEventArgs e) { }
@@ -174,5 +319,6 @@ namespace Bài_Tập_Lớn.GUI
         private void lblEmail_Click(object sender, EventArgs e) { }
         private void lblDiaChi_Click(object sender, EventArgs e) { }
         private void lblNguoiLH_Click(object sender, EventArgs e) { }
+        private void cboPhuong_SelectedIndexChanged(object sender, EventArgs e) { }
     }
 }

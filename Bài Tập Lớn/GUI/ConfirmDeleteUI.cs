@@ -1,94 +1,48 @@
-using System;
-using System.Drawing;
+﻿using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using System.Drawing.Drawing2D;
 
 namespace Bài_Tập_Lớn.UI
 {
-    public class ConfirmDeleteUI : Form
+    /// <summary>
+    /// Dialog xác nhận xóa — phong cách nhất quán với NhapHangPopup (Guna UI2).
+    /// Trả về DialogResult.OK nếu người dùng xác nhận xóa,
+    /// DialogResult.Cancel nếu hủy.
+    /// </summary>
+    public partial class ConfirmDeleteUI : Form
     {
-        static readonly Color CREAM = Color.FromArgb(255, 255, 251);
-        static readonly Color DANGER = Color.FromArgb(192, 57, 43);
+        // ── Constructors ────────────────────────────────────────────
+        /// <summary>Chỉ truyền tên đối tượng cần xóa.</summary>
         public ConfirmDeleteUI(string tenDoiTuong)
-            : this(tenDoiTuong, "") { }
+            : this(tenDoiTuong, string.Empty) { }
+
+        /// <summary>Truyền tên và loại đối tượng cần xóa.</summary>
         public ConfirmDeleteUI(string tenDoiTuong, string loaiDoiTuong)
         {
+            InitializeComponent();
+
             string dongMsg = string.IsNullOrWhiteSpace(loaiDoiTuong)
                 ? $"Bạn có chắc muốn xóa\n\"{tenDoiTuong}\" không?"
                 : $"Bạn có chắc muốn xóa {loaiDoiTuong}\n\"{tenDoiTuong}\" không?";
 
-            BuildUI(dongMsg);
+            lblMsg.Text = dongMsg;
         }
 
-        private void BuildUI(string message)
+        // ── Event handlers ──────────────────────────────────────────
+        private void btnHuy_Click(object sender, EventArgs e)
         {
-            this.Size = new Size(400, 210);
-            this.StartPosition = FormStartPosition.CenterParent;
-            this.FormBorderStyle = FormBorderStyle.None;
-            this.BackColor = CREAM;
-
-            using (GraphicsPath path = GraphicsHelper.GetRoundedPath(
-                new Rectangle(0, 0, Width, Height), 14))
-                this.Region = new Region(path);
-
-            this.MouseDown += DoDrag;
-
-            Label lblIcon = new Label
-            {
-                Text = "🗑️",
-                Font = new Font("Segoe UI", 26f),
-                AutoSize = true,
-                Location = new Point(172, 18)
-            };
-
-            Label lblMsg = new Label
-            {
-                Text = message,
-                Font = new Font("Segoe UI", 10f),
-                TextAlign = ContentAlignment.MiddleCenter,
-                Size = new Size(360, 55),
-                Location = new Point(20, 85)
-            };
-
-            RoundedButton btnNo = new RoundedButton
-            {
-                Text = "Huỷ",
-                Size = new Size(106, 36),
-                Location = new Point(168, 154),
-                BackColor = Color.White,
-                ForeColor = Color.FromArgb(80, 80, 80),
-                Font = new Font("Segoe UI Semibold", 9.5f)
-            };
-            btnNo.Click += (s, e) => { DialogResult = DialogResult.Cancel; Close(); };
-
-            RoundedButton btnYes = new RoundedButton
-            {
-                Text = "🗑 Xóa",
-                Size = new Size(100, 36),
-                Location = new Point(280, 154),
-                BackColor = DANGER,
-                ForeColor = Color.White,
-                Font = new Font("Segoe UI Semibold", 9.5f)
-            };
-            btnYes.Click += (s, e) => { DialogResult = DialogResult.OK; Close(); };
-
-            this.Controls.AddRange(new Control[] { lblIcon, lblMsg, btnNo, btnYes });
+            DialogResult = DialogResult.Cancel;
+            Close();
         }
 
-        protected override void OnPaint(PaintEventArgs e)
+        private void btnXoa_Click(object sender, EventArgs e)
         {
-            base.OnPaint(e);
-            using (GraphicsPath path = GraphicsHelper.GetRoundedPath(
-                new Rectangle(0, 0, Width - 1, Height - 1), 14))
-            using (Pen pen = new Pen(DANGER, 2))
-            {
-                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                e.Graphics.DrawPath(pen, path);
-            }
+            DialogResult = DialogResult.OK;
+            Close();
         }
 
-        private void DoDrag(object sender, MouseEventArgs e)
+        // ── Drag form (không có title bar) ──────────────────────────
+        private void panelHeader_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
@@ -96,26 +50,9 @@ namespace Bài_Tập_Lớn.UI
                 NativeDrag.SendMessage(Handle, 0xA1, 0x2, 0);
             }
         }
-
-        private void InitializeComponent()
-        {
-            this.SuspendLayout();
-            // 
-            // ConfirmDeleteUI
-            // 
-            this.ClientSize = new System.Drawing.Size(282, 253);
-            this.Name = "ConfirmDeleteUI";
-            this.Load += new System.EventHandler(this.ConfirmDeleteUI_Load);
-            this.ResumeLayout(false);
-
-        }
-
-        private void ConfirmDeleteUI_Load(object sender, EventArgs e)
-        {
-
-        }
     }
 
+    // ── P/Invoke helper ─────────────────────────────────────────────
     internal static class NativeDrag
     {
         [DllImport("user32.dll")]

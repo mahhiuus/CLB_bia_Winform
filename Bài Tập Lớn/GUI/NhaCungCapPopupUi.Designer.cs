@@ -28,7 +28,9 @@
             this.lblDiaChi = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.lblNguoiLH = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.inputNguoiLH = new Bài_Tập_Lớn.UI.RoundedTextBox();
-            this.inputDiaChi = new Bài_Tập_Lớn.UI.RoundedTextBox();
+            this.cboTinh = new Guna.UI2.WinForms.Guna2ComboBox();
+            this.cboHuyen = new Guna.UI2.WinForms.Guna2ComboBox();
+            this.cboPhuong = new Guna.UI2.WinForms.Guna2ComboBox();
             this.inputEmail = new Bài_Tập_Lớn.UI.RoundedTextBox();
             this.inputSdt = new Bài_Tập_Lớn.UI.RoundedTextBox();
             this.inputTenCongTy = new Bài_Tập_Lớn.UI.RoundedTextBox();
@@ -59,7 +61,7 @@
             this.btnHuy.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(37)))), ((int)(((byte)(16)))));
             this.btnHuy.HoverState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(37)))), ((int)(((byte)(16)))));
             this.btnHuy.HoverState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(251)))));
-            this.btnHuy.Location = new System.Drawing.Point(61, 622);
+            this.btnHuy.Location = new System.Drawing.Point(61, 714);
             this.btnHuy.Name = "btnHuy";
             this.btnHuy.ShadowDecoration.BorderRadius = 10;
             this.btnHuy.ShadowDecoration.Color = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(37)))), ((int)(((byte)(16)))));
@@ -84,7 +86,7 @@
             this.btnXacNhan.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnXacNhan.ForeColor = System.Drawing.Color.White;
             this.btnXacNhan.HoverState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
-            this.btnXacNhan.Location = new System.Drawing.Point(310, 622);
+            this.btnXacNhan.Location = new System.Drawing.Point(310, 714);
             this.btnXacNhan.Name = "btnXacNhan";
             this.btnXacNhan.ShadowDecoration.BorderRadius = 20;
             this.btnXacNhan.ShadowDecoration.Color = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
@@ -127,7 +129,9 @@
             this.guna2Panel2.Controls.Add(this.inputNguoiLH);
             this.guna2Panel2.Controls.Add(this.guna2Panel3);
             this.guna2Panel2.Controls.Add(this.lblSdt);
-            this.guna2Panel2.Controls.Add(this.inputDiaChi);
+            this.guna2Panel2.Controls.Add(this.cboTinh);
+            this.guna2Panel2.Controls.Add(this.cboHuyen);
+            this.guna2Panel2.Controls.Add(this.cboPhuong);
             this.guna2Panel2.Controls.Add(this.lblNguoiLH);
             this.guna2Panel2.Controls.Add(this.guna2Panel5);
             this.guna2Panel2.Controls.Add(this.lblEmail);
@@ -135,7 +139,7 @@
             this.guna2Panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.guna2Panel2.Location = new System.Drawing.Point(0, 0);
             this.guna2Panel2.Name = "guna2Panel2";
-            this.guna2Panel2.Size = new System.Drawing.Size(600, 710);
+            this.guna2Panel2.Size = new System.Drawing.Size(600, 802);
             this.guna2Panel2.TabIndex = 60;
             this.guna2Panel2.Paint += new System.Windows.Forms.PaintEventHandler(this.guna2Panel2_Paint);
             // 
@@ -204,7 +208,7 @@
             this.lblNguoiLH.BackColor = System.Drawing.Color.Transparent;
             this.lblNguoiLH.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblNguoiLH.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
-            this.lblNguoiLH.Location = new System.Drawing.Point(104, 487);
+            this.lblNguoiLH.Location = new System.Drawing.Point(104, 579);
             this.lblNguoiLH.Name = "lblNguoiLH";
             this.lblNguoiLH.Size = new System.Drawing.Size(119, 25);
             this.lblNguoiLH.TabIndex = 46;
@@ -218,7 +222,7 @@
             this.inputNguoiLH.BorderRadius = 10;
             this.inputNguoiLH.FocusColor = System.Drawing.Color.Green;
             this.inputNguoiLH.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.inputNguoiLH.Location = new System.Drawing.Point(61, 523);
+            this.inputNguoiLH.Location = new System.Drawing.Point(61, 615);
             this.inputNguoiLH.Margin = new System.Windows.Forms.Padding(8, 3, 30, 3);
             this.inputNguoiLH.Name = "inputNguoiLH";
             this.inputNguoiLH.Padding = new System.Windows.Forms.Padding(12, 8, 12, 8);
@@ -228,22 +232,65 @@
             this.inputNguoiLH.TabIndex = 44;
             this.inputNguoiLH.Load += new System.EventHandler(this.inputNguoiLH_Load);
             // 
-            // inputDiaChi
+            // cboTinh
             // 
-            this.inputDiaChi.BackColor = System.Drawing.Color.White;
-            this.inputDiaChi.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
-            this.inputDiaChi.BorderRadius = 10;
-            this.inputDiaChi.FocusColor = System.Drawing.Color.Green;
-            this.inputDiaChi.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.inputDiaChi.Location = new System.Drawing.Point(61, 426);
-            this.inputDiaChi.Margin = new System.Windows.Forms.Padding(8, 3, 30, 3);
-            this.inputDiaChi.Name = "inputDiaChi";
-            this.inputDiaChi.Padding = new System.Windows.Forms.Padding(12, 8, 12, 8);
-            this.inputDiaChi.PasswordChar = '\0';
-            this.inputDiaChi.ReadOnly = false;
-            this.inputDiaChi.Size = new System.Drawing.Size(479, 38);
-            this.inputDiaChi.TabIndex = 43;
-            this.inputDiaChi.Load += new System.EventHandler(this.inputDiaChi_Load);
+            this.cboTinh.BackColor = System.Drawing.Color.Transparent;
+            this.cboTinh.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
+            this.cboTinh.BorderRadius = 10;
+            this.cboTinh.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.cboTinh.DropDownHeight = 200;
+            this.cboTinh.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboTinh.FocusedColor = System.Drawing.Color.Green;
+            this.cboTinh.FocusedState.BorderColor = System.Drawing.Color.Green;
+            this.cboTinh.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cboTinh.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.cboTinh.IntegralHeight = false;
+            this.cboTinh.ItemHeight = 30;
+            this.cboTinh.Location = new System.Drawing.Point(61, 426);
+            this.cboTinh.Name = "cboTinh";
+            this.cboTinh.Size = new System.Drawing.Size(479, 36);
+            this.cboTinh.TabIndex = 43;
+            this.cboTinh.SelectedIndexChanged += new System.EventHandler(this.cboTinh_SelectedIndexChanged);
+            // 
+            // cboHuyen
+            // 
+            this.cboHuyen.BackColor = System.Drawing.Color.Transparent;
+            this.cboHuyen.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
+            this.cboHuyen.BorderRadius = 10;
+            this.cboHuyen.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.cboHuyen.DropDownHeight = 200;
+            this.cboHuyen.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboHuyen.FocusedColor = System.Drawing.Color.Green;
+            this.cboHuyen.FocusedState.BorderColor = System.Drawing.Color.Green;
+            this.cboHuyen.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cboHuyen.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.cboHuyen.IntegralHeight = false;
+            this.cboHuyen.ItemHeight = 30;
+            this.cboHuyen.Location = new System.Drawing.Point(61, 472);
+            this.cboHuyen.Name = "cboHuyen";
+            this.cboHuyen.Size = new System.Drawing.Size(479, 36);
+            this.cboHuyen.TabIndex = 45;
+            this.cboHuyen.SelectedIndexChanged += new System.EventHandler(this.cboHuyen_SelectedIndexChanged);
+            // 
+            // cboPhuong
+            // 
+            this.cboPhuong.BackColor = System.Drawing.Color.Transparent;
+            this.cboPhuong.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(43)))), ((int)(((byte)(78)))), ((int)(((byte)(35)))));
+            this.cboPhuong.BorderRadius = 10;
+            this.cboPhuong.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.cboPhuong.DropDownHeight = 200;
+            this.cboPhuong.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboPhuong.FocusedColor = System.Drawing.Color.Green;
+            this.cboPhuong.FocusedState.BorderColor = System.Drawing.Color.Green;
+            this.cboPhuong.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cboPhuong.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.cboPhuong.IntegralHeight = false;
+            this.cboPhuong.ItemHeight = 30;
+            this.cboPhuong.Location = new System.Drawing.Point(61, 518);
+            this.cboPhuong.Name = "cboPhuong";
+            this.cboPhuong.Size = new System.Drawing.Size(479, 36);
+            this.cboPhuong.TabIndex = 46;
+            this.cboPhuong.SelectedIndexChanged += new System.EventHandler(this.cboPhuong_SelectedIndexChanged);
             // 
             // inputEmail
             // 
@@ -317,7 +364,7 @@
             // 
             this.guna2Panel7.BackgroundImage = global::Bài_Tập_Lớn.Properties.Resources.customer_service;
             this.guna2Panel7.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.guna2Panel7.Location = new System.Drawing.Point(61, 487);
+            this.guna2Panel7.Location = new System.Drawing.Point(61, 579);
             this.guna2Panel7.Name = "guna2Panel7";
             this.guna2Panel7.Size = new System.Drawing.Size(35, 30);
             this.guna2Panel7.TabIndex = 49;
@@ -377,7 +424,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(251)))));
-            this.ClientSize = new System.Drawing.Size(600, 710);
+            this.ClientSize = new System.Drawing.Size(600, 802);
             this.Controls.Add(this.lblDiaChi);
             this.Controls.Add(this.guna2Panel7);
             this.Controls.Add(this.guna2Panel6);
@@ -417,8 +464,10 @@
         private Bài_Tập_Lớn.UI.RoundedTextBox inputTenCongTy;
         private Bài_Tập_Lớn.UI.RoundedTextBox inputSdt;
         private Bài_Tập_Lớn.UI.RoundedTextBox inputEmail;
-        private Bài_Tập_Lớn.UI.RoundedTextBox inputDiaChi;
         private Bài_Tập_Lớn.UI.RoundedTextBox inputNguoiLH;
+        private Guna.UI2.WinForms.Guna2ComboBox cboTinh;
+        private Guna.UI2.WinForms.Guna2ComboBox cboHuyen;
+        private Guna.UI2.WinForms.Guna2ComboBox cboPhuong;
         private Guna.UI2.WinForms.Guna2Panel guna2Panel8;
     }
 }
