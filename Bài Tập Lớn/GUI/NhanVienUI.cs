@@ -336,6 +336,7 @@ namespace Bài_Tập_Lớn.GUI
         {
             var popup = new NhanVienPopupUI(null, _bll);
             popup.StartPosition = FormStartPosition.CenterParent;
+            popup.ShowOverlay(this); // Kích hoạt Overlay
             popup.FormClosed += (s, args) => TaiDanhSach();
             popup.ShowDialog(this);
         }
@@ -366,6 +367,7 @@ namespace Bài_Tập_Lớn.GUI
 
             var popup = new NhanVienPopupUI(nv, _bll);
             popup.StartPosition = FormStartPosition.CenterParent;
+            popup.ShowOverlay(this); // Kích hoạt Overlay
             popup.FormClosed += (s, args) => TaiDanhSach();
             popup.ShowDialog(this);
         }

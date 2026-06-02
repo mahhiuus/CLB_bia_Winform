@@ -37,13 +37,13 @@
             this.btnKhachHang = new Guna.UI2.WinForms.Guna2Button();
             this.admintxt = new Guna.UI2.WinForms.Guna2Button();
             this.btnHoaDonNhap = new Guna.UI2.WinForms.Guna2Button();
-            this.menutxt = new Guna.UI2.WinForms.Guna2Button();
             this.btnHoaDonBan = new Guna.UI2.WinForms.Guna2Button();
             this.btnOrder = new Guna.UI2.WinForms.Guna2Button();
             this.btnSoDoBan = new Guna.UI2.WinForms.Guna2Button();
             this.btnTrangChu = new Guna.UI2.WinForms.Guna2Button();
             this.gunaDoughnutDataset1 = new Guna.Charts.WinForms.GunaDoughnutDataset();
             this.ParentMainContent = new Guna.UI2.WinForms.Guna2Panel();
+            this.guna2Button2 = new Guna.UI2.WinForms.Guna2Button();
             this.guna2Panel9.SuspendLayout();
             this.ParentSideBar.SuspendLayout();
             this.MainSideBar.SuspendLayout();
@@ -110,7 +110,7 @@
             this.ParentSideBar.Location = new System.Drawing.Point(0, 40);
             this.ParentSideBar.Margin = new System.Windows.Forms.Padding(2);
             this.ParentSideBar.Name = "ParentSideBar";
-            this.ParentSideBar.Padding = new System.Windows.Forms.Padding(15, 15, 15, 15);
+            this.ParentSideBar.Padding = new System.Windows.Forms.Padding(15);
             this.ParentSideBar.Size = new System.Drawing.Size(446, 1182);
             this.ParentSideBar.TabIndex = 23;
             this.ParentSideBar.Paint += new System.Windows.Forms.PaintEventHandler(this.guna2Panel1_Paint);
@@ -123,6 +123,7 @@
             this.MainSideBar.BorderRadius = 20;
             this.MainSideBar.BorderStyle = System.Drawing.Drawing2D.DashStyle.Dash;
             this.MainSideBar.BorderThickness = 2;
+            this.MainSideBar.Controls.Add(this.guna2Button2);
             this.MainSideBar.Controls.Add(this.guna2Button1);
             this.MainSideBar.Controls.Add(this.btnNhaCungCap);
             this.MainSideBar.Controls.Add(this.btnNhanVien);
@@ -136,7 +137,6 @@
             this.MainSideBar.Controls.Add(this.btnKhachHang);
             this.MainSideBar.Controls.Add(this.admintxt);
             this.MainSideBar.Controls.Add(this.btnHoaDonNhap);
-            this.MainSideBar.Controls.Add(this.menutxt);
             this.MainSideBar.Controls.Add(this.btnHoaDonBan);
             this.MainSideBar.Controls.Add(this.btnOrder);
             this.MainSideBar.Controls.Add(this.btnSoDoBan);
@@ -146,7 +146,7 @@
             this.MainSideBar.Location = new System.Drawing.Point(15, 15);
             this.MainSideBar.Margin = new System.Windows.Forms.Padding(2);
             this.MainSideBar.Name = "MainSideBar";
-            this.MainSideBar.Padding = new System.Windows.Forms.Padding(19, 19, 19, 19);
+            this.MainSideBar.Padding = new System.Windows.Forms.Padding(19);
             this.MainSideBar.ShadowDecoration.BorderRadius = 23;
             this.MainSideBar.ShadowDecoration.Color = System.Drawing.Color.White;
             this.MainSideBar.ShadowDecoration.Depth = 50;
@@ -174,11 +174,11 @@
             this.guna2Button1.Image = global::Bài_Tập_Lớn.Properties.Resources.import__2_;
             this.guna2Button1.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.guna2Button1.ImageSize = new System.Drawing.Size(22, 22);
-            this.guna2Button1.Location = new System.Drawing.Point(23, 463);
+            this.guna2Button1.Location = new System.Drawing.Point(23, 466);
             this.guna2Button1.Margin = new System.Windows.Forms.Padding(2);
             this.guna2Button1.Name = "guna2Button1";
-            this.guna2Button1.Padding = new System.Windows.Forms.Padding(10, 10, 10, 10);
-            this.guna2Button1.Size = new System.Drawing.Size(278, 55);
+            this.guna2Button1.Padding = new System.Windows.Forms.Padding(10);
+            this.guna2Button1.Size = new System.Drawing.Size(280, 55);
             this.guna2Button1.TabIndex = 29;
             this.guna2Button1.Text = "Nhập Hàng";
             this.guna2Button1.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -203,11 +203,11 @@
             this.btnNhaCungCap.Image = global::Bài_Tập_Lớn.Properties.Resources.building;
             this.btnNhaCungCap.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.btnNhaCungCap.ImageSize = new System.Drawing.Size(22, 22);
-            this.btnNhaCungCap.Location = new System.Drawing.Point(24, 874);
-            this.btnNhaCungCap.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnNhaCungCap.Location = new System.Drawing.Point(18, 955);
+            this.btnNhaCungCap.Margin = new System.Windows.Forms.Padding(4);
             this.btnNhaCungCap.Name = "btnNhaCungCap";
-            this.btnNhaCungCap.Padding = new System.Windows.Forms.Padding(12, 12, 12, 12);
-            this.btnNhaCungCap.Size = new System.Drawing.Size(389, 62);
+            this.btnNhaCungCap.Padding = new System.Windows.Forms.Padding(12);
+            this.btnNhaCungCap.Size = new System.Drawing.Size(345, 62);
             this.btnNhaCungCap.TabIndex = 28;
             this.btnNhaCungCap.Text = "Quản Lý Nhà Cung Cấp";
             this.btnNhaCungCap.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -232,11 +232,11 @@
             this.btnNhanVien.Image = global::Bài_Tập_Lớn.Properties.Resources.users_alt;
             this.btnNhanVien.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.btnNhanVien.ImageSize = new System.Drawing.Size(22, 22);
-            this.btnNhanVien.Location = new System.Drawing.Point(23, 606);
-            this.btnNhanVien.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnNhanVien.Location = new System.Drawing.Point(18, 885);
+            this.btnNhanVien.Margin = new System.Windows.Forms.Padding(4);
             this.btnNhanVien.Name = "btnNhanVien";
-            this.btnNhanVien.Padding = new System.Windows.Forms.Padding(12, 12, 12, 12);
-            this.btnNhanVien.Size = new System.Drawing.Size(346, 62);
+            this.btnNhanVien.Padding = new System.Windows.Forms.Padding(12);
+            this.btnNhanVien.Size = new System.Drawing.Size(345, 62);
             this.btnNhanVien.TabIndex = 27;
             this.btnNhanVien.Text = "Quản Lý Nhân Viên";
             this.btnNhanVien.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -301,11 +301,11 @@
             this.btnDangXuat.Image = global::Bài_Tập_Lớn.Properties.Resources.leave;
             this.btnDangXuat.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.btnDangXuat.ImageSize = new System.Drawing.Size(22, 22);
-            this.btnDangXuat.Location = new System.Drawing.Point(25, 944);
-            this.btnDangXuat.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnDangXuat.Location = new System.Drawing.Point(23, 1025);
+            this.btnDangXuat.Margin = new System.Windows.Forms.Padding(4);
             this.btnDangXuat.Name = "btnDangXuat";
-            this.btnDangXuat.Padding = new System.Windows.Forms.Padding(12, 12, 12, 12);
-            this.btnDangXuat.Size = new System.Drawing.Size(346, 62);
+            this.btnDangXuat.Padding = new System.Windows.Forms.Padding(12);
+            this.btnDangXuat.Size = new System.Drawing.Size(345, 62);
             this.btnDangXuat.TabIndex = 11;
             this.btnDangXuat.Text = "Đăng Xuất";
             this.btnDangXuat.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -330,11 +330,11 @@
             this.btnTaiKhoan.Image = global::Bài_Tập_Lớn.Properties.Resources.user_logout;
             this.btnTaiKhoan.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.btnTaiKhoan.ImageSize = new System.Drawing.Size(22, 22);
-            this.btnTaiKhoan.Location = new System.Drawing.Point(23, 740);
+            this.btnTaiKhoan.Location = new System.Drawing.Point(23, 751);
             this.btnTaiKhoan.Margin = new System.Windows.Forms.Padding(2);
             this.btnTaiKhoan.Name = "btnTaiKhoan";
-            this.btnTaiKhoan.Padding = new System.Windows.Forms.Padding(12, 12, 12, 12);
-            this.btnTaiKhoan.Size = new System.Drawing.Size(346, 62);
+            this.btnTaiKhoan.Padding = new System.Windows.Forms.Padding(12);
+            this.btnTaiKhoan.Size = new System.Drawing.Size(345, 62);
             this.btnTaiKhoan.TabIndex = 10;
             this.btnTaiKhoan.Text = "Quản Lý Tài Khoản";
             this.btnTaiKhoan.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -359,11 +359,11 @@
             this.btnSanPham.Image = global::Bài_Tập_Lớn.Properties.Resources.room_service;
             this.btnSanPham.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.btnSanPham.ImageSize = new System.Drawing.Size(22, 22);
-            this.btnSanPham.Location = new System.Drawing.Point(23, 1014);
-            this.btnSanPham.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnSanPham.Location = new System.Drawing.Point(23, 683);
+            this.btnSanPham.Margin = new System.Windows.Forms.Padding(4);
             this.btnSanPham.Name = "btnSanPham";
-            this.btnSanPham.Padding = new System.Windows.Forms.Padding(12, 12, 12, 12);
-            this.btnSanPham.Size = new System.Drawing.Size(346, 62);
+            this.btnSanPham.Padding = new System.Windows.Forms.Padding(12);
+            this.btnSanPham.Size = new System.Drawing.Size(345, 62);
             this.btnSanPham.TabIndex = 9;
             this.btnSanPham.Text = "Quản Lý Sản Phẩm";
             this.btnSanPham.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -388,11 +388,11 @@
             this.btnQLBAN.Image = global::Bài_Tập_Lớn.Properties.Resources.ball_pile;
             this.btnQLBAN.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.btnQLBAN.ImageSize = new System.Drawing.Size(22, 22);
-            this.btnQLBAN.Location = new System.Drawing.Point(25, 674);
+            this.btnQLBAN.Location = new System.Drawing.Point(23, 615);
             this.btnQLBAN.Margin = new System.Windows.Forms.Padding(2);
             this.btnQLBAN.Name = "btnQLBAN";
-            this.btnQLBAN.Padding = new System.Windows.Forms.Padding(12, 12, 12, 12);
-            this.btnQLBAN.Size = new System.Drawing.Size(346, 62);
+            this.btnQLBAN.Padding = new System.Windows.Forms.Padding(12);
+            this.btnQLBAN.Size = new System.Drawing.Size(345, 62);
             this.btnQLBAN.TabIndex = 8;
             this.btnQLBAN.Text = "Quản Lý Bàn";
             this.btnQLBAN.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -417,11 +417,11 @@
             this.btnKhachHang.Image = global::Bài_Tập_Lớn.Properties.Resources.users_alt;
             this.btnKhachHang.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.btnKhachHang.ImageSize = new System.Drawing.Size(22, 22);
-            this.btnKhachHang.Location = new System.Drawing.Point(23, 806);
+            this.btnKhachHang.Location = new System.Drawing.Point(19, 817);
             this.btnKhachHang.Margin = new System.Windows.Forms.Padding(2);
             this.btnKhachHang.Name = "btnKhachHang";
-            this.btnKhachHang.Padding = new System.Windows.Forms.Padding(12, 12, 12, 12);
-            this.btnKhachHang.Size = new System.Drawing.Size(346, 62);
+            this.btnKhachHang.Padding = new System.Windows.Forms.Padding(12);
+            this.btnKhachHang.Size = new System.Drawing.Size(345, 62);
             this.btnKhachHang.TabIndex = 7;
             this.btnKhachHang.Text = "Quản Lý Khách Hàng";
             this.btnKhachHang.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -430,8 +430,6 @@
             // admintxt
             // 
             this.admintxt.BackColor = System.Drawing.Color.Transparent;
-            this.admintxt.CheckedState.CustomBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
-            this.admintxt.CheckedState.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.admintxt.CustomBorderThickness = new System.Windows.Forms.Padding(0, 0, 0, 2);
             this.admintxt.DefaultAutoSize = true;
             this.admintxt.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
@@ -441,14 +439,13 @@
             this.admintxt.FillColor = System.Drawing.Color.Transparent;
             this.admintxt.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.admintxt.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(207)))), ((int)(((byte)(207)))), ((int)(((byte)(207)))));
-            this.admintxt.HoverState.CustomBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
+            this.admintxt.HoverState.CustomBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(251)))));
             this.admintxt.HoverState.FillColor = System.Drawing.Color.Transparent;
-            this.admintxt.HoverState.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.admintxt.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.admintxt.Location = new System.Drawing.Point(5, 539);
-            this.admintxt.Margin = new System.Windows.Forms.Padding(5, 5, 5, 5);
+            this.admintxt.Margin = new System.Windows.Forms.Padding(5);
             this.admintxt.Name = "admintxt";
-            this.admintxt.Padding = new System.Windows.Forms.Padding(12, 12, 12, 12);
+            this.admintxt.Padding = new System.Windows.Forms.Padding(12);
             this.admintxt.Size = new System.Drawing.Size(106, 58);
             this.admintxt.TabIndex = 6;
             this.admintxt.Text = "Admin";
@@ -472,42 +469,15 @@
             this.btnHoaDonNhap.HoverState.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnHoaDonNhap.Image = global::Bài_Tập_Lớn.Properties.Resources.calculator_bill;
             this.btnHoaDonNhap.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
-            this.btnHoaDonNhap.Location = new System.Drawing.Point(20, 404);
+            this.btnHoaDonNhap.Location = new System.Drawing.Point(23, 407);
             this.btnHoaDonNhap.Margin = new System.Windows.Forms.Padding(2);
             this.btnHoaDonNhap.Name = "btnHoaDonNhap";
-            this.btnHoaDonNhap.Padding = new System.Windows.Forms.Padding(10, 10, 10, 10);
-            this.btnHoaDonNhap.Size = new System.Drawing.Size(278, 55);
+            this.btnHoaDonNhap.Padding = new System.Windows.Forms.Padding(10);
+            this.btnHoaDonNhap.Size = new System.Drawing.Size(280, 55);
             this.btnHoaDonNhap.TabIndex = 5;
             this.btnHoaDonNhap.Text = "Hóa Đơn Nhập";
             this.btnHoaDonNhap.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.btnHoaDonNhap.Click += new System.EventHandler(this.guna2Button6_Click);
-            // 
-            // menutxt
-            // 
-            this.menutxt.BackColor = System.Drawing.Color.Transparent;
-            this.menutxt.CheckedState.CustomBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
-            this.menutxt.CheckedState.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.menutxt.CustomBorderThickness = new System.Windows.Forms.Padding(0, 0, 0, 2);
-            this.menutxt.DefaultAutoSize = true;
-            this.menutxt.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
-            this.menutxt.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
-            this.menutxt.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
-            this.menutxt.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
-            this.menutxt.FillColor = System.Drawing.Color.Transparent;
-            this.menutxt.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.menutxt.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(207)))), ((int)(((byte)(207)))), ((int)(((byte)(207)))));
-            this.menutxt.HoverState.CustomBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(0)))));
-            this.menutxt.HoverState.FillColor = System.Drawing.Color.Transparent;
-            this.menutxt.HoverState.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.menutxt.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
-            this.menutxt.Location = new System.Drawing.Point(5, 112);
-            this.menutxt.Margin = new System.Windows.Forms.Padding(2);
-            this.menutxt.Name = "menutxt";
-            this.menutxt.Padding = new System.Windows.Forms.Padding(12, 12, 12, 12);
-            this.menutxt.Size = new System.Drawing.Size(100, 58);
-            this.menutxt.TabIndex = 4;
-            this.menutxt.Text = "Menu";
-            this.menutxt.Click += new System.EventHandler(this.menutxt_Click);
             // 
             // btnHoaDonBan
             // 
@@ -527,11 +497,11 @@
             this.btnHoaDonBan.HoverState.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnHoaDonBan.Image = global::Bài_Tập_Lớn.Properties.Resources.file_invoice_dollar__1_;
             this.btnHoaDonBan.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
-            this.btnHoaDonBan.Location = new System.Drawing.Point(21, 348);
+            this.btnHoaDonBan.Location = new System.Drawing.Point(23, 348);
             this.btnHoaDonBan.Margin = new System.Windows.Forms.Padding(2);
             this.btnHoaDonBan.Name = "btnHoaDonBan";
-            this.btnHoaDonBan.Padding = new System.Windows.Forms.Padding(10, 10, 10, 10);
-            this.btnHoaDonBan.Size = new System.Drawing.Size(266, 52);
+            this.btnHoaDonBan.Padding = new System.Windows.Forms.Padding(10);
+            this.btnHoaDonBan.Size = new System.Drawing.Size(280, 55);
             this.btnHoaDonBan.TabIndex = 3;
             this.btnHoaDonBan.Text = "Hóa đơn Bán";
             this.btnHoaDonBan.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -556,11 +526,11 @@
             this.btnOrder.Image = global::Bài_Tập_Lớn.Properties.Resources.fast_food;
             this.btnOrder.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.btnOrder.ImageSize = new System.Drawing.Size(22, 22);
-            this.btnOrder.Location = new System.Drawing.Point(20, 225);
+            this.btnOrder.Location = new System.Drawing.Point(23, 230);
             this.btnOrder.Margin = new System.Windows.Forms.Padding(2);
             this.btnOrder.Name = "btnOrder";
-            this.btnOrder.Padding = new System.Windows.Forms.Padding(10, 10, 10, 10);
-            this.btnOrder.Size = new System.Drawing.Size(266, 59);
+            this.btnOrder.Padding = new System.Windows.Forms.Padding(10);
+            this.btnOrder.Size = new System.Drawing.Size(280, 55);
             this.btnOrder.TabIndex = 2;
             this.btnOrder.Text = "Đồ Ăn Uống";
             this.btnOrder.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -585,11 +555,11 @@
             this.btnSoDoBan.Image = global::Bài_Tập_Lớn.Properties.Resources.balls;
             this.btnSoDoBan.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.btnSoDoBan.ImageSize = new System.Drawing.Size(22, 22);
-            this.btnSoDoBan.Location = new System.Drawing.Point(18, 288);
+            this.btnSoDoBan.Location = new System.Drawing.Point(23, 289);
             this.btnSoDoBan.Margin = new System.Windows.Forms.Padding(2);
             this.btnSoDoBan.Name = "btnSoDoBan";
-            this.btnSoDoBan.Padding = new System.Windows.Forms.Padding(12, 12, 12, 12);
-            this.btnSoDoBan.Size = new System.Drawing.Size(348, 56);
+            this.btnSoDoBan.Padding = new System.Windows.Forms.Padding(12);
+            this.btnSoDoBan.Size = new System.Drawing.Size(280, 55);
             this.btnSoDoBan.TabIndex = 1;
             this.btnSoDoBan.Text = "Sơ Đồ Bàn";
             this.btnSoDoBan.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -613,11 +583,11 @@
             this.btnTrangChu.HoverState.Font = new System.Drawing.Font("Segoe UI", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnTrangChu.Image = global::Bài_Tập_Lớn.Properties.Resources.home;
             this.btnTrangChu.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
-            this.btnTrangChu.Location = new System.Drawing.Point(18, 160);
+            this.btnTrangChu.Location = new System.Drawing.Point(23, 164);
             this.btnTrangChu.Margin = new System.Windows.Forms.Padding(2);
             this.btnTrangChu.Name = "btnTrangChu";
-            this.btnTrangChu.Padding = new System.Windows.Forms.Padding(12, 12, 12, 12);
-            this.btnTrangChu.Size = new System.Drawing.Size(348, 61);
+            this.btnTrangChu.Padding = new System.Windows.Forms.Padding(12);
+            this.btnTrangChu.Size = new System.Drawing.Size(280, 62);
             this.btnTrangChu.TabIndex = 0;
             this.btnTrangChu.Text = "Trang Chủ";
             this.btnTrangChu.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
@@ -634,7 +604,7 @@
             this.ParentMainContent.Location = new System.Drawing.Point(446, 40);
             this.ParentMainContent.Margin = new System.Windows.Forms.Padding(2);
             this.ParentMainContent.Name = "ParentMainContent";
-            this.ParentMainContent.Padding = new System.Windows.Forms.Padding(12, 12, 12, 12);
+            this.ParentMainContent.Padding = new System.Windows.Forms.Padding(12);
             this.ParentMainContent.ShadowDecoration.BorderRadius = 23;
             this.ParentMainContent.ShadowDecoration.Color = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(251)))));
             this.ParentMainContent.ShadowDecoration.Depth = 10;
@@ -642,6 +612,29 @@
             this.ParentMainContent.Size = new System.Drawing.Size(940, 1182);
             this.ParentMainContent.TabIndex = 24;
             this.ParentMainContent.Paint += new System.Windows.Forms.PaintEventHandler(this.ParentMainContent_Paint);
+            // 
+            // guna2Button2
+            // 
+            this.guna2Button2.BackColor = System.Drawing.Color.Transparent;
+            this.guna2Button2.CustomBorderThickness = new System.Windows.Forms.Padding(0, 0, 0, 2);
+            this.guna2Button2.DefaultAutoSize = true;
+            this.guna2Button2.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
+            this.guna2Button2.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
+            this.guna2Button2.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.guna2Button2.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
+            this.guna2Button2.FillColor = System.Drawing.Color.Transparent;
+            this.guna2Button2.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.guna2Button2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(207)))), ((int)(((byte)(207)))), ((int)(((byte)(207)))));
+            this.guna2Button2.HoverState.CustomBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(251)))));
+            this.guna2Button2.HoverState.FillColor = System.Drawing.Color.Transparent;
+            this.guna2Button2.ImageAlign = System.Windows.Forms.HorizontalAlignment.Left;
+            this.guna2Button2.Location = new System.Drawing.Point(8, 105);
+            this.guna2Button2.Margin = new System.Windows.Forms.Padding(5);
+            this.guna2Button2.Name = "guna2Button2";
+            this.guna2Button2.Padding = new System.Windows.Forms.Padding(12);
+            this.guna2Button2.Size = new System.Drawing.Size(100, 58);
+            this.guna2Button2.TabIndex = 30;
+            this.guna2Button2.Text = "Menu";
             // 
             // Maindashboard
             // 
@@ -675,7 +668,6 @@
         private Guna.Charts.WinForms.GunaDoughnutDataset gunaDoughnutDataset1;
         private Guna.UI2.WinForms.Guna2Panel MainSideBar;
         private Guna.UI2.WinForms.Guna2Button btnTrangChu;
-        private Guna.UI2.WinForms.Guna2Button menutxt;
         private Guna.UI2.WinForms.Guna2Button btnHoaDonBan;
         private Guna.UI2.WinForms.Guna2Button btnOrder;
         private Guna.UI2.WinForms.Guna2Button btnSoDoBan;
@@ -693,5 +685,6 @@
         private Guna.UI2.WinForms.Guna2Button btnNhanVien;
         private Guna.UI2.WinForms.Guna2Button btnNhaCungCap;
         private Guna.UI2.WinForms.Guna2Button guna2Button1;
+        private Guna.UI2.WinForms.Guna2Button guna2Button2;
     }
 }
