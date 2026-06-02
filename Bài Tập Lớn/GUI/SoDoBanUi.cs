@@ -235,6 +235,7 @@ namespace Bài_Tập_Lớn.GUI
         // ════════════════════════════════════════════════════════
         public void RefreshMap()
         {
+            if (_gridThuong == null || _gridVip == null) return;
             _gridThuong.Controls.Clear();
             _gridVip.Controls.Clear();
 

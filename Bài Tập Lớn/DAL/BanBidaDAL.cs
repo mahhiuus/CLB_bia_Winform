@@ -105,14 +105,62 @@ namespace Bài_Tập_Lớn.DAL
 
         public bool XoaBan(string maBan)
         {
-            string sql = @"DELETE FROM ban_bida 
-                           WHERE ma_ban = @MaBan";
+            // FIX LỖI FK CONFLICT:
+            // Xóa theo đúng thứ tự khóa ngoại để tránh lỗi
+            // REFERENCE constraint "FK_phien_cho__ma_ba__534D60F1"
+            // Thứ tự: chi_tiet_hoa_don_ban → hoa_don_ban → chi_tiet_phien → phien_choi → ban_bida
             try
             {
                 using (IDbConnection conn = DBConnection.Instance.GetConnection())
                 {
-                    int rows = conn.Execute(sql, new { MaBan = maBan });
-                    return rows > 0;
+                    conn.Open();
+                    using (var transaction = conn.BeginTransaction())
+                    {
+                        try
+                        {
+                            // Bước 1: Xóa chi_tiet_hoa_don_ban liên quan đến hóa đơn của bàn này
+                            conn.Execute(@"
+                                DELETE ct FROM chi_tiet_hoa_don_ban ct
+                                INNER JOIN hoa_don_ban hd ON ct.ma_hdb = hd.ma_hdb
+                                INNER JOIN phien_choi pc ON hd.ma_phien = pc.ma_phien
+                                WHERE pc.ma_ban = @MaBan",
+                                new { MaBan = maBan }, transaction);
+
+                            // Bước 2: Xóa hoa_don_ban liên quan đến phiên chơi của bàn này
+                            conn.Execute(@"
+                                DELETE hd FROM hoa_don_ban hd
+                                INNER JOIN phien_choi pc ON hd.ma_phien = pc.ma_phien
+                                WHERE pc.ma_ban = @MaBan",
+                                new { MaBan = maBan }, transaction);
+
+                            // Bước 3: Xóa chi_tiet_phien liên quan đến phiên chơi của bàn này
+                            conn.Execute(@"
+                                DELETE ct FROM chi_tiet_phien ct
+                                INNER JOIN phien_choi pc ON ct.ma_phien = pc.ma_phien
+                                WHERE pc.ma_ban = @MaBan",
+                                new { MaBan = maBan }, transaction);
+
+                            // Bước 4: Xóa tất cả phien_choi của bàn này
+                            conn.Execute(@"
+                                DELETE FROM phien_choi 
+                                WHERE ma_ban = @MaBan",
+                                new { MaBan = maBan }, transaction);
+
+                            // Bước 5: Xóa bàn bida
+                            int rows = conn.Execute(@"
+                                DELETE FROM ban_bida 
+                                WHERE ma_ban = @MaBan",
+                                new { MaBan = maBan }, transaction);
+
+                            transaction.Commit();
+                            return rows > 0;
+                        }
+                        catch
+                        {
+                            transaction.Rollback();
+                            throw;
+                        }
+                    }
                 }
             }
             catch (Exception ex)

@@ -1,6 +1,5 @@
 ﻿// ╔══════════════════════════════════════════════════════════╗
 // ║  File: Maindashboard.cs                                  ║
-// ║  Thay THẾ HOÀN TOÀN file Maindashboard.cs cũ             ║
 // ║  Maindashboard.Designer.cs GIỮ NGUYÊN, không đụng vào    ║
 // ╚══════════════════════════════════════════════════════════╝
 using Bài_Tập_Lớn.UI;
@@ -74,7 +73,6 @@ namespace Bài_Tập_Lớn.GUI
             ParentMainContent.Controls.Add(_whiteOverlay);
             _whiteOverlay.SendToBack();
 
-            // ✅ Gắn Region cho ParentMainContent
             ApplyRoundedRegion(ParentMainContent, 15);
             ParentMainContent.Resize += (s, e2) => ApplyRoundedRegion(ParentMainContent, 15);
 
@@ -124,7 +122,7 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ════════════════════════════════════════════════════════
-        //  ROUNDED REGION (Đã gộp chung và tối ưu)
+        //  ROUNDED REGION
         // ════════════════════════════════════════════════════════
         private void ApplyRoundedRegion(Control control, int radius)
         {
@@ -144,86 +142,122 @@ namespace Bài_Tập_Lớn.GUI
         }
 
         // ════════════════════════════════════════════════════════
+        //  HELPER: Tạo SoDoBanUi và gắn event 1 lần duy nhất
+        // ════════════════════════════════════════════════════════
+        private SoDoBanUi TaoSoDoBanForm()
+        {
+            var form = new SoDoBanUi();
+
+            // Event mở bàn → cập nhật MenuSanPham
+            form.BanDuocMo += (s, maBan) =>
+            {
+                if (_menuSanPham == null || _menuSanPham.IsDisposed)
+                    _menuSanPham = new MenuSanPham();
+                _menuSanPham.ChonBan(maBan);
+            };
+
+            return form;
+        }
+
+        // ════════════════════════════════════════════════════════
+        //  HELPER: Tạo BanBiaPanel và gắn event 1 lần duy nhất
+        // ════════════════════════════════════════════════════════
+        private BanBiaPanel TaoBanBiaPanel()
+        {
+            var panel = new BanBiaPanel();
+
+            // FIX: Event thêm/xóa bàn → RefreshMap trên SoDoBanUi
+            // Chỉ gắn 1 lần duy nhất tại đây, KHÔNG bao giờ gắn lại
+            panel.BanDuocThemHoacXoa += (s, ev) =>
+            {
+                // Đảm bảo SoDoBanUi tồn tại trước khi gọi
+                if (_soDoBanForm == null || _soDoBanForm.IsDisposed)
+                    _soDoBanForm = TaoSoDoBanForm();
+
+                _soDoBanForm.RefreshMap();
+            };
+
+            return panel;
+        }
+
+        // ════════════════════════════════════════════════════════
         //  NAV BUTTONS
         // ════════════════════════════════════════════════════════
         private void btnTrangChu_Click(object sender, EventArgs e)
         {
-            if (_thongKeForm == null || _thongKeForm.IsDisposed) _thongKeForm = new ThongKeUi();
+            if (_thongKeForm == null || _thongKeForm.IsDisposed)
+                _thongKeForm = new ThongKeUi();
             OpenChildForm(_thongKeForm, sender);
         }
 
         private void btnSoDoBan_Click(object sender, EventArgs e)
         {
             if (_soDoBanForm == null || _soDoBanForm.IsDisposed)
-            {
-                _soDoBanForm = new SoDoBanUi();
-                _soDoBanForm.BanDuocMo += (s, maBan) =>
-                {
-                    if (_menuSanPham == null || _menuSanPham.IsDisposed) _menuSanPham = new MenuSanPham();
-                    _menuSanPham.ChonBan(maBan);
-                };
-            }
+                _soDoBanForm = TaoSoDoBanForm();
             OpenChildForm(_soDoBanForm, sender);
         }
 
         private void guna2Button3_Click(object sender, EventArgs e)
         {
-            if (_menuSanPham == null || _menuSanPham.IsDisposed) _menuSanPham = new MenuSanPham();
+            if (_menuSanPham == null || _menuSanPham.IsDisposed)
+                _menuSanPham = new MenuSanPham();
             OpenChildForm(_menuSanPham, sender);
         }
 
         private void guna2Button4_Click(object sender, EventArgs e)
         {
-            if (_hoaDonUi == null || _hoaDonUi.IsDisposed) _hoaDonUi = new HoaDonUi();
+            if (_hoaDonUi == null || _hoaDonUi.IsDisposed)
+                _hoaDonUi = new HoaDonUi();
             OpenChildForm(_hoaDonUi, sender);
         }
 
         private void guna2Button5_Click(object sender, EventArgs e)
         {
-            if (_taiKhoanPanel == null || _taiKhoanPanel.IsDisposed) _taiKhoanPanel = new TaiKhoanPanel();
+            if (_taiKhoanPanel == null || _taiKhoanPanel.IsDisposed)
+                _taiKhoanPanel = new TaiKhoanPanel();
             OpenChildForm(_taiKhoanPanel, sender);
         }
 
         private void guna2Button6_Click(object sender, EventArgs e)
         {
-            if (_hoaDonNhapUi == null || _hoaDonNhapUi.IsDisposed) _hoaDonNhapUi = new HoaDonNhapUi();
+            if (_hoaDonNhapUi == null || _hoaDonNhapUi.IsDisposed)
+                _hoaDonNhapUi = new HoaDonNhapUi();
             OpenChildForm(_hoaDonNhapUi, sender);
         }
 
         private void guna2Button8_Click(object sender, EventArgs e)
         {
-            if (_sanPhamPanel == null || _sanPhamPanel.IsDisposed) _sanPhamPanel = new SanPhamPanel();
+            if (_sanPhamPanel == null || _sanPhamPanel.IsDisposed)
+                _sanPhamPanel = new SanPhamPanel();
             OpenChildForm(_sanPhamPanel, sender);
         }
 
         private void guna2Button9_Click(object sender, EventArgs e)
         {
+            // FIX: Dùng helper TaoBanBiaPanel() — event chỉ gắn 1 lần khi tạo mới
             if (_banBiaPanel == null || _banBiaPanel.IsDisposed)
-            {
-                _banBiaPanel = new BanBiaPanel();
-                _banBiaPanel.BanDuocThemHoacXoa += (s, ev) =>  // 👈 thêm đoạn này
-                {
-                    if (_soDoBanForm != null && !_soDoBanForm.IsDisposed)
-                        _soDoBanForm.RefreshMap();
-                };
-            }
+                _banBiaPanel = TaoBanBiaPanel();
             OpenChildForm(_banBiaPanel, sender);
         }
+
         private void guna2Button10_Click(object sender, EventArgs e)
         {
-            if (_khachHangPanel == null || _khachHangPanel.IsDisposed) _khachHangPanel = new KhachHangPanel();
+            if (_khachHangPanel == null || _khachHangPanel.IsDisposed)
+                _khachHangPanel = new KhachHangPanel();
             OpenChildForm(_khachHangPanel, sender);
         }
 
         private void guna2Button1_Click(object sender, EventArgs e)
         {
-            if (_nhanVienUI == null || _nhanVienUI.IsDisposed) _nhanVienUI = new NhanVienUI();
+            if (_nhanVienUI == null || _nhanVienUI.IsDisposed)
+                _nhanVienUI = new NhanVienUI();
             OpenChildForm(_nhanVienUI, sender);
         }
 
         private void guna2Button2_Click(object sender, EventArgs e)
         {
-            if (_nhaCungCapPanel == null || _nhaCungCapPanel.IsDisposed) _nhaCungCapPanel = new NhaCungCapPanel();
+            if (_nhaCungCapPanel == null || _nhaCungCapPanel.IsDisposed)
+                _nhaCungCapPanel = new NhaCungCapPanel();
             OpenChildForm(_nhaCungCapPanel, sender);
         }
 
@@ -270,7 +304,6 @@ namespace Bài_Tập_Lớn.GUI
                 childForm.BackColor = Color.FromArgb(255, 255, 251);
                 childForm.Visible = false;
 
-                // FIX: Đăng ký bắt sự kiện để bo góc không bao giờ bị mất khi Form ẩn hiện
                 childForm.Resize += (s, ev) => ApplyRoundedRegion((Control)s, 15);
                 childForm.VisibleChanged += (s, ev) =>
                 {
@@ -282,7 +315,6 @@ namespace Bài_Tập_Lớn.GUI
                 ParentMainContent.Controls.Add(childForm);
                 ParentMainContent.ResumeLayout(false);
 
-                // Show thoải mái vì skeleton đang che
                 childForm.Show();
                 Application.DoEvents();
                 await Task.Delay(50);
@@ -291,12 +323,12 @@ namespace Bài_Tập_Lớn.GUI
             }
             else
             {
-                if (childForm is IRefreshable r) r.RefreshData();
+                // FIX: Bỏ IRefreshable ở đây để tránh gọi RefreshData/RefreshMap thừa
+                // SoDoBanUi sẽ tự cập nhật qua event BanDuocThemHoacXoa
                 childForm.Dock = DockStyle.Fill;
                 childForm.Visible = true;
                 childForm.BringToFront();
 
-                // Backup apply nếu event VisibleChanged gặp độ trễ
                 ApplyRoundedRegion(childForm, 15);
                 Application.DoEvents();
             }
@@ -353,7 +385,8 @@ namespace Bài_Tập_Lớn.GUI
         private void guna2Button1_click(object sender, PaintEventArgs e) { }
         private void guna2Button1_Click_1(object sender, EventArgs e)
         {
-            if (_nhapHangPanel == null || _nhapHangPanel.IsDisposed) _nhapHangPanel = new NhapHangPanel();
+            if (_nhapHangPanel == null || _nhapHangPanel.IsDisposed)
+                _nhapHangPanel = new NhapHangPanel();
             OpenChildForm(_nhapHangPanel, sender);
         }
     }

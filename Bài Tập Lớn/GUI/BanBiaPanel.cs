@@ -14,7 +14,11 @@ namespace Bài_Tập_Lớn.GUI
     public partial class BanBiaPanel : Form
     {
         private readonly BanBidaBLL _bll = new BanBidaBLL();
+
+        // Event bắn ra mỗi khi thêm / sửa / xóa bàn thành công
+        // Maindashboard subscribe để gọi SoDoBanUi.RefreshMap()
         public event EventHandler BanDuocThemHoacXoa;
+
         private bool _dangKhoiTao = true;
         private List<BanBidaDTO> _dsDayDu = new List<BanBidaDTO>();
         private int _trangHienTai = 1;
@@ -33,8 +37,7 @@ namespace Bài_Tập_Lớn.GUI
             _dangKhoiTao = false;
             TaiDanhSach();
 
-            // SỬA LỖI POPUP NHẢY 2 LẦN: Hủy đăng ký sự kiện trước khi đăng ký
-            // Tránh việc Visual Studio Designer đã đăng ký rồi mà code lại đăng ký thêm
+            // Hủy đăng ký sự kiện trước khi đăng ký để tránh double fire
             guna2DataGridView1.CellFormatting -= guna2DataGridView1_CellFormatting;
             guna2DataGridView1.CellFormatting += guna2DataGridView1_CellFormatting;
 
@@ -50,16 +53,15 @@ namespace Bài_Tập_Lớn.GUI
             guna2DataGridView1.CellContentClick -= guna2DataGridView1_CellContentClick;
             guna2DataGridView1.CellContentClick += guna2DataGridView1_CellContentClick;
 
-            // Xử lý sự kiện Load và Resize
             this.Load += (s, e) => ApDungBoTron();
             guna2DataGridView1.Resize += (s, e) => ApDungBoTron();
         }
 
         private void TaoPhanTrang()
         {
-            Color clrBtnNormal = Color.FromArgb(200, 200, 200);   // xám nhạt
-            Color clrBtnHover = Color.FromArgb(170, 170, 170);   // xám đậm hơn khi hover
-            Color clrText = Color.FromArgb(43, 78, 35);    // xanh lá đậm
+            Color clrBtnNormal = Color.FromArgb(200, 200, 200);
+            Color clrBtnHover = Color.FromArgb(170, 170, 170);
+            Color clrText = Color.FromArgb(43, 78, 35);
 
             _btnPrev = new Guna2Button
             {
@@ -133,25 +135,17 @@ namespace Bài_Tập_Lớn.GUI
             _lblTrangInfo.Text = $"Trang {_trangHienTai} / {tongTrang}";
             _btnPrev.Enabled = _trangHienTai > 1;
             _btnNext.Enabled = _trangHienTai < tongTrang;
-            _btnPrev.FillColor = _btnPrev.Enabled
-              ? Color.FromArgb(200, 200, 200)
-              : Color.FromArgb(225, 225, 225);
-            _btnNext.FillColor = _btnNext.Enabled
-              ? Color.FromArgb(200, 200, 200)
-              : Color.FromArgb(225, 225, 225);
-            _btnPrev.ForeColor = _btnPrev.Enabled
-              ? Color.FromArgb(80, 80, 80)
-              : Color.FromArgb(180, 180, 180);
-            _btnNext.ForeColor = _btnNext.Enabled
-              ? Color.FromArgb(80, 80, 80)
-              : Color.FromArgb(180, 180, 180);
+            _btnPrev.FillColor = _btnPrev.Enabled ? Color.FromArgb(200, 200, 200) : Color.FromArgb(225, 225, 225);
+            _btnNext.FillColor = _btnNext.Enabled ? Color.FromArgb(200, 200, 200) : Color.FromArgb(225, 225, 225);
+            _btnPrev.ForeColor = _btnPrev.Enabled ? Color.FromArgb(80, 80, 80) : Color.FromArgb(180, 180, 180);
+            _btnNext.ForeColor = _btnNext.Enabled ? Color.FromArgb(80, 80, 80) : Color.FromArgb(180, 180, 180);
         }
 
         private void ApDungBoTron()
         {
             const int r = 16;
             var b = guna2DataGridView1.ClientRectangle;
-            if (b.Width <= 0 || b.Height <= 0) return; // Bảo vệ lỗi scale lúc khởi tạo
+            if (b.Width <= 0 || b.Height <= 0) return;
             var path = new GraphicsPath();
             path.AddArc(b.X, b.Y, r * 2, r * 2, 180, 90);
             path.AddArc(b.Right - r * 2, b.Y, r * 2, r * 2, 270, 90);
@@ -199,9 +193,9 @@ namespace Bài_Tập_Lớn.GUI
             selectTimKiem.ValueMember = "Key";
             selectTimKiem.DataSource = new List<KeyValuePair<string, string>>
             {
-                new KeyValuePair<string, string>("",   "-- Tất cả loại --"),
+                new KeyValuePair<string, string>("",       "-- Tất cả loại --"),
                 new KeyValuePair<string, string>("THUONG", "Bàn Thường"),
-                new KeyValuePair<string, string>("VIP",  "Bàn VIP"),
+                new KeyValuePair<string, string>("VIP",    "Bàn VIP"),
             };
             selectTimKiem.SelectedIndex = 0;
         }
@@ -322,8 +316,7 @@ namespace Bài_Tập_Lớn.GUI
             ThucHienTimKiem();
         }
 
-
-        // TRƯỚC (giữ nguyên, chỉ thêm 2 dòng)
+        // FIX REALTIME: Bắn event sau khi thêm thành công
         private void btnThem_Click(object sender, EventArgs e)
         {
             using (var popup = new BanBiaPopupUi())
@@ -331,7 +324,10 @@ namespace Bài_Tập_Lớn.GUI
                 popup.StartPosition = FormStartPosition.CenterParent;
                 popup.ShowOverlay(this);
                 if (popup.ShowDialog(this) == DialogResult.OK)
+                {
                     TaiDanhSach();
+                    BanDuocThemHoacXoa?.Invoke(this, EventArgs.Empty); // 👈 thêm realtime
+                }
             }
         }
 
@@ -348,6 +344,7 @@ namespace Bài_Tập_Lớn.GUI
             MoPopupSua(e.RowIndex);
         }
 
+        // FIX REALTIME: Bắn event sau khi sửa thành công
         private void MoPopupSua(int rowIndex)
         {
             string maBan = guna2DataGridView1.Rows[rowIndex].Cells["Column1"].Value?.ToString();
@@ -361,10 +358,14 @@ namespace Bài_Tập_Lớn.GUI
                 popup.StartPosition = FormStartPosition.CenterParent;
                 popup.ShowOverlay(this);
                 if (popup.ShowDialog(this) == DialogResult.OK)
+                {
                     TaiDanhSach();
+                    BanDuocThemHoacXoa?.Invoke(this, EventArgs.Empty); // 👈 thêm realtime
+                }
             }
         }
 
+        // FIX REALTIME: Bắn event sau khi xóa thành công
         private void XuLyXoa(int rowIndex)
         {
             string maBan = guna2DataGridView1.Rows[rowIndex].Cells["Column1"].Value?.ToString();
@@ -383,7 +384,7 @@ namespace Bài_Tập_Lớn.GUI
                     MessageBox.Show("Xóa bàn thành công!", "Thành công",
                       MessageBoxButtons.OK, MessageBoxIcon.Information);
                     TaiDanhSach();
-                    BanDuocThemHoacXoa?.Invoke(this, EventArgs.Empty); // 👈
+                    BanDuocThemHoacXoa?.Invoke(this, EventArgs.Empty); // 👈 thêm realtime
                 }
                 else
                     MessageBox.Show("Xóa không thành công!", "Thất bại",
@@ -394,6 +395,7 @@ namespace Bài_Tập_Lớn.GUI
                 MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
         private void MainHeader_Paint(object sender, PaintEventArgs e) { }
         private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e) { }
         private void guna2Panel3_Paint(object sender, PaintEventArgs e) { }
