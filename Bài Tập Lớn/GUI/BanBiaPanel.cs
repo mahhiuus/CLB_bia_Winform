@@ -14,6 +14,7 @@ namespace Bài_Tập_Lớn.GUI
     public partial class BanBiaPanel : Form
     {
         private readonly BanBidaBLL _bll = new BanBidaBLL();
+        public event EventHandler BanDuocThemHoacXoa;
         private bool _dangKhoiTao = true;
         private List<BanBidaDTO> _dsDayDu = new List<BanBidaDTO>();
         private int _trangHienTai = 1;
@@ -321,6 +322,8 @@ namespace Bài_Tập_Lớn.GUI
             ThucHienTimKiem();
         }
 
+
+        // TRƯỚC (giữ nguyên, chỉ thêm 2 dòng)
         private void btnThem_Click(object sender, EventArgs e)
         {
             using (var popup = new BanBiaPopupUi())
@@ -380,6 +383,7 @@ namespace Bài_Tập_Lớn.GUI
                     MessageBox.Show("Xóa bàn thành công!", "Thành công",
                       MessageBoxButtons.OK, MessageBoxIcon.Information);
                     TaiDanhSach();
+                    BanDuocThemHoacXoa?.Invoke(this, EventArgs.Empty); // 👈
                 }
                 else
                     MessageBox.Show("Xóa không thành công!", "Thất bại",
@@ -390,7 +394,6 @@ namespace Bài_Tập_Lớn.GUI
                 MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         private void MainHeader_Paint(object sender, PaintEventArgs e) { }
         private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e) { }
         private void guna2Panel3_Paint(object sender, PaintEventArgs e) { }

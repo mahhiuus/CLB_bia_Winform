@@ -198,10 +198,17 @@ namespace Bài_Tập_Lớn.GUI
 
         private void guna2Button9_Click(object sender, EventArgs e)
         {
-            if (_banBiaPanel == null || _banBiaPanel.IsDisposed) _banBiaPanel = new BanBiaPanel();
+            if (_banBiaPanel == null || _banBiaPanel.IsDisposed)
+            {
+                _banBiaPanel = new BanBiaPanel();
+                _banBiaPanel.BanDuocThemHoacXoa += (s, ev) =>  // 👈 thêm đoạn này
+                {
+                    if (_soDoBanForm != null && !_soDoBanForm.IsDisposed)
+                        _soDoBanForm.RefreshMap();
+                };
+            }
             OpenChildForm(_banBiaPanel, sender);
         }
-
         private void guna2Button10_Click(object sender, EventArgs e)
         {
             if (_khachHangPanel == null || _khachHangPanel.IsDisposed) _khachHangPanel = new KhachHangPanel();
